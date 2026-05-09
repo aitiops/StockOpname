@@ -91,6 +91,18 @@ async function loadPerangkat(){
           <td class="p-2">
             ${item.engineer}
           </td>
+          <td class="p-2">
+          
+            <button
+              onclick="editPerangkat('${item.opname_id}')"
+              class="bg-yellow-500 text-white px-3 py-1 rounded"
+            >
+          
+              Edit
+          
+            </button>
+          
+          </td>
 
         </tr>
 
