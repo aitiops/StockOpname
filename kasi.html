@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Dashboard Kasi</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body class="bg-gray-100">
+
+  <!-- NAVBAR -->
+  <div class="bg-blue-700 text-white p-4 flex justify-between">
+
+    <h1 class="font-bold">
+      Dashboard Kepala Seksi
+    </h1>
+
+    <div>
+
+      <span id="namaUser"></span>
+
+      <button
+        onclick="logout()"
+        class="ml-4 bg-red-500 px-3 py-1 rounded"
+      >
+        Logout
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="p-6">
+
+    <!-- SUMMARY -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+
+      <div class="bg-white p-6 rounded-2xl shadow">
+
+        <h2 class="text-gray-500">
+          Total Halte
+        </h2>
+
+        <p
+          id="totalHalte"
+          class="text-3xl font-bold"
+        >
+          0
+        </p>
+
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow">
+
+        <h2 class="text-gray-500">
+          Halte Selesai
+        </h2>
+
+        <p
+          id="halteSelesai"
+          class="text-3xl font-bold"
+        >
+          0
+        </p>
+
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow">
+
+        <h2 class="text-gray-500">
+          Progress
+        </h2>
+
+        <p
+          id="progressVisit"
+          class="text-3xl font-bold"
+        >
+          0%
+        </p>
+
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow">
+
+        <h2 class="text-gray-500">
+          On Service
+        </h2>
+
+        <p
+          id="onService"
+          class="text-3xl font-bold text-green-600"
+        >
+          0
+        </p>
+
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow">
+
+        <h2 class="text-gray-500">
+          Out Of Service
+        </h2>
+
+        <p
+          id="outService"
+          class="text-3xl font-bold text-red-600"
+        >
+          0
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- KATEGORI -->
+    <div class="bg-white p-6 rounded-2xl shadow mb-6">
+
+      <h2 class="text-xl font-bold mb-4">
+        Perangkat Per Kategori
+      </h2>
+
+      <table class="w-full">
+
+        <thead>
+
+          <tr class="border-b">
+
+            <th class="text-left p-2">
+              Kategori
+            </th>
+
+            <th class="text-left p-2">
+              Total
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="tableKategori">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+
+    <!-- KORIDOR -->
+    <div class="bg-white p-6 rounded-2xl shadow">
+
+      <h2 class="text-xl font-bold mb-4">
+        Progress Koridor
+      </h2>
+
+      <table class="w-full">
+
+        <thead>
+
+          <tr class="border-b">
+
+            <th class="text-left p-2">
+              Koridor
+            </th>
+
+            <th class="text-left p-2">
+              Halte Selesai
+            </th>
+
+            <th class="text-left p-2">
+              Progress
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="tableKoridor">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/kasi.js"></script>
+
+</body>
+</html>
