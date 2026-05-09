@@ -24,12 +24,34 @@ async function loadDashboard(){
 
     console.log(data);
 
-    // DUMMY DATA
-    document.getElementById("totalHalte").innerHTML = 12;
+    const dashboardRes = await fetch(API_URL, {
 
-    document.getElementById("halteSelesai").innerHTML = 5;
-
-    document.getElementById("progressVisit").innerHTML = "42%";
+      method:"POST",
+    
+      body:JSON.stringify({
+    
+        action:"getDashboardEngineer",
+    
+        token:token
+    
+      })
+    
+    });
+    
+    const dashboardData =
+      await dashboardRes.json();
+    
+    
+    document.getElementById("totalHalte").innerHTML =
+      dashboardData.total_halte;
+    
+    
+    document.getElementById("halteSelesai").innerHTML =
+      dashboardData.halte_selesai;
+    
+    
+    document.getElementById("progressVisit").innerHTML =
+      dashboardData.progress + "%";
 
 
     // DUMMY TABLE
