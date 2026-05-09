@@ -1,3 +1,5 @@
+let masterPerangkat = [];
+
 const urlParams = new URLSearchParams(window.location.search);
 
 const halte_id = urlParams.get("halte_id");
@@ -6,6 +8,7 @@ const koridor_id = urlParams.get("koridor_id");
 
 document.getElementById("halteNama").value =
   halte_nama;
+loadMasterPerangkat();
 
 
 async function compressImage(file){
@@ -151,3 +154,156 @@ async function saveStockOpname(){
   }
 
 }
+
+async function loadMasterPerangkat(){
+
+  try{
+
+    const res = await fetch(API_URL, {
+
+      method:"POST",
+
+      body:JSON.stringify({
+
+        action:"getMasterPerangkat",
+
+        token:token
+
+      })
+
+    });
+
+    const data = await res.json();
+
+    masterPerangkat = data.data;
+
+    // ambil kategori unik
+    const kategoriUnik = [
+      ...new Set(
+        masterPerangkat.map(
+          item => item.kategori
+        )
+      )
+    ];
+
+    let html =
+      `<option value="">
+        Silahkan Pilih Kategori
+      </option>`;
+
+    kategoriUnik.forEach(item => {
+
+      html += `
+        <option value="${item}">
+          ${item}
+        </option>
+      `;
+
+    });
+
+    document.getElementById("kategori").innerHTML =
+      html;
+
+  }catch(err){
+
+    console.log(err);
+
+  }
+
+}
+
+function changeKategori(){
+
+  const kategori =
+    document.getElementById("kategori").value;
+
+  const perangkat =
+    masterPerangkat.filter(
+
+      item => item.kategori == kategori
+
+    );
+
+  // unique perangkat
+  const perangkatUnik = [
+    ...new Set(
+      perangkat.map(
+        item => item.nama_perangkat
+      )
+    )
+  ];
+
+  let html =
+    `<option value="">
+      Silahkan Pilih Perangkat
+    </option>`;
+
+  perangkatUnik.forEach(item => {
+
+    html += `
+      <option value="${item}">
+        ${item}
+      </option>
+    `;
+
+  });
+
+  document.getElementById("namaPerangkat").innerHTML =
+    html;
+
+
+  // reset merk model
+  document.getElementById("merkModel").innerHTML =
+    `<option value="">
+      Silahkan Pilih Merk / Model
+    </option>`;
+
+}
+
+function changePerangkat(){
+
+  const kategori =
+    document.getElementById("kategori").value;
+
+  const perangkat =
+    document.getElementById("namaPerangkat").value;
+
+  const merkModel =
+    masterPerangkat.filter(
+
+      item =>
+        item.kategori == kategori &&
+        item.nama_perangkat == perangkat
+
+    );
+
+  let html =
+    `<option value="">
+      Silahkan Pilih Merk / Model
+    </option>`;
+
+  const merkUnik = [
+  ...new Set(
+    merkModel.map(
+      item => item.merk_model
+    )
+  )
+];
+
+
+merkUnik.forEach(item => {
+
+  html += `
+    <option value="${item}">
+      ${item}
+    </option>
+  `;
+
+});
+
+  document.getElementById("merkModel").innerHTML =
+    html;
+
+}
+
+
