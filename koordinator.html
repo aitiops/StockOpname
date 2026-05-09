@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Dashboard Koordinator</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+</head>
+<body class="bg-gray-100">
+
+  <!-- NAVBAR -->
+  <div class="bg-blue-600 text-white p-4 flex justify-between">
+
+    <h1 class="font-bold">
+      Dashboard Koordinator
+    </h1>
+
+    <div>
+
+      <span id="namaUser"></span>
+
+      <button
+        onclick="logout()"
+        class="ml-4 bg-red-500 px-3 py-1 rounded"
+      >
+        Logout
+      </button>
+
+    </div>
+
+  </div>
+
+  <div class="p-6">
+
+    <!-- CARD -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+
+      <div class="bg-white p-6 rounded-2xl shadow">
+
+        <h2 class="text-gray-500">
+          Total Halte
+        </h2>
+
+        <p
+          id="totalHalte"
+          class="text-3xl font-bold"
+        >
+          0
+        </p>
+
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow">
+
+        <h2 class="text-gray-500">
+          Halte Selesai
+        </h2>
+
+        <p
+          id="halteSelesai"
+          class="text-3xl font-bold"
+        >
+          0
+        </p>
+
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow">
+
+        <h2 class="text-gray-500">
+          Progress
+        </h2>
+
+        <p
+          id="progressVisit"
+          class="text-3xl font-bold"
+        >
+          0%
+        </p>
+
+      </div>
+
+      <div class="bg-white p-6 rounded-2xl shadow">
+
+        <h2 class="text-gray-500">
+          Total Perangkat
+        </h2>
+
+        <p
+          id="totalPerangkat"
+          class="text-3xl font-bold"
+        >
+          0
+        </p>
+
+      </div>
+
+    </div>
+
+
+    <!-- TABLE ENGINEER -->
+    <div class="bg-white p-6 rounded-2xl shadow">
+
+      <h2 class="text-xl font-bold mb-4">
+        Performance Engineer
+      </h2>
+
+      <table class="w-full">
+
+        <thead>
+
+          <tr class="border-b">
+
+            <th class="text-left p-2">
+              Engineer
+            </th>
+
+            <th class="text-left p-2">
+              Total Input
+            </th>
+
+            <th class="text-left p-2">
+              Halte Selesai
+            </th>
+
+          </tr>
+
+        </thead>
+
+        <tbody id="tableEngineer">
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/koordinator.js"></script>
+
+</body>
+</html>
