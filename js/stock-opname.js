@@ -1,3 +1,5 @@
+let halteList = [];
+
 let masterPerangkat = [];
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -491,6 +493,55 @@ async function loadEditData(){
   }catch(err){
 
     console.log(err);
+
+  }
+
+}
+
+function changeHalte(){
+
+  const halteId =
+    document.getElementById("halteNama").value;
+
+  const halteData =
+    halteList.find(
+      x => x.halte_id == halteId
+    );
+
+
+  const arahContainer =
+    document.getElementById("arahContainer");
+
+  const arahSelect =
+    document.getElementById("arahPerangkat");
+
+
+  arahSelect.innerHTML =
+    `<option value="">Pilih arah</option>`;
+
+
+  if(
+    halteData &&
+    halteData.tipe_halte == "dual"
+  ){
+
+    arahContainer.classList.remove("hidden");
+
+
+    arahSelect.innerHTML +=
+      `<option value="${halteData.arah_a}">
+        ${halteData.arah_a}
+      </option>`;
+
+
+    arahSelect.innerHTML +=
+      `<option value="${halteData.arah_b}">
+        ${halteData.arah_b}
+      </option>`;
+
+  }else{
+
+    arahContainer.classList.add("hidden");
 
   }
 
