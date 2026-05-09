@@ -33,18 +33,20 @@ async function loadDashboard(){
 
 
     // DUMMY TABLE
-    const halte = [
-      {
-        nama:"Pinang Ranti",
-        koridor:"9",
-        status:"Complete"
-      },
-      {
-        nama:"Cikoko",
-        koridor:"9",
-        status:"On Progress"
-      }
-    ];
+    const halteRes = await fetch(API_URL, {
+
+      method:"POST",
+    
+      body:JSON.stringify({
+        action:"getHalte",
+        token:token
+      })
+    
+    });
+    
+    const halteData = await halteRes.json();
+    
+    const halte = halteData.data;
 
 
     let html = "";
@@ -55,11 +57,11 @@ async function loadDashboard(){
         <tr class="border-b">
 
           <td class="p-2">
-            ${item.nama}
+            ${item.nama.halte}
           </td>
 
           <td class="p-2">
-            ${item.koridor}
+            ${item.koridor_id}
           </td>
 
           <td class="p-2">
