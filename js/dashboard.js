@@ -82,10 +82,6 @@ async function loadDashboard(){
             
             </button>
 
-              Input
-
-            </button>
-
           </td>
 
         </tr>
