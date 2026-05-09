@@ -10,8 +10,14 @@ const koridor_id = urlParams.get("koridor_id");
 
 const editId = urlParams.get("edit");
 
+const urlParams = new URLSearchParams(window.location.search);
+
+const halteId = urlParams.get("halte_id");
+
 document.getElementById("halteNama").value =
   halte_nama;
+
+loadHalteDetail();
 
 loadMasterPerangkat();
 if(editId){
@@ -137,6 +143,12 @@ async function saveStockOpname(){
         serial_number:serialNumber,
         status:statusPerangkat,
         force_save:false,
+        halte_id : halteId,
+
+          arah :
+            document.getElementById("arahPerangkat")
+            ? document.getElementById("arahPerangkat").value
+            : "",
 
         photo:photoBase64
 
@@ -498,50 +510,80 @@ async function loadEditData(){
 
 }
 
-function changeHalte(){
+async function loadHalteDetail(){
 
-  const halteId =
-    document.getElementById("halteNama").value;
+  try{
 
-  const halteData =
-    halteList.find(
-      x => x.halte_id == halteId
-    );
+    const res =
+      await fetch(API_URL,{
 
+        method:"POST",
 
-  const arahContainer =
-    document.getElementById("arahContainer");
+        body:JSON.stringify({
 
-  const arahSelect =
-    document.getElementById("arahPerangkat");
+          action:"getHalteDetail",
 
+          token:token,
 
-  arahSelect.innerHTML =
-    `<option value="">Pilih arah</option>`;
+          halte_id:halteId
 
+        })
 
-  if(
-    halteData &&
-    halteData.tipe_halte == "dual"
-  ){
-
-    arahContainer.classList.remove("hidden");
+      });
 
 
-    arahSelect.innerHTML +=
-      `<option value="${halteData.arah_a}">
-        ${halteData.arah_a}
-      </option>`;
+    const result =
+      await res.json();
 
 
-    arahSelect.innerHTML +=
-      `<option value="${halteData.arah_b}">
-        ${halteData.arah_b}
-      </option>`;
+    const halte =
+      result.data;
 
-  }else{
 
-    arahContainer.classList.add("hidden");
+    document.getElementById("infoKoridor")
+      .innerHTML =
+      `Koridor ${halte.koridor_id}`;
+
+
+    document.getElementById("infoHalte")
+      .innerHTML =
+      halte.nama_halte;
+
+
+    // CEK DUAL ARAH
+
+    if(halte.tipe_halte == "dual"){
+
+      const arahContainer =
+        document.getElementById("arahContainer");
+
+      const arahSelect =
+        document.getElementById("arahPerangkat");
+
+
+      arahContainer.classList.remove("hidden");
+
+
+      arahSelect.innerHTML =
+        `
+        <option value="">
+          Pilih Arah
+        </option>
+
+        <option value="${halte.arah_a}">
+          ${halte.arah_a}
+        </option>
+
+        <option value="${halte.arah_b}">
+          ${halte.arah_b}
+        </option>
+        `;
+
+    }
+
+  }catch(err){
+
+    console.log(err);
 
   }
 
