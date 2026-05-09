@@ -29,86 +29,110 @@
   </div>
 
   <!-- CONTENT -->
-  <div class="p-6">
+  <div class="mb-4">
 
-    <div class="bg-white p-6 rounded-2xl shadow max-w-2xl mx-auto">
+  <label class="block mb-2">
+    Kategori
+  </label>
 
-      <div class="mb-4">
+  <select
+    id="kategori"
+    class="w-full border p-3 rounded-lg"
+  >
 
-        <label class="block mb-2">
-          Halte
-        </label>
+    <option value="Server">Server</option>
+    <option value="Network">Network</option>
+    <option value="CCTV">CCTV</option>
+    <option value="Display">Display</option>
 
-        <input
-          type="text"
-          id="halteNama"
-          class="w-full border p-3 rounded-lg bg-gray-100"
-          readonly
-        >
+  </select>
 
-      </div>
+</div>
 
-      <div class="mb-4">
 
-        <label class="block mb-2">
-          Nama Perangkat
-        </label>
+<div class="mb-4">
 
-        <input
-          type="text"
-          id="namaPerangkat"
-          class="w-full border p-3 rounded-lg"
-        >
+  <label class="block mb-2">
+    Nama Perangkat
+  </label>
 
-      </div>
+  <input
+    type="text"
+    id="namaPerangkat"
+    class="w-full border p-3 rounded-lg"
+  >
 
-      <div class="mb-4">
+</div>
 
-        <label class="block mb-2">
-          Serial Number
-        </label>
 
-        <input
-          type="text"
-          id="serialNumber"
-          class="w-full border p-3 rounded-lg"
-        >
+<div class="mb-4">
 
-      </div>
+  <label class="block mb-2">
+    Merk / Model
+  </label>
 
-      <div class="mb-4">
+  <input
+    type="text"
+    id="merkModel"
+    class="w-full border p-3 rounded-lg"
+  >
 
-        <label class="block mb-2">
-          Kondisi
-        </label>
+</div>
 
-        <select
-          id="kondisi"
-          class="w-full border p-3 rounded-lg"
-        >
 
-          <option value="Baik">Baik</option>
-          <option value="Rusak">Rusak</option>
-          <option value="Perlu Maintenance">
-            Perlu Maintenance
-          </option>
+<div class="mb-4">
 
-        </select>
+  <label class="block mb-2">
+    Serial Number
+  </label>
 
-      </div>
+  <input
+    type="text"
+    id="serialNumber"
+    class="w-full border p-3 rounded-lg"
+  >
 
-      <div class="mb-4">
+</div>
 
-        <label class="block mb-2">
-          Keterangan
-        </label>
 
-        <textarea
-          id="keterangan"
-          class="w-full border p-3 rounded-lg"
-        ></textarea>
+<div class="mb-4">
 
-      </div>
+  <label class="block mb-2">
+    Status
+  </label>
+
+  <select
+    id="statusPerangkat"
+    class="w-full border p-3 rounded-lg"
+  >
+
+    <option value="On Service">
+      On Service
+    </option>
+
+    <option value="Out of Service">
+      Out of Service
+    </option>
+
+  </select>
+
+</div>
+
+
+<div class="mb-4">
+
+  <label class="block mb-2">
+    Photo Perangkat
+  </label>
+
+  <input
+    type="file"
+    id="photo"
+    accept="image/*"
+    class="w-full border p-3 rounded-lg"
+  >
+
+</div>
 
       <button
         onclick="saveStockOpname()"
