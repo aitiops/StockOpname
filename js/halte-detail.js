@@ -120,3 +120,10 @@ async function loadPerangkat(){
   }
 
 }
+
+function editPerangkat(opnameId){
+
+  window.location.href =
+    `stock-opname.html?edit=${opnameId}`;
+
+}
