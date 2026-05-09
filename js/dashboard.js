@@ -57,7 +57,7 @@ async function loadDashboard(){
         <tr class="border-b">
 
           <td class="p-2">
-            ${item.nama.halte}
+            ${item.nama_halte}
           </td>
 
           <td class="p-2">
