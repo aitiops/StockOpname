@@ -6,9 +6,17 @@ const halte_id = urlParams.get("halte_id");
 const halte_nama = urlParams.get("halte_nama");
 const koridor_id = urlParams.get("koridor_id");
 
+const editId = urlParams.get("edit");
+
 document.getElementById("halteNama").value =
   halte_nama;
+
 loadMasterPerangkat();
+if(editId){
+
+  loadEditData();
+
+}
 
 
 async function compressImage(file){
@@ -415,4 +423,75 @@ merkUnik.forEach(item => {
 
 }
 
+async function loadEditData(){
 
+  try{
+
+    const res = await fetch(API_URL, {
+
+      method:"POST",
+
+      body:JSON.stringify({
+
+        action:"getDetailOpname",
+
+        token:token,
+
+        opname_id:editId
+
+      })
+
+    });
+
+    const result =
+      await res.json();
+
+    const item =
+      result.data;
+
+
+    // set halte
+    document.getElementById("halteNama").value =
+      item.halte;
+
+
+    // kategori
+    document.getElementById("kategori").value =
+      item.kategori;
+
+    changeKategori();
+
+
+    // perangkat
+    setTimeout(() => {
+
+      document.getElementById("namaPerangkat").value =
+        item.nama_perangkat;
+
+      changePerangkat();
+
+    }, 300);
+
+
+    // merk
+    setTimeout(() => {
+
+      document.getElementById("merkModel").value =
+        item.merk_model;
+
+    }, 500);
+
+
+    document.getElementById("serialNumber").value =
+      item.serial_number;
+
+    document.getElementById("statusPerangkat").value =
+      item.status_perangkat;
+
+  }catch(err){
+
+    console.log(err);
+
+  }
+
+}
