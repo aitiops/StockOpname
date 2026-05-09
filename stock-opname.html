@@ -37,13 +37,13 @@
 
   <select
     id="kategori"
+    onchange="changeKategori()"
     class="w-full border p-3 rounded-lg"
   >
 
-    <option value="Server">Server</option>
-    <option value="Network">Network</option>
-    <option value="CCTV">CCTV</option>
-    <option value="Display">Display</option>
+    <option value="">
+      Silahkan Pilih Kategori
+    </option>
 
   </select>
 
@@ -56,11 +56,17 @@
     Nama Perangkat
   </label>
 
-  <input
-    type="text"
+  <select
     id="namaPerangkat"
+    onchange="changePerangkat()"
     class="w-full border p-3 rounded-lg"
   >
+
+    <option value="">
+      Silahkan Pilih Perangkat
+    </option>
+
+  </select>
 
 </div>
 
@@ -71,11 +77,16 @@
     Merk / Model
   </label>
 
-  <input
-    type="text"
+  <select
     id="merkModel"
     class="w-full border p-3 rounded-lg"
   >
+
+    <option value="">
+      Silahkan Pilih Merk / Model
+    </option>
+
+  </select>
 
 </div>
 
