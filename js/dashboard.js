@@ -42,16 +42,20 @@ async function loadDashboard(){
       await dashboardRes.json();
     
     
+    const dashboard =
+      dashboardData.data;
+    
+    
     document.getElementById("totalHalte").innerHTML =
-      dashboardData.total_halte;
+      dashboard.total_halte || 0;
     
     
     document.getElementById("halteSelesai").innerHTML =
-      dashboardData.halte_selesai;
+      dashboard.halte_selesai || 0;
     
     
     document.getElementById("progressVisit").innerHTML =
-      dashboardData.progress + "%";
+      (dashboard.progress || 0) + "%";
 
 
     // DUMMY TABLE
@@ -68,10 +72,13 @@ async function loadDashboard(){
     
     const halteData = await halteRes.json();
     
-    const halte = halteData.data;
+    const halte =
+      halteData.data || [];
 
 
     let html = "";
+
+    console.log(halteData);
 
     halte.forEach(item => {
 
