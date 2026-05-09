@@ -126,6 +126,115 @@ async function saveStockOpname(){
         merk_model:merkModel,
         serial_number:serialNumber,
         status:statusPerangkat,
+        force_save:false,
+
+        photo:photoBase64
+
+      })
+
+    });
+
+    const data = await res.json();
+
+if(data.status){
+
+  message.innerHTML =
+    "Stock opname berhasil disimpan";
+
+}else{
+
+  // duplicate warning
+  if(data.duplicate){
+
+    const lanjut = confirm(
+      "Perangkat dengan Serial Number ini kemungkinan sudah pernah diinput.\n\nTetap simpan?"
+    );
+
+    if(lanjut){
+
+      saveForce();
+
+    }else{
+
+      message.innerHTML =
+        "Penyimpanan dibatalkan";
+
+    }
+
+  }else{
+
+    message.innerHTML =
+      data.message;
+
+  }
+
+}
+
+}catch(err){
+
+  message.innerHTML = err;
+
+}
+
+async function saveForce(){
+
+  const kategori =
+    document.getElementById("kategori").value;
+
+  const namaPerangkat =
+    document.getElementById("namaPerangkat").value;
+
+  const merkModel =
+    document.getElementById("merkModel").value;
+
+  const serialNumber =
+    document.getElementById("serialNumber").value;
+
+  const statusPerangkat =
+    document.getElementById("statusPerangkat").value;
+
+  const photoFile =
+    document.getElementById("photo").files[0];
+
+  const message =
+    document.getElementById("message");
+
+  message.innerHTML =
+    "Uploading data...";
+
+
+  let photoBase64 = "";
+
+  if(photoFile){
+
+    photoBase64 =
+      await compressImage(photoFile);
+
+  }
+
+  try{
+
+    const res = await fetch(API_URL, {
+
+      method:"POST",
+
+      body:JSON.stringify({
+
+        action:"saveStockOpname",
+
+        token:token,
+
+        halte_id:halte_id,
+        halte_nama:halte_nama,
+        koridor_id:koridor_id,
+
+        kategori:kategori,
+        nama_perangkat:namaPerangkat,
+        merk_model:merkModel,
+        serial_number:serialNumber,
+        status:statusPerangkat,
+
+        force_save:true,
 
         photo:photoBase64
 
@@ -149,7 +258,7 @@ async function saveStockOpname(){
 
   }catch(err){
 
-    message.innerHTML = err;
+    console.log(err);
 
   }
 
