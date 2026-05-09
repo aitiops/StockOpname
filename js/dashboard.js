@@ -73,7 +73,7 @@ async function loadDashboard(){
             <button
               onclick="
                 window.location.href=
-                'stock-opname.html?halte_id=${item.halte_id}&halte_nama=${item.nama_halte}'
+                'stock-opname.html?halte_id=${item.halte_id}&halte_nama=${item.nama_halte}&koridor_id=${item.koridor_id}'
               "
               class="bg-blue-600 text-white px-3 py-1 rounded"
             >
