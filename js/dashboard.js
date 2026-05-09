@@ -70,7 +70,17 @@ async function loadDashboard(){
 
           <td class="p-2">
 
-            <button class="bg-blue-600 text-white px-3 py-1 rounded">
+            <button
+              onclick="
+                window.location.href=
+                'stock-opname.html?halte_id=${item.halte_id}&halte_nama=${item.nama_halte}'
+              "
+              class="bg-blue-600 text-white px-3 py-1 rounded"
+            >
+            
+              Input
+            
+            </button>
 
               Input
 
