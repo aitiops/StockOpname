@@ -42,8 +42,7 @@ async function loadDashboard(){
       await dashboardRes.json();
     
     
-    const dashboard =
-      dashboardData.data;
+    const dashboard = dashboardData;
     
     
     document.getElementById("totalHalte").innerHTML =
