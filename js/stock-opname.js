@@ -26,9 +26,6 @@ const opnameId =
 
 
 // ================= INIT =================
-document.getElementById("halteNama").value =
-  halteNama || "";
-
 loadHalteDetail();
 
 loadMasterPerangkat();
