@@ -126,7 +126,54 @@ async function saveStockOpname(){
   const message =
     document.getElementById("message");
 
-
+  // ================= VALIDASI =================
+  if(!kategori){
+  
+    alert("Kategori wajib dipilih");
+    return;
+  
+  }
+  
+  if(!namaPerangkat){
+  
+    alert("Nama perangkat wajib dipilih");
+    return;
+  
+  }
+  
+  if(!merkModel){
+  
+    alert("Merk/Model wajib dipilih");
+    return;
+  
+  }
+  
+  if(!serialNumber){
+  
+    alert("Serial Number wajib diisi");
+    return;
+  
+  }
+  
+  if(
+    document.getElementById("arahContainer")
+    &&
+    !document.getElementById("arahContainer")
+        .classList.contains("hidden")
+  ){
+  
+    const arah =
+      document.getElementById("arahPerangkat").value;
+  
+    if(!arah){
+  
+      alert("Arah wajib dipilih");
+      return;
+  
+    }
+  
+  }
+  
   message.innerHTML =
     "Compressing image...";
 
@@ -342,6 +389,11 @@ async function saveForce(){
 
       message.innerHTML =
         "Stock opname berhasil disimpan";
+      document.getElementById("serialNumber").value = "";
+      document.getElementById("photo").value = "";
+      
+      document.getElementById("previewPhoto")
+        .classList.add("hidden");
     
       setTimeout(() => {
     
@@ -751,5 +803,32 @@ async function loadEditData(){
     console.log(err);
 
   }
+
+}
+
+// ================= PREVIEW IMAGE =================
+function previewImage(event){
+
+  const file =
+    event.target.files[0];
+
+  if(!file) return;
+
+  const reader =
+    new FileReader();
+
+  reader.onload = function(e){
+
+    const preview =
+      document.getElementById("previewPhoto");
+
+    preview.src =
+      e.target.result;
+
+    preview.classList.remove("hidden");
+
+  };
+
+  reader.readAsDataURL(file);
 
 }
