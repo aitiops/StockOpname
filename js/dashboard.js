@@ -41,9 +41,11 @@ async function loadDashboard(){
     const dashboardData =
       await dashboardRes.json();
     
+    console.log(dashboardData);
+    
     if(!dashboardData.status){
-
-      alert("Session habis, silahkan login ulang");
+    
+      alert("Session habis");
     
       localStorage.clear();
     
@@ -53,8 +55,9 @@ async function loadDashboard(){
     
     }
     
+    const dashboard =
+      dashboardData.data;
     
-    const dashboard = dashboardData;
     
     document.getElementById("totalHalte").innerHTML =
       dashboard.total_halte || 0;
