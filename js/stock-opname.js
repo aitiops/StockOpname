@@ -2,31 +2,45 @@ let halteList = [];
 
 let masterPerangkat = [];
 
-const urlParams = new URLSearchParams(window.location.search);
 
-const halte_id = urlParams.get("halte_id");
-const halte_nama = urlParams.get("halte_nama");
-const koridor_id = urlParams.get("koridor_id");
+// ================= URL PARAMS =================
+const urlParams =
+  new URLSearchParams(
+    window.location.search
+  );
 
-const editId = urlParams.get("edit");
+const halteId =
+  urlParams.get("halte_id");
 
-const urlParams = new URLSearchParams(window.location.search);
+const halteNama =
+  urlParams.get("halte_nama");
 
-const halteId = urlParams.get("halte_id");
+const koridorId =
+  urlParams.get("koridor_id");
 
+const editMode =
+  urlParams.get("edit");
+
+const opnameId =
+  urlParams.get("id");
+
+
+// ================= INIT =================
 document.getElementById("halteNama").value =
-  halte_nama;
+  halteNama || "";
 
 loadHalteDetail();
 
 loadMasterPerangkat();
-if(editId){
+
+if(editMode){
 
   loadEditData();
 
 }
 
 
+// ================= COMPRESS IMAGE =================
 async function compressImage(file){
 
   return new Promise((resolve) => {
@@ -43,7 +57,8 @@ async function compressImage(file){
 
       img.onload = function(){
 
-        const canvas = document.createElement("canvas");
+        const canvas =
+          document.createElement("canvas");
 
         const MAX_WIDTH = 1280;
 
@@ -54,6 +69,7 @@ async function compressImage(file){
         if(width > MAX_WIDTH){
 
           height *= MAX_WIDTH / width;
+
           width = MAX_WIDTH;
 
         }
@@ -61,13 +77,23 @@ async function compressImage(file){
         canvas.width = width;
         canvas.height = height;
 
-        const ctx = canvas.getContext("2d");
+        const ctx =
+          canvas.getContext("2d");
 
-        ctx.drawImage(img, 0, 0, width, height);
+        ctx.drawImage(
+          img,
+          0,
+          0,
+          width,
+          height
+        );
 
         // compress jpeg
         const compressedBase64 =
-          canvas.toDataURL("image/jpeg", 0.5);
+          canvas.toDataURL(
+            "image/jpeg",
+            0.5
+          );
 
         resolve(compressedBase64);
 
@@ -80,7 +106,7 @@ async function compressImage(file){
 }
 
 
-
+// ================= SAVE =================
 async function saveStockOpname(){
 
   const kategori =
@@ -104,7 +130,9 @@ async function saveStockOpname(){
   const message =
     document.getElementById("message");
 
-  message.innerHTML = "Compressing image...";
+
+  message.innerHTML =
+    "Compressing image...";
 
 
   let photoBase64 = "";
@@ -118,7 +146,8 @@ async function saveStockOpname(){
   }
 
 
-  message.innerHTML = "Uploading data...";
+  message.innerHTML =
+    "Uploading data...";
 
 
   try{
@@ -129,26 +158,40 @@ async function saveStockOpname(){
 
       body:JSON.stringify({
 
-        action:"saveStockOpname",
+        action:
+          editMode
+          ? "updateStockOpname"
+          : "saveStockOpname",
 
         token:token,
 
-        halte_id:halte_id,
-        halte_nama:halte_nama,
-        koridor_id:koridor_id,
+        opname_id:opnameId,
+
+        updated_by:
+          localStorage.getItem("nama"),
+
+        halte_id:halteId,
+
+        halte_nama:halteNama,
+
+        koridor_id:koridorId,
 
         kategori:kategori,
-        nama_perangkat:namaPerangkat,
-        merk_model:merkModel,
-        serial_number:serialNumber,
-        status:statusPerangkat,
-        force_save:false,
-        halte_id : halteId,
 
-          arah :
-            document.getElementById("arahPerangkat")
-            ? document.getElementById("arahPerangkat").value
-            : "",
+        nama_perangkat:namaPerangkat,
+
+        merk_model:merkModel,
+
+        serial_number:serialNumber,
+
+        status:statusPerangkat,
+
+        arah:
+          document.getElementById("arahPerangkat")
+          ? document.getElementById("arahPerangkat").value
+          : "",
+
+        force_save:false,
 
         photo:photoBase64
 
@@ -156,48 +199,58 @@ async function saveStockOpname(){
 
     });
 
-    const data = await res.json();
+    const data =
+      await res.json();
 
-if(data.status){
 
-  message.innerHTML =
-    "Stock opname berhasil disimpan";
+    if(data.status){
 
-}else{
-
-  // duplicate warning
-  if(data.duplicate){
-
-    const lanjut = confirm(
-      "Perangkat dengan Serial Number ini kemungkinan sudah pernah diinput.\n\nTetap simpan?"
-    );
-
-    if(lanjut){
-
-      saveForce();
+      message.innerHTML =
+        editMode
+        ? "Data berhasil diupdate"
+        : "Stock opname berhasil disimpan";
 
     }else{
 
-      message.innerHTML =
-        "Penyimpanan dibatalkan";
+      // duplicate warning
+      if(data.duplicate){
+
+        const lanjut = confirm(
+          "Perangkat dengan Serial Number ini kemungkinan sudah pernah diinput.\n\nTetap simpan?"
+        );
+
+        if(lanjut){
+
+          saveForce();
+
+        }else{
+
+          message.innerHTML =
+            "Penyimpanan dibatalkan";
+
+        }
+
+      }else{
+
+        message.innerHTML =
+          data.message;
+
+      }
 
     }
 
-  }else{
+  }catch(err){
 
-    message.innerHTML =
-      data.message;
+    console.log(err);
+
+    message.innerHTML = err;
 
   }
 
 }
 
-}catch(err){
 
-  message.innerHTML = err;
-
-}
-
+// ================= FORCE SAVE =================
 async function saveForce(){
 
   const kategori =
@@ -221,6 +274,7 @@ async function saveForce(){
   const message =
     document.getElementById("message");
 
+
   message.innerHTML =
     "Uploading data...";
 
@@ -234,6 +288,7 @@ async function saveForce(){
 
   }
 
+
   try{
 
     const res = await fetch(API_URL, {
@@ -246,15 +301,26 @@ async function saveForce(){
 
         token:token,
 
-        halte_id:halte_id,
-        halte_nama:halte_nama,
-        koridor_id:koridor_id,
+        halte_id:halteId,
+
+        halte_nama:halteNama,
+
+        koridor_id:koridorId,
 
         kategori:kategori,
+
         nama_perangkat:namaPerangkat,
+
         merk_model:merkModel,
+
         serial_number:serialNumber,
+
         status:statusPerangkat,
+
+        arah:
+          document.getElementById("arahPerangkat")
+          ? document.getElementById("arahPerangkat").value
+          : "",
 
         force_save:true,
 
@@ -264,7 +330,8 @@ async function saveForce(){
 
     });
 
-    const data = await res.json();
+    const data =
+      await res.json();
 
     if(data.status){
 
@@ -286,6 +353,8 @@ async function saveForce(){
 
 }
 
+
+// ================= LOAD MASTER =================
 async function loadMasterPerangkat(){
 
   try{
@@ -304,23 +373,34 @@ async function loadMasterPerangkat(){
 
     });
 
-    const data = await res.json();
+    const data =
+      await res.json();
 
-    masterPerangkat = data.data;
+    masterPerangkat =
+      data.data;
 
-    // ambil kategori unik
+
+    // kategori unik
     const kategoriUnik = [
+
       ...new Set(
+
         masterPerangkat.map(
           item => item.kategori
         )
+
       )
+
     ];
 
+
     let html =
-      `<option value="">
+      `
+      <option value="">
         Silahkan Pilih Kategori
-      </option>`;
+      </option>
+      `;
+
 
     kategoriUnik.forEach(item => {
 
@@ -331,6 +411,7 @@ async function loadMasterPerangkat(){
       `;
 
     });
+
 
     document.getElementById("kategori").innerHTML =
       html;
@@ -343,10 +424,13 @@ async function loadMasterPerangkat(){
 
 }
 
+
+// ================= CHANGE KATEGORI =================
 function changeKategori(){
 
   const kategori =
     document.getElementById("kategori").value;
+
 
   const perangkat =
     masterPerangkat.filter(
@@ -355,19 +439,28 @@ function changeKategori(){
 
     );
 
+
   // unique perangkat
   const perangkatUnik = [
+
     ...new Set(
+
       perangkat.map(
         item => item.nama_perangkat
       )
+
     )
+
   ];
 
+
   let html =
-    `<option value="">
+    `
+    <option value="">
       Silahkan Pilih Perangkat
-    </option>`;
+    </option>
+    `;
+
 
   perangkatUnik.forEach(item => {
 
@@ -379,18 +472,23 @@ function changeKategori(){
 
   });
 
+
   document.getElementById("namaPerangkat").innerHTML =
     html;
 
 
-  // reset merk model
+  // reset merk
   document.getElementById("merkModel").innerHTML =
-    `<option value="">
+    `
+    <option value="">
       Silahkan Pilih Merk / Model
-    </option>`;
+    </option>
+    `;
 
 }
 
+
+// ================= CHANGE PERANGKAT =================
 function changePerangkat(){
 
   const kategori =
@@ -398,6 +496,7 @@ function changePerangkat(){
 
   const perangkat =
     document.getElementById("namaPerangkat").value;
+
 
   const merkModel =
     masterPerangkat.filter(
@@ -408,108 +507,46 @@ function changePerangkat(){
 
     );
 
+
   let html =
-    `<option value="">
+    `
+    <option value="">
       Silahkan Pilih Merk / Model
-    </option>`;
+    </option>
+    `;
+
 
   const merkUnik = [
-  ...new Set(
-    merkModel.map(
-      item => item.merk_model
+
+    ...new Set(
+
+      merkModel.map(
+        item => item.merk_model
+      )
+
     )
-  )
-];
+
+  ];
 
 
-merkUnik.forEach(item => {
+  merkUnik.forEach(item => {
 
-  html += `
-    <option value="${item}">
-      ${item}
-    </option>
-  `;
+    html += `
+      <option value="${item}">
+        ${item}
+      </option>
+    `;
 
-});
+  });
+
 
   document.getElementById("merkModel").innerHTML =
     html;
 
 }
 
-async function loadEditData(){
 
-  try{
-
-    const res = await fetch(API_URL, {
-
-      method:"POST",
-
-      body:JSON.stringify({
-
-        action:"getDetailOpname",
-
-        token:token,
-
-        opname_id:editId
-
-      })
-
-    });
-
-    const result =
-      await res.json();
-
-    const item =
-      result.data;
-
-
-    // set halte
-    document.getElementById("halteNama").value =
-      item.halte;
-
-
-    // kategori
-    document.getElementById("kategori").value =
-      item.kategori;
-
-    changeKategori();
-
-
-    // perangkat
-    setTimeout(() => {
-
-      document.getElementById("namaPerangkat").value =
-        item.nama_perangkat;
-
-      changePerangkat();
-
-    }, 300);
-
-
-    // merk
-    setTimeout(() => {
-
-      document.getElementById("merkModel").value =
-        item.merk_model;
-
-    }, 500);
-
-
-    document.getElementById("serialNumber").value =
-      item.serial_number;
-
-    document.getElementById("statusPerangkat").value =
-      item.status_perangkat;
-
-  }catch(err){
-
-    console.log(err);
-
-  }
-
-}
-
+// ================= LOAD HALTE DETAIL =================
 async function loadHalteDetail(){
 
   try{
@@ -550,8 +587,7 @@ async function loadHalteDetail(){
       halte.nama_halte;
 
 
-    // CEK DUAL ARAH
-
+    // dual arah
     if(halte.tipe_halte == "dual"){
 
       const arahContainer =
@@ -580,6 +616,116 @@ async function loadHalteDetail(){
         `;
 
     }
+
+  }catch(err){
+
+    console.log(err);
+
+  }
+
+}
+
+
+// ================= LOAD EDIT DATA =================
+async function loadEditData(){
+
+  try{
+
+    const res = await fetch(API_URL, {
+
+      method:"POST",
+
+      body:JSON.stringify({
+
+        action:"getDetailPerangkat",
+
+        token:token,
+
+        opname_id:opnameId
+
+      })
+
+    });
+
+    const result =
+      await res.json();
+
+
+    console.log(result);
+
+
+    if(!result.status){
+
+      alert("Data tidak ditemukan");
+
+      return;
+
+    }
+
+
+    const item =
+      result.data;
+
+
+    // kategori
+    document.getElementById("kategori").value =
+      item.kategori;
+
+    changeKategori();
+
+
+    // perangkat
+    setTimeout(() => {
+
+      document.getElementById("namaPerangkat").value =
+        item.nama_perangkat;
+
+      changePerangkat();
+
+    }, 300);
+
+
+    // merk
+    setTimeout(() => {
+
+      document.getElementById("merkModel").value =
+        item.merk_model;
+
+    }, 600);
+
+
+    // serial
+    document.getElementById("serialNumber").value =
+      item.serial_number;
+
+
+    // status
+    document.getElementById("statusPerangkat").value =
+      item.status;
+
+
+    // arah
+    if(item.arah){
+
+      const arahContainer =
+        document.getElementById("arahContainer");
+
+      arahContainer.classList.remove("hidden");
+
+
+      setTimeout(() => {
+
+        document.getElementById("arahPerangkat").value =
+          item.arah;
+
+      }, 500);
+
+    }
+
+
+    // tombol
+    document.querySelector("button").innerHTML =
+      "Update Data";
 
   }catch(err){
 
