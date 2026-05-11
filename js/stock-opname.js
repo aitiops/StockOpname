@@ -601,7 +601,10 @@ async function loadHalteDetail(){
 
 
     // dual arah
-    if(halte.tipe_halte == "dual"){
+    if(
+      halte.tipe_halte &&
+      halte.tipe_halte.toLowerCase() == "dual"
+    )
 
       const arahContainer =
         document.getElementById("arahContainer");
