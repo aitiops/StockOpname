@@ -205,6 +205,17 @@ async function saveStockOpname(){
         editMode
         ? "Data berhasil diupdate"
         : "Stock opname berhasil disimpan";
+    
+    
+      // delay 1 detik
+      setTimeout(() => {
+    
+        window.location.href =
+          `halte-detail.html?halte_id=${halteId}&halte_nama=${halteNama}&koridor_id=${koridorId}`;
+    
+      }, 1000);
+    
+    }
 
     }else{
 
@@ -333,6 +344,15 @@ async function saveForce(){
 
       message.innerHTML =
         "Stock opname berhasil disimpan";
+    
+      setTimeout(() => {
+    
+        window.location.href =
+          `halte-detail.html?halte_id=${halteId}&halte_nama=${halteNama}&koridor_id=${koridorId}`;
+    
+      }, 1000);
+    
+    }
 
     }else{
 
