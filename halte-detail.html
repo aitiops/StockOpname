@@ -64,34 +64,70 @@
 
 
     <!-- TABLE -->
-    <div class="bg-white p-6 rounded-2xl shadow overflow-auto">
+    <!-- SUMMARY -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
 
-      <table class="w-full">
+  <div class="bg-white p-4 rounded-2xl shadow">
 
-        <thead>
+    <p class="text-gray-500">
+      Total Perangkat
+    </p>
 
-          <tr class="border-b">
+    <p
+      id="totalPerangkat"
+      class="text-3xl font-bold"
+    >
+      0
+    </p>
 
-            <th class="text-left p-2">Photo</th>
-            <th class="text-left p-2">Kategori</th>
-            <th class="text-left p-2">Perangkat</th>
-            <th class="text-left p-2">Merk/Model</th>
-            <th class="text-left p-2">SN</th>
-            <th class="text-left p-2">Status</th>
-            <th class="text-left p-2">Engineer</th>
-            <th class="text-left p-2">Action</th>
+  </div>
 
-          </tr>
+  <div class="bg-white p-4 rounded-2xl shadow">
 
-        </thead>
+    <p class="text-gray-500">
+      On Service
+    </p>
 
-        <tbody id="tablePerangkat">
+    <p
+      id="totalOn"
+      class="text-3xl font-bold text-green-600"
+    >
+      0
+    </p>
 
-        </tbody>
+  </div>
 
-      </table>
+  <div class="bg-white p-4 rounded-2xl shadow">
 
-    </div>
+    <p class="text-gray-500">
+      Out of Service
+    </p>
+
+    <p
+      id="totalOff"
+      class="text-3xl font-bold text-red-600"
+    >
+      0
+    </p>
+
+  </div>
+
+</div>
+
+
+<!-- LIST DEVICE -->
+<div
+  id="tablePerangkat"
+  class="
+    grid
+    grid-cols-1
+    md:grid-cols-2
+    xl:grid-cols-3
+    gap-4
+  "
+>
+
+</div>
 
   </div>
 
