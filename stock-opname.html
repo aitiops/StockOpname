@@ -192,7 +192,19 @@
     type="file"
     id="photo"
     accept="image/*"
+    onchange="previewImage(event)"
     class="w-full border p-3 rounded-lg"
+  >
+  
+  <img
+    id="previewPhoto"
+    class="
+      mt-4
+      w-48
+      rounded-xl
+      shadow
+      hidden
+    "
   >
 
 </div>
