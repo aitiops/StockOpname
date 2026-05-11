@@ -584,6 +584,7 @@ async function loadHalteDetail(){
     const result =
       await res.json();
 
+    console.log(result);
 
     const halte =
       result.data;
