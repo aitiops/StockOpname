@@ -87,49 +87,165 @@ async function loadDashboard(){
     const halte =
       halteData.data || halteData || [];
 
-    let html = "";
+    // ================= GROUP KORIDOR =================
 
-    console.log(halteData);
+let koridorMap = {};
 
-    halte.forEach(item => {
+halte.forEach(item => {
 
-      html += `
-        <tr class="border-b">
+  if(!koridorMap[item.koridor_id]){
 
-          <td class="p-2">
-            ${item.nama_halte}
-          </td>
+    koridorMap[item.koridor_id] = [];
 
-          <td class="p-2">
-            ${item.koridor_id}
-          </td>
+  }
 
-          <td class="p-2">
-            ${item.status}
-          </td>
+  koridorMap[item.koridor_id].push(item);
 
-          <td class="p-2">
+});
 
-            <button
-              onclick="
-                window.location.href=
-                'halte-detail.html?halte_id=${item.halte_id}&halte_nama=${item.nama_halte}&koridor_id=${item.koridor_id}'
-              "
-              class="bg-blue-600 text-white px-3 py-1 rounded"
-            >
-            
-              Detail
-            
-            </button>
 
-          </td>
+// ================= BUILD CARD =================
 
-        </tr>
+let html = "";
+
+for(let koridor in koridorMap){
+
+  let halteHtml = "";
+
+  koridorMap[koridor].forEach(item => {
+
+    let badge = `
+      <span class="
+        bg-red-100
+        text-red-600
+        text-xs
+        px-2
+        py-1
+        rounded-full
+      ">
+        Belum
+      </span>
+    `;
+
+
+    if(item.status == "Selesai"){
+
+      badge = `
+        <span class="
+          bg-green-100
+          text-green-600
+          text-xs
+          px-2
+          py-1
+          rounded-full
+        ">
+          Selesai
+        </span>
       `;
 
-    });
+    }
 
-    document.getElementById("tableHalte").innerHTML = html;
+
+    halteHtml += `
+
+      <div class="
+        flex
+        justify-between
+        items-center
+        border-b
+        py-2
+      ">
+
+        <div>
+
+          <div class="font-medium">
+            ${item.nama_halte}
+          </div>
+
+          <div class="text-xs text-gray-500">
+            Halte ${item.halte_id}
+          </div>
+
+        </div>
+
+        <div class="flex gap-2 items-center">
+
+          ${badge}
+
+          <button
+            onclick="
+              window.location.href=
+              'halte-detail.html?halte_id=${item.halte_id}&halte_nama=${item.nama_halte}&koridor_id=${item.koridor_id}'
+            "
+            class="
+              bg-blue-600
+              text-white
+              text-xs
+              px-3
+              py-1
+              rounded-lg
+            "
+          >
+            Detail
+          </button>
+
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+
+  html += `
+
+    <div class="
+      bg-white
+      rounded-2xl
+      shadow-sm
+      p-4
+    ">
+
+      <div class="
+        flex
+        justify-between
+        items-center
+        mb-4
+      ">
+
+        <div>
+
+          <h2 class="
+            text-lg
+            font-bold
+          ">
+            Koridor ${koridor}
+          </h2>
+
+          <p class="
+            text-sm
+            text-gray-500
+          ">
+            ${koridorMap[koridor].length} halte
+          </p>
+
+        </div>
+
+      </div>
+
+      ${halteHtml}
+
+    </div>
+
+  `;
+
+}
+
+
+document.getElementById(
+  "dashboardKoridor"
+).innerHTML = html;
 
   }catch(err){
 
