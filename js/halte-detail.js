@@ -53,73 +53,162 @@ async function loadPerangkat(){
 
     let html = "";
 
+    let total = 0;
+    let totalOn = 0;
+    let totalOff = 0;
+    
+    
     data.data.forEach(item => {
-
+    
+      total++;
+    
+      if(item.status == "On Service"){
+    
+        totalOn++;
+    
+      }else{
+    
+        totalOff++;
+    
+      }
+    
+    
       html += `
-
-        <tr class="border-b">
-
-          <td class="p-2">
-
-            <img
-              src="${item.photo}"
-              class="w-20 h-20 object-cover rounded"
-            >
-
-          </td>
-
-          <td class="p-2">
-            ${item.kategori}
-          </td>
-
-          <td class="p-2">
-            ${item.nama_perangkat}
-          </td>
-
-          <td class="p-2">
-            ${item.merk_model}
-          </td>
-
-          <td class="p-2">
-            ${item.serial_number}
-          </td>
-
-          <td class="p-2">
-            ${item.status}
-          </td>
-
-          <td class="p-2">
-            ${item.engineer}
-          </td>
-          <td class="p-2">
-          
-            <button
-              onclick="
-                window.location.href=
-                'stock-opname.html?edit=1&id=${item.opname_id}'
-              "
-              class="
-                bg-yellow-500
-                text-white
+    
+        <div class="
+          bg-white
+          rounded-2xl
+          shadow
+          overflow-hidden
+        ">
+    
+          <!-- PHOTO -->
+          <img
+            src="${item.photo}"
+            class="
+              w-full
+              h-48
+              object-cover
+            "
+          >
+    
+          <div class="p-4">
+    
+            <!-- STATUS -->
+            <div class="mb-3">
+    
+              <span class="
                 px-3
                 py-1
-                rounded
+                rounded-full
                 text-sm
-              "
-            >
-              Edit
-            </button>
-          
-          </td>
-
-        </tr>
-
+                text-white
+    
+                ${
+                  item.status == "On Service"
+                  ? "bg-green-500"
+                  : "bg-red-500"
+                }
+              ">
+    
+                ${item.status}
+    
+              </span>
+    
+            </div>
+    
+    
+            <!-- DEVICE -->
+            <h2 class="text-xl font-bold">
+    
+              ${item.nama_perangkat}
+    
+            </h2>
+    
+            <p class="text-gray-500">
+    
+              ${item.merk_model}
+    
+            </p>
+    
+    
+            <!-- INFO -->
+            <div class="mt-4 space-y-1 text-sm">
+    
+              <p>
+                <b>Kategori:</b>
+                ${item.kategori}
+              </p>
+    
+              <p>
+                <b>Serial Number:</b>
+                ${item.serial_number}
+              </p>
+    
+              <p>
+                <b>Engineer:</b>
+                ${item.engineer}
+              </p>
+    
+              ${
+                item.arah
+                ? `
+                  <p>
+                    <b>Arah:</b>
+                    ${item.arah}
+                  </p>
+                `
+                : ""
+              }
+    
+            </div>
+    
+    
+            <!-- ACTION -->
+            <div class="mt-4">
+    
+              <button
+                onclick="
+                  window.location.href=
+                  'stock-opname.html?edit=1&id=${item.opname_id}&halte_id=${halte_id}&halte_nama=${halte_nama}&koridor_id=${koridor_id}'
+                "
+                class="
+                  bg-yellow-500
+                  text-white
+                  px-4
+                  py-2
+                  rounded-lg
+                  w-full
+                "
+              >
+    
+                Edit Perangkat
+    
+              </button>
+    
+            </div>
+    
+          </div>
+    
+        </div>
+    
       `;
-
+    
     });
-
+    
+    
     document.getElementById("tablePerangkat").innerHTML =
       html;
+    
+    
+    document.getElementById("totalPerangkat").innerHTML =
+      total;
+    
+    document.getElementById("totalOn").innerHTML =
+      totalOn;
+    
+    document.getElementById("totalOff").innerHTML =
+      totalOff;
 
   }catch(err){
 
