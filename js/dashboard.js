@@ -41,22 +41,14 @@ async function loadDashboard(){
     const dashboardData =
       await dashboardRes.json();
     
+    console.log("DASHBOARD:");
     console.log(dashboardData);
     
-    if(!dashboardData.status){
-    
-      alert("Session habis");
-    
-      localStorage.clear();
-    
-      window.location.href = "index.html";
-    
-      return;
-    
-    }
     
     const dashboard =
-      dashboardData.data;
+      dashboardData.data
+      ? dashboardData.data
+      : dashboardData;
     
     
     document.getElementById("totalHalte").innerHTML =
@@ -84,9 +76,12 @@ async function loadDashboard(){
     });
     
     const halteData = await halteRes.json();
-    const halte =
-      halteData.data || halteData || [];
+      const halte =
+      halteData.data
+      ? halteData.data
+      : halteData;
 
+    console.log(halteData);
     // ================= GROUP KORIDOR =================
 
 let koridorMap = {};
