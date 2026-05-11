@@ -215,8 +215,6 @@ async function saveStockOpname(){
     
       }, 1000);
     
-    }
-
     }else{
 
       // duplicate warning
@@ -351,8 +349,6 @@ async function saveForce(){
           `halte-detail.html?halte_id=${halteId}&halte_nama=${halteNama}&koridor_id=${koridorId}`;
     
       }, 1000);
-    
-    }
 
     }else{
 
