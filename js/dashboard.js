@@ -41,9 +41,20 @@ async function loadDashboard(){
     const dashboardData =
       await dashboardRes.json();
     
+    if(!dashboardData.status){
+
+      alert("Session habis, silahkan login ulang");
+    
+      localStorage.clear();
+    
+      window.location.href = "index.html";
+    
+      return;
+    
+    }
+    
     
     const dashboard = dashboardData;
-    
     
     document.getElementById("totalHalte").innerHTML =
       dashboard.total_halte || 0;
