@@ -2,7 +2,6 @@ let halteList = [];
 
 let masterPerangkat = [];
 
-
 // ================= URL PARAMS =================
 const urlParams =
   new URLSearchParams(
