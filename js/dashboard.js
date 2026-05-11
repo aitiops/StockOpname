@@ -81,10 +81,8 @@ async function loadDashboard(){
     });
     
     const halteData = await halteRes.json();
-    
     const halte =
-      halteData.data || [];
-
+      halteData.data || halteData || [];
 
     let html = "";
 
