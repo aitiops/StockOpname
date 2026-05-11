@@ -94,12 +94,20 @@ async function loadPerangkat(){
           <td class="p-2">
           
             <button
-              onclick="editPerangkat('${item.opname_id}')"
-              class="bg-yellow-500 text-white px-3 py-1 rounded"
+              onclick="
+                window.location.href=
+                'stock-opname.html?edit=1&id=${item.opname_id}'
+              "
+              class="
+                bg-yellow-500
+                text-white
+                px-3
+                py-1
+                rounded
+                text-sm
+              "
             >
-          
               Edit
-          
             </button>
           
           </td>
