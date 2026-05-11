@@ -580,31 +580,36 @@ async function loadHalteDetail(){
 
       });
 
-
     const result =
       await res.json();
 
     console.log(result);
 
+    if(!result.status){
+
+      alert("Detail halte tidak ditemukan");
+
+      return;
+
+    }
+
     const halte =
       result.data;
-
 
     document.getElementById("infoKoridor")
       .innerHTML =
       `Koridor ${halte.koridor_id}`;
-
 
     document.getElementById("infoHalte")
       .innerHTML =
       halte.nama_halte;
 
 
-    // dual arah
+    // ================= DUAL ARAH =================
     if(
       halte.tipe_halte &&
       halte.tipe_halte.toLowerCase() == "dual"
-    )
+    ){
 
       const arahContainer =
         document.getElementById("arahContainer");
@@ -612,9 +617,7 @@ async function loadHalteDetail(){
       const arahSelect =
         document.getElementById("arahPerangkat");
 
-
       arahContainer.classList.remove("hidden");
-
 
       arahSelect.innerHTML =
         `
