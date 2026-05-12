@@ -163,10 +163,10 @@ async function loadPerangkat(){
     
             </div>
     
-    
             <!-- ACTION -->
-            <div class="mt-4">
-    
+            <div class="mt-4 flex gap-2">
+            
+              <!-- EDIT -->
               <button
                 onclick="
                   window.location.href=
@@ -181,11 +181,31 @@ async function loadPerangkat(){
                   w-full
                 "
               >
-    
-                Edit Perangkat
-    
+            
+                Edit
+            
               </button>
-    
+            
+            
+              <!-- DELETE -->
+              <button
+                onclick="
+                  deletePerangkat('${item.opname_id}')
+                "
+                class="
+                  bg-red-600
+                  text-white
+                  px-4
+                  py-2
+                  rounded-lg
+                  w-full
+                "
+              >
+            
+                Hapus
+            
+              </button>
+            
             </div>
     
           </div>
@@ -222,5 +242,58 @@ function editPerangkat(opnameId){
 
   window.location.href =
     `stock-opname.html?edit=${opnameId}`;
+
+}
+
+async function deletePerangkat(opnameId){
+
+  const lanjut = confirm(
+    "Yakin ingin menghapus perangkat ini?"
+  );
+
+  if(!lanjut){
+
+    return;
+
+  }
+
+  try{
+
+    const res = await fetch(API_URL, {
+
+      method:"POST",
+
+      body:JSON.stringify({
+
+        action:"deletePerangkat",
+
+        token:token,
+
+        opname_id:opnameId
+
+      })
+
+    });
+
+    const data =
+      await res.json();
+
+    if(data.status){
+
+      alert("Data berhasil dihapus");
+
+      loadPerangkat();
+
+    }else{
+
+      alert(data.message);
+
+    }
+
+  }catch(err){
+
+    console.log(err);
+
+  }
 
 }
