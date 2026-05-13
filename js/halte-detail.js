@@ -8,9 +8,11 @@ const halte_nama =
 
 const koridor_id =
   urlParams.get("koridor_id");
+
 let perangkatList = [];
 
 
+// ================= TITLE =================
 document.getElementById("halteTitle").innerHTML =
   halte_nama;
 
@@ -18,9 +20,11 @@ document.getElementById("koridorTitle").innerHTML =
   koridor_id;
 
 
+// ================= LOAD =================
 loadPerangkat();
 
 
+// ================= GO INPUT =================
 function goInput(){
 
   window.location.href =
@@ -29,7 +33,7 @@ function goInput(){
 }
 
 
-
+// ================= LOAD PERANGKAT =================
 async function loadPerangkat(){
 
   try{
@@ -50,42 +54,47 @@ async function loadPerangkat(){
 
     });
 
-    const data = await res.json();
-    perangkatList = data.data || [];
+    const data =
+      await res.json();
 
+    perangkatList =
+      data.data || [];
+
+
+    // ================= TOTAL =================
     let total = 0;
     let totalOn = 0;
     let totalOff = 0;
-    
-    
+
+
     perangkatList.forEach(item => {
-    
+
       total++;
-    
+
       if(item.status == "On Service"){
-    
+
         totalOn++;
-    
+
       }else{
-    
+
         totalOff++;
-    
+
       }
-    
-      console.log(item.photo);
-      
-      
-    
+
     });
 
+
+    // render
     renderPerangkat(perangkatList);
-    
+
+
+    // summary
     document.getElementById("totalPerangkat").innerHTML =
       total;
-    
+
     document.getElementById("totalOn").innerHTML =
       totalOn;
-    
+
     document.getElementById("totalOff").innerHTML =
       totalOff;
 
@@ -97,66 +106,8 @@ async function loadPerangkat(){
 
 }
 
-function editPerangkat(opnameId){
 
-  window.location.href =
-    `stock-opname.html?edit=${opnameId}`;
-
-}
-
-async function deletePerangkat(opnameId){
-
-  const lanjut = confirm(
-    "Yakin ingin menghapus perangkat ini?"
-  );
-
-  if(!lanjut){
-
-    return;
-
-  }
-
-  try{
-
-    const res = await fetch(API_URL, {
-
-      method:"POST",
-
-      body:JSON.stringify({
-
-        action:"deletePerangkat",
-
-        token:token,
-
-        opname_id:opnameId
-
-      })
-
-    });
-
-    const data =
-      await res.json();
-
-    if(data.status){
-
-      alert("Data berhasil dihapus");
-
-      loadPerangkat();
-
-    }else{
-
-      alert(data.message);
-
-    }
-
-  }catch(err){
-
-    console.log(err);
-
-  }
-
-}
-
+// ================= FILTER =================
 function filterPerangkat(){
 
   const keyword =
@@ -201,162 +152,250 @@ function filterPerangkat(){
 
 }
 
+
+// ================= RENDER =================
 function renderPerangkat(dataList){
 
-let html = "";
+  let html = "";
 
-dataList.forEach(item => {
 
-```
-html += `
+  if(dataList.length == 0){
 
-  <div class="
-    bg-white
-    rounded-2xl
-    shadow
-    overflow-hidden
-  ">
+    html = `
 
-    <!-- PHOTO -->
-    <img
-      src="${item.photo}"
-      onclick="
-        openPhoto('${item.photo}')
-      "
-      class="
-        w-full
-        h-48
-        object-cover
-        cursor-pointer
-        hover:scale-105
-        transition
-      "
-    >
+      <div class="
+        bg-white
+        rounded-2xl
+        p-10
+        text-center
+        text-gray-500
+      ">
 
-    <div class="p-4">
-
-      <!-- STATUS -->
-      <div class="mb-3">
-
-        <span class="
-          px-3
-          py-1
-          rounded-full
-          text-sm
-          text-white
-
-          ${
-            item.status == "On Service"
-            ? "bg-green-500"
-            : "bg-red-500"
-          }
-        ">
-
-          ${item.status}
-
-        </span>
+        Belum ada perangkat
 
       </div>
 
-      <!-- DEVICE -->
-      <h2 class="text-xl font-bold">
-        ${item.nama_perangkat}
-      </h2>
+    `;
 
-      <p class="text-gray-500">
-        ${item.merk_model}
-      </p>
+  }
 
-      <!-- INFO -->
-      <div class="mt-4 space-y-1 text-sm">
 
-        <p>
-          <b>Kategori:</b>
-          ${item.kategori}
-        </p>
+  dataList.forEach(item => {
 
-        <p>
-          <b>Serial Number:</b>
-          ${item.serial_number}
-        </p>
+    html += `
 
-        <p>
-          <b>Engineer:</b>
-          ${item.engineer}
-        </p>
+      <div class="
+        bg-white
+        rounded-2xl
+        shadow
+        overflow-hidden
+      ">
 
-        ${
-          item.arah
-          ? `
+        <!-- PHOTO -->
+        <img
+          src="${item.photo}"
+          onclick="
+            openPhoto('${item.photo}')
+          "
+          class="
+            w-full
+            h-48
+            object-cover
+            cursor-pointer
+            hover:scale-105
+            transition
+          "
+        >
+
+        <div class="p-4">
+
+          <!-- STATUS -->
+          <div class="mb-3">
+
+            <span class="
+              px-3
+              py-1
+              rounded-full
+              text-sm
+              text-white
+
+              ${
+                item.status == "On Service"
+                ? "bg-green-500"
+                : "bg-red-500"
+              }
+            ">
+
+              ${item.status}
+
+            </span>
+
+          </div>
+
+
+          <!-- DEVICE -->
+          <h2 class="text-xl font-bold">
+
+            ${item.nama_perangkat}
+
+          </h2>
+
+          <p class="text-gray-500">
+
+            ${item.merk_model}
+
+          </p>
+
+
+          <!-- INFO -->
+          <div class="mt-4 space-y-1 text-sm">
+
             <p>
-              <b>Arah:</b>
-              ${item.arah}
+              <b>Kategori:</b>
+              ${item.kategori}
             </p>
-          `
-          : ""
-        }
+
+            <p>
+              <b>Serial Number:</b>
+              ${item.serial_number}
+            </p>
+
+            <p>
+              <b>Engineer:</b>
+              ${item.engineer}
+            </p>
+
+            ${
+              item.arah
+              ? `
+                <p>
+                  <b>Arah:</b>
+                  ${item.arah}
+                </p>
+              `
+              : ""
+            }
+
+          </div>
+
+
+          <!-- ACTION -->
+          <div class="mt-4 flex gap-2">
+
+            <!-- EDIT -->
+            <button
+              onclick="
+                window.location.href=
+                'stock-opname.html?edit=1&id=${item.opname_id}&halte_id=${halte_id}&halte_nama=${halte_nama}&koridor_id=${koridor_id}'
+              "
+              class="
+                bg-yellow-500
+                text-white
+                px-4
+                py-2
+                rounded-lg
+                w-full
+              "
+            >
+
+              Edit
+
+            </button>
+
+
+            <!-- DELETE -->
+            <button
+              onclick="
+                deletePerangkat('${item.opname_id}')
+              "
+              class="
+                bg-red-600
+                text-white
+                px-4
+                py-2
+                rounded-lg
+                w-full
+              "
+            >
+
+              Hapus
+
+            </button>
+
+          </div>
+
+        </div>
 
       </div>
 
-      <!-- ACTION -->
-      <div class="mt-4 flex gap-2">
+    `;
 
-        <!-- EDIT -->
-        <button
-          onclick="
-            window.location.href=
-            'stock-opname.html?edit=1&id=${item.opname_id}&halte_id=${halte_id}&halte_nama=${halte_nama}&koridor_id=${koridor_id}'
-          "
-          class="
-            bg-yellow-500
-            text-white
-            px-4
-            py-2
-            rounded-lg
-            w-full
-          "
-        >
+  });
 
-          Edit
 
-        </button>
-
-        <!-- DELETE -->
-        <button
-          onclick="
-            deletePerangkat('${item.opname_id}')
-          "
-          class="
-            bg-red-600
-            text-white
-            px-4
-            py-2
-            rounded-lg
-            w-full
-          "
-        >
-
-          Hapus
-
-        </button>
-
-      </div>
-
-    </div>
-
-  </div>
-
-`;
-```
-
-});
-
-document.getElementById("tablePerangkat").innerHTML =
-html;
+  document.getElementById("tablePerangkat").innerHTML =
+    html;
 
 }
 
 
+// ================= DELETE =================
+async function deletePerangkat(opnameId){
+
+  const lanjut = confirm(
+    "Yakin ingin menghapus perangkat ini?"
+  );
+
+  if(!lanjut){
+
+    return;
+
+  }
+
+  try{
+
+    const res = await fetch(API_URL, {
+
+      method:"POST",
+
+      body:JSON.stringify({
+
+        action:"deletePerangkat",
+
+        token:token,
+
+        opname_id:opnameId
+
+      })
+
+    });
+
+    const data =
+      await res.json();
+
+
+    if(data.status){
+
+      alert("Data berhasil dihapus");
+
+      loadPerangkat();
+
+    }else{
+
+      alert(data.message);
+
+    }
+
+  }catch(err){
+
+    console.log(err);
+
+  }
+
+}
+
+
+// ================= PHOTO MODAL =================
 function openPhoto(url){
 
   document.getElementById("modalImage").src =
