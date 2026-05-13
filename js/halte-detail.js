@@ -223,11 +223,8 @@ async function loadPerangkat(){
       `;
     
     });
-    
-    
-    document.getElementById("tablePerangkat").innerHTML =
-      html;
-    
+
+    renderPerangkat(perangkatList);
     
     document.getElementById("totalPerangkat").innerHTML =
       total;
@@ -347,6 +344,99 @@ function filterPerangkat(){
 
 
   renderPerangkat(filtered);
+
+}
+
+function renderPerangkat(dataList){
+
+  let html = "";
+
+  dataList.forEach(item => {
+
+    html += `
+
+      <div class="
+        bg-white
+        rounded-2xl
+        shadow
+        overflow-hidden
+      ">
+
+        <!-- PHOTO -->
+        <img
+          src="${item.photo}"
+          class="
+            w-full
+            h-48
+            object-cover
+          "
+        >
+
+        <div class="p-4">
+
+          <!-- STATUS -->
+          <div class="mb-3">
+
+            <span class="
+              px-3
+              py-1
+              rounded-full
+              text-sm
+              text-white
+
+              ${
+                item.status == "On Service"
+                ? "bg-green-500"
+                : "bg-red-500"
+              }
+            ">
+
+              ${item.status}
+
+            </span>
+
+          </div>
+
+          <!-- DEVICE -->
+          <h2 class="text-xl font-bold">
+            ${item.nama_perangkat}
+          </h2>
+
+          <p class="text-gray-500">
+            ${item.merk_model}
+          </p>
+
+          <!-- INFO -->
+          <div class="mt-4 space-y-1 text-sm">
+
+            <p>
+              <b>Kategori:</b>
+              ${item.kategori}
+            </p>
+
+            <p>
+              <b>Serial Number:</b>
+              ${item.serial_number}
+            </p>
+
+            <p>
+              <b>Engineer:</b>
+              ${item.engineer}
+            </p>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    `;
+
+  });
+
+
+  document.getElementById("tablePerangkat").innerHTML =
+    html;
 
 }
 
