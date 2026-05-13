@@ -8,6 +8,7 @@ const halte_nama =
 
 const koridor_id =
   urlParams.get("koridor_id");
+let perangkatList = [];
 
 
 document.getElementById("halteTitle").innerHTML =
@@ -50,6 +51,7 @@ async function loadPerangkat(){
     });
 
     const data = await res.json();
+    perangkatList = data.data || [];
 
     let html = "";
 
@@ -58,7 +60,7 @@ async function loadPerangkat(){
     let totalOff = 0;
     
     
-    data.data.forEach(item => {
+    perangkatList.forEach(item => {
     
       total++;
     
@@ -295,5 +297,49 @@ async function deletePerangkat(opnameId){
     console.log(err);
 
   }
+
+}
+
+function filterPerangkat(){
+
+  const keyword =
+    document.getElementById("searchInput")
+    .value
+    .toLowerCase();
+
+  const status =
+    document.getElementById("filterStatus")
+    .value;
+
+
+  const filtered =
+    perangkatList.filter(item => {
+
+      const cocokKeyword =
+
+        item.nama_perangkat
+          .toLowerCase()
+          .includes(keyword)
+
+        ||
+
+        item.serial_number
+          .toLowerCase()
+          .includes(keyword);
+
+
+      const cocokStatus =
+
+        status == ""
+        ? true
+        : item.status == status;
+
+
+      return cocokKeyword && cocokStatus;
+
+    });
+
+
+  renderPerangkat(filtered);
 
 }
