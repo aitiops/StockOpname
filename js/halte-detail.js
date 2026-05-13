@@ -57,6 +57,8 @@ async function loadPerangkat(){
     const data =
       await res.json();
 
+    console.log(data);
+
     perangkatList =
       data.data || [];
 
