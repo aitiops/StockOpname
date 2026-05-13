@@ -74,7 +74,8 @@ async function loadPerangkat(){
     
       }
     
-    
+      console.log(item.photo);
+      
       html += `
     
         <div class="
