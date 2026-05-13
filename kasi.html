@@ -13,10 +13,10 @@
 <body class="bg-gray-100">
 
   <!-- NAVBAR -->
-  <div class="bg-blue-700 text-white p-4 flex justify-between">
+  <div class="bg-purple-600 text-white p-4 flex justify-between">
 
-    <h1 class="font-bold">
-      Dashboard Kepala Seksi
+    <h1 class="font-bold text-xl">
+      Dashboard Kasi
     </h1>
 
     <div>
@@ -25,7 +25,7 @@
 
       <button
         onclick="logout()"
-        class="ml-4 bg-red-500 px-3 py-1 rounded"
+        class="ml-4 bg-red-500 px-3 py-1 rounded-lg"
       >
         Logout
       </button>
@@ -34,83 +34,98 @@
 
   </div>
 
+
+  <!-- CONTENT -->
   <div class="p-6">
 
     <!-- SUMMARY -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
 
       <div class="bg-white p-6 rounded-2xl shadow">
 
-        <h2 class="text-gray-500">
+        <p class="text-gray-500">
           Total Halte
-        </h2>
+        </p>
 
-        <p
+        <h2
           id="totalHalte"
-          class="text-3xl font-bold"
+          class="text-3xl font-bold mt-2"
         >
           0
-        </p>
+        </h2>
 
       </div>
 
       <div class="bg-white p-6 rounded-2xl shadow">
 
-        <h2 class="text-gray-500">
+        <p class="text-gray-500">
           Halte Selesai
-        </h2>
+        </p>
 
-        <p
+        <h2
           id="halteSelesai"
-          class="text-3xl font-bold"
+          class="text-3xl font-bold mt-2"
         >
           0
-        </p>
-
-      </div>
-
-      <div class="bg-white p-6 rounded-2xl shadow">
-
-        <h2 class="text-gray-500">
-          Progress
         </h2>
 
-        <p
-          id="progressVisit"
-          class="text-3xl font-bold"
-        >
-          0%
-        </p>
-
       </div>
 
       <div class="bg-white p-6 rounded-2xl shadow">
 
-        <h2 class="text-gray-500">
+        <p class="text-gray-500">
           On Service
-        </h2>
+        </p>
 
-        <p
+        <h2
           id="onService"
-          class="text-3xl font-bold text-green-600"
+          class="text-3xl font-bold text-green-600 mt-2"
         >
           0
-        </p>
+        </h2>
 
       </div>
 
       <div class="bg-white p-6 rounded-2xl shadow">
 
-        <h2 class="text-gray-500">
-          Out Of Service
-        </h2>
+        <p class="text-gray-500">
+          Out Service
+        </p>
 
-        <p
+        <h2
           id="outService"
-          class="text-3xl font-bold text-red-600"
+          class="text-3xl font-bold text-red-600 mt-2"
         >
           0
-        </p>
+        </h2>
+
+      </div>
+
+    </div>
+
+
+    <!-- PROGRESS -->
+    <div class="bg-white p-6 rounded-2xl shadow mb-6">
+
+      <div class="flex justify-between mb-2">
+
+        <span class="font-bold">
+          Progress Keseluruhan
+        </span>
+
+        <span id="progressText">
+          0%
+        </span>
+
+      </div>
+
+      <div class="w-full bg-gray-200 rounded-full h-5">
+
+        <div
+          id="progressBar"
+          class="bg-purple-600 h-5 rounded-full"
+          style="width:0%"
+        ></div>
 
       </div>
 
@@ -121,32 +136,15 @@
     <div class="bg-white p-6 rounded-2xl shadow mb-6">
 
       <h2 class="text-xl font-bold mb-4">
-        Perangkat Per Kategori
+        Statistik Kategori
       </h2>
 
-      <table class="w-full">
+      <div
+        id="kategoriContainer"
+        class="grid grid-cols-1 md:grid-cols-3 gap-4"
+      >
 
-        <thead>
-
-          <tr class="border-b">
-
-            <th class="text-left p-2">
-              Kategori
-            </th>
-
-            <th class="text-left p-2">
-              Total
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody id="tableKategori">
-
-        </tbody>
-
-      </table>
+      </div>
 
     </div>
 
@@ -155,36 +153,12 @@
     <div class="bg-white p-6 rounded-2xl shadow">
 
       <h2 class="text-xl font-bold mb-4">
-        Progress Koridor
+        Progress Per Koridor
       </h2>
 
-      <table class="w-full">
+      <div id="koridorContainer">
 
-        <thead>
-
-          <tr class="border-b">
-
-            <th class="text-left p-2">
-              Koridor
-            </th>
-
-            <th class="text-left p-2">
-              Halte Selesai
-            </th>
-
-            <th class="text-left p-2">
-              Progress
-            </th>
-
-          </tr>
-
-        </thead>
-
-        <tbody id="tableKoridor">
-
-        </tbody>
-
-      </table>
+      </div>
 
     </div>
 
@@ -192,7 +166,7 @@
 
   <script src="js/config.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/kasi.js"></script>
+  <script src="js/dashboard.js"></script>
 
 </body>
 </html>
