@@ -86,13 +86,19 @@ async function loadPerangkat(){
     
           <!-- PHOTO -->
           <img
-            src="${item.photo}"
-            class="
-              w-full
-              h-48
-              object-cover
-            "
-          >
+          src="${item.photo}"
+          onclick="
+            openPhoto('${item.photo}')
+          "
+          class="
+            w-full
+            h-48
+            object-cover
+            cursor-pointer
+            hover:scale-105
+            transition
+          "
+        >
     
           <div class="p-4">
     
@@ -341,5 +347,29 @@ function filterPerangkat(){
 
 
   renderPerangkat(filtered);
+
+}
+
+function openPhoto(url){
+
+  document.getElementById("modalImage").src =
+    url;
+
+  document.getElementById("photoModal")
+    .classList.remove("hidden");
+
+  document.getElementById("photoModal")
+    .classList.add("flex");
+
+}
+
+
+function closePhoto(){
+
+  document.getElementById("photoModal")
+    .classList.remove("flex");
+
+  document.getElementById("photoModal")
+    .classList.add("hidden");
 
 }
