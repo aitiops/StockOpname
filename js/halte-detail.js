@@ -350,96 +350,159 @@ function filterPerangkat(){
 
 function renderPerangkat(dataList){
 
-  let html = "";
+let html = "";
 
-  dataList.forEach(item => {
+dataList.forEach(item => {
 
-    html += `
+```
+html += `
 
-      <div class="
-        bg-white
-        rounded-2xl
-        shadow
-        overflow-hidden
-      ">
+  <div class="
+    bg-white
+    rounded-2xl
+    shadow
+    overflow-hidden
+  ">
 
-        <!-- PHOTO -->
-        <img
-          src="${item.photo}"
-          class="
-            w-full
-            h-48
-            object-cover
-          "
-        >
+    <!-- PHOTO -->
+    <img
+      src="${item.photo}"
+      onclick="
+        openPhoto('${item.photo}')
+      "
+      class="
+        w-full
+        h-48
+        object-cover
+        cursor-pointer
+        hover:scale-105
+        transition
+      "
+    >
 
-        <div class="p-4">
+    <div class="p-4">
 
-          <!-- STATUS -->
-          <div class="mb-3">
+      <!-- STATUS -->
+      <div class="mb-3">
 
-            <span class="
-              px-3
-              py-1
-              rounded-full
-              text-sm
-              text-white
+        <span class="
+          px-3
+          py-1
+          rounded-full
+          text-sm
+          text-white
 
-              ${
-                item.status == "On Service"
-                ? "bg-green-500"
-                : "bg-red-500"
-              }
-            ">
+          ${
+            item.status == "On Service"
+            ? "bg-green-500"
+            : "bg-red-500"
+          }
+        ">
 
-              ${item.status}
+          ${item.status}
 
-            </span>
-
-          </div>
-
-          <!-- DEVICE -->
-          <h2 class="text-xl font-bold">
-            ${item.nama_perangkat}
-          </h2>
-
-          <p class="text-gray-500">
-            ${item.merk_model}
-          </p>
-
-          <!-- INFO -->
-          <div class="mt-4 space-y-1 text-sm">
-
-            <p>
-              <b>Kategori:</b>
-              ${item.kategori}
-            </p>
-
-            <p>
-              <b>Serial Number:</b>
-              ${item.serial_number}
-            </p>
-
-            <p>
-              <b>Engineer:</b>
-              ${item.engineer}
-            </p>
-
-          </div>
-
-        </div>
+        </span>
 
       </div>
 
-    `;
+      <!-- DEVICE -->
+      <h2 class="text-xl font-bold">
+        ${item.nama_perangkat}
+      </h2>
 
-  });
+      <p class="text-gray-500">
+        ${item.merk_model}
+      </p>
 
+      <!-- INFO -->
+      <div class="mt-4 space-y-1 text-sm">
 
-  document.getElementById("tablePerangkat").innerHTML =
-    html;
+        <p>
+          <b>Kategori:</b>
+          ${item.kategori}
+        </p>
+
+        <p>
+          <b>Serial Number:</b>
+          ${item.serial_number}
+        </p>
+
+        <p>
+          <b>Engineer:</b>
+          ${item.engineer}
+        </p>
+
+        ${
+          item.arah
+          ? `
+            <p>
+              <b>Arah:</b>
+              ${item.arah}
+            </p>
+          `
+          : ""
+        }
+
+      </div>
+
+      <!-- ACTION -->
+      <div class="mt-4 flex gap-2">
+
+        <!-- EDIT -->
+        <button
+          onclick="
+            window.location.href=
+            'stock-opname.html?edit=1&id=${item.opname_id}&halte_id=${halte_id}&halte_nama=${halte_nama}&koridor_id=${koridor_id}'
+          "
+          class="
+            bg-yellow-500
+            text-white
+            px-4
+            py-2
+            rounded-lg
+            w-full
+          "
+        >
+
+          Edit
+
+        </button>
+
+        <!-- DELETE -->
+        <button
+          onclick="
+            deletePerangkat('${item.opname_id}')
+          "
+          class="
+            bg-red-600
+            text-white
+            px-4
+            py-2
+            rounded-lg
+            w-full
+          "
+        >
+
+          Hapus
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+`;
+```
+
+});
+
+document.getElementById("tablePerangkat").innerHTML =
+html;
 
 }
+
 
 function openPhoto(url){
 
