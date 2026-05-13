@@ -178,6 +178,7 @@
   <!-- PHOTO MODAL -->
   <div
     id="photoModal"
+  onclick="closePhoto()"
     class="
       fixed
       inset-0
@@ -206,8 +207,9 @@
     </button>
   
     <!-- IMAGE -->
-    <img
-      id="modalImage"
+   <img
+    id="modalImage"
+    onclick="event.stopPropagation()"
       class="
         max-w-full
         max-h-full
