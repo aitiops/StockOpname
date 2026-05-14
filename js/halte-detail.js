@@ -101,7 +101,7 @@ function renderPerangkat(dataList){
             </span>
             
             <!-- BUTTON LIHAT FOTO -->
-            <button onclick="openPhoto('${photoUrl}')" class="text-blue-600 text-xs font-bold bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100 transition border border-blue-200">
+            <button onclick="openPhoto('${photoUrl}')" class="text-blue-600 text-xs font-bold bg-blue-50 px-3 py-1 rounded-lg hover:bg-blue-100 transition border border-blue-200 shadow-sm">
               Lihat Foto
             </button>
           </div>
@@ -160,46 +160,39 @@ async function deletePerangkat(opnameId){
   }
 }
 
-// ================= PHOTO MODAL =================
+// ================= PHOTO MODAL (DIUBAH KE IFRAME PREVIEW) =================
 function openPhoto(url){
   if(!url || url === "undefined" || url === "") {
     alert("Foto tidak tersedia atau belum diupload.");
     return;
   }
 
-  let imgUrl = url;
+  let fileId = "";
   
-  // Konversi link Google Drive ke format Thumbnail agar tidak diblokir (CORS)
-  if (url.includes("lh3.googleusercontent.com/d/")) {
-    const fileId = url.split("/d/")[1].split("/")[0];
-    imgUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-  } else if (url.includes("drive.google.com/file/d/")) {
-    const fileId = url.split("/d/")[1].split("/")[0];
-    imgUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
-  } else if (url.includes("uc?id=")) {
-    const fileId = url.split("id=")[1].split("&")[0];
-    imgUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+  // Ekstrak ID File dari link Google Drive
+  if (url.includes("/d/")) {
+    fileId = url.split("/d/")[1].split("/")[0];
+  } else if (url.includes("id=")) {
+    fileId = url.split("id=")[1].split("&")[0];
   }
 
-  const modalImg = document.getElementById("modalImage");
-  
-  // Reset event error sebelumnya
-  modalImg.onerror = null; 
-  modalImg.src = imgUrl;
-
-  // JAGA-JAGA: Kalau masih diblokir juga, auto-buka di tab baru
-  modalImg.onerror = function() {
-    this.onerror = null; 
-    alert("Google Drive memblokir preview. Membuka foto di Tab Baru...");
-    closePhoto();
+  // Kalau gagal dapat ID, otomatis buka tab baru (fallback/jaga-jaga)
+  if (!fileId) {
     window.open(url, "_blank");
-  };
+    return;
+  }
 
+  // Pakai URL Preview resmi Google Drive (Dijamin nggak kena block)
+  const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+  
+  document.getElementById("modalIframe").src = previewUrl;
   document.getElementById("photoModal").classList.remove("hidden");
   document.getElementById("photoModal").classList.add("flex");
 }
 
 function closePhoto(){
+  // Hapus src biar iframe berhenti loading pas ditutup
+  document.getElementById("modalIframe").src = ""; 
   document.getElementById("photoModal").classList.remove("flex");
   document.getElementById("photoModal").classList.add("hidden");
 }
