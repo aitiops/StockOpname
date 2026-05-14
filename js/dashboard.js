@@ -474,3 +474,51 @@ async function loadDashboardKasi(){
   }
 
 }
+
+// FUNGSI ANIMASI BOOTING
+async function runBootSequence() {
+    const messages = [
+        "> CONNECTING TO DATABASE...",
+        "> AUTHENTICATING TOKEN...",
+        "> FETCHING ASSET STATUS...",
+        "> SYSTEM READY. SYNCING..."
+    ];
+
+    for (let i = 0; i < messages.length; i++) {
+        const el = document.getElementById(`bootMsg${i + 1}`);
+        if (el) {
+            el.innerText = messages[i];
+            el.classList.replace('opacity-0', 'opacity-100');
+            // Jeda antar baris biar kayak beneran mikir
+            await new Promise(r => setTimeout(r, 400)); 
+        }
+    }
+}
+
+// MODIFIKASI FUNGSI LOAD DASHBOARD
+async function loadDashboardEngineer() {
+    // 1. Jalankan animasi booting dulu
+    await runBootSequence();
+
+    try {
+        // 2. Baru ambil data dari server
+        const dashboardRes = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "getDashboardEngineer", token: token })
+        });
+        
+        const dashboardData = await dashboardRes.json();
+        
+        // ... (Sisa kode ambil data kamu yang lain) ...
+
+        // 3. Matikan loading kalau SEMUA data sudah siap
+        setTimeout(() => {
+            document.getElementById('loadingOverlay').classList.remove('loading-active');
+        }, 500);
+
+    } catch (err) {
+        console.log(err);
+        document.getElementById('bootMsg4').innerText = "> ERROR: CONNECTION FAILED";
+        document.getElementById('bootMsg4').style.color = "red";
+    }
+}
