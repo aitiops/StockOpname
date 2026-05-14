@@ -54,9 +54,17 @@
 
     </main>
 
-    <div id="loadingOverlay" class="loading-overlay">
-        <div class="loader"></div>
-        <div class="loading-text">Menyiapkan Data...</div>
+    <div id="loadingOverlay" class="loading-overlay loading-active">
+        <div class="scan-line"></div>
+        
+        <div class="loader" style="border-bottom-color: #0095DA; width: 60px; height: 60px;"></div>
+        
+        <div class="boot-container">
+            <span id="bootMsg1" class="boot-text opacity-0"></span>
+            <span id="bootMsg2" class="boot-text opacity-0"></span>
+            <span id="bootMsg3" class="boot-text opacity-0"></span>
+            <span id="bootMsg4" class="boot-text opacity-0"></span>
+        </div>
     </div>
 
     <script src="js/config.js"></script>
