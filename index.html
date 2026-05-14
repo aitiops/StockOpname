@@ -1,65 +1,52 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stock Opname IT</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - IT Stock Opname</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gray-100">
-
-  <div class="min-h-screen flex items-center justify-center">
-
-    <div class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-
-      <h1 class="text-2xl font-bold text-center mb-6">
-        Stock Opname IT
-      </h1>
-
-      <!-- Tambahkan Form di sini -->
-      <form onsubmit="event.preventDefault(); login();">
-        
-        <div class="mb-4">
-          <label class="block mb-2">Username</label>
-          <input
-            type="text"
-            id="username"
-            class="w-full border rounded-lg p-3"
-            required
-          >
+<body class="tj-bg">
+  
+    <div class="glass-card">
+        <div style="text-align: center; margin-bottom: 1.5rem;">
+            <img src="assets/logo_tj" 
+                 alt="Logo TJ" style="height: 50px; margin-bottom: 0.5rem;">
+            
+            <h1 style="color: white; font-weight: 800; font-size: 1rem; text-transform: uppercase;">
+                IT Stock Opname
+            </h1>
         </div>
 
-        <div class="mb-6">
-          <label class="block mb-2">Password</label>
-          <input
-            type="password"
-            id="password"
-            class="w-full border rounded-lg p-3"
-            required
-          >
-        </div>
+        <form onsubmit="event.preventDefault(); login();">
+            <div style="margin-bottom: 1.5rem;">
+                <label class="label-text">Username / NIK</label>
+                <input type="text" id="username" class="tj-input" placeholder="Masukkan NIK Anda" required>
+            </div>
 
-        <!-- Button diubah type-nya jadi submit -->
-        <button
-          type="submit"
-          class="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition"
-        >
-          Login
-        </button>
+            <div style="margin-bottom: 2rem;">
+                <label class="label-text">Kata Sandi</label>
+                <input type="password" id="password" class="tj-input" placeholder="••••••••" required>
+                
+                <label class="checkbox-container">
+                    <input type="checkbox" id="showPass" onclick="togglePass('password')">
+                    <span>Tampilkan Sandi</span>
+                </label>
+            </div>
 
-      </form>
+            <button type="submit" class="tj-btn">Masuk Aplikasi</button>
+        </form>
 
-      <p
-        id="message"
-        class="text-center text-red-500 mt-4"
-      ></p>
-
+        <p id="message" style="text-align: center; color: #fbbf24; font-size: 0.75rem; font-weight: 700; margin-top: 1.5rem;"></p>
     </div>
 
-  </div>
-
-  <script src="js/config.js"></script>
-  <script src="js/login.js"></script>
-
+    <script>
+        function togglePass(id) {
+            const x = document.getElementById(id);
+            x.type = x.type === "password" ? "text" : "password";
+        }
+    </script>
+    <script src="js/config.js"></script>
+    <script src="js/login.js"></script>
 </body>
 </html>
