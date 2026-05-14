@@ -1,6 +1,19 @@
 const urlParams = new URLSearchParams(window.location.search);
 const userId = urlParams.get("user_id");
 
+// ================= TOGGLE VIEW PASSWORD =================
+function togglePassword(inputId, btn) {
+  const input = document.getElementById(inputId);
+  if (input.type === "password") {
+    input.type = "text";
+    btn.innerText = "🙈"; // Icon tutup mata
+  } else {
+    input.type = "password";
+    btn.innerText = "👁️"; // Icon mata terbuka
+  }
+}
+
+// ================= HANDLE RESET =================
 async function handleReset() {
   const pass = document.getElementById("newPassword").value;
   const conf = document.getElementById("confirmPassword").value;
@@ -32,7 +45,6 @@ async function handleReset() {
 
     if (data.status) {
       alert(data.message);
-      // Redirect balik ke login (asumsi file login adalah index.html atau login.html)
       window.location.href = "index.html"; 
     } else {
       msg.innerText = data.message;
