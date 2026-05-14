@@ -9,55 +9,9 @@
 </head>
 <body class="bg-slate-50 min-h-screen">
 
-    <nav class="bg-[#0095DA] text-white p-4 sticky top-0 z-50 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <div>
-                <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Engineer Panel</p>
-                <h1 class="font-black text-lg">IT STOCK OPNAME</h1>
-            </div>
-            <div class="flex items-center gap-3">
-                <span id="namaUser" class="text-xs font-bold bg-white/20 px-3 py-1.5 rounded-full"></span>
-                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 p-2 rounded-lg transition-all shadow-lg">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                </button>
-            </div>
-        </div>
-    </nav>
-
-    <main class="p-4 md:p-6 container mx-auto max-w-5xl">
-        
-        <div class="grid grid-cols-3 gap-3 mb-6">
-            <div class="tj-card p-4 text-center bg-white shadow-sm">
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Total Halte</p>
-                <p id="totalHalte" class="text-xl font-black text-slate-800">0</p>
-            </div>
-            <div class="tj-card p-4 text-center bg-white shadow-sm">
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Selesai</p>
-                <p id="halteSelesai" class="text-xl font-black text-green-600">0</p>
-            </div>
-            <div class="tj-card p-4 text-center bg-[#0095DA] border-none shadow-lg">
-                <p class="text-[9px] font-black text-white/70 uppercase mb-1">Progress</p>
-                <p id="progressVisit" class="text-xl font-black text-white">0%</p>
-            </div>
-        </div>
-
-        <div class="mb-6 sticky top-[75px] z-40">
-            <div class="relative group">
-                <input type="text" id="searchHalte" onkeyup="filterHalteManual()" placeholder="Cari Nama Halte..." 
-                    class="w-full p-4 pl-12 rounded-2xl border-none shadow-xl focus:ring-2 focus:ring-[#0095DA] outline-none text-sm transition-all">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 opacity-30 group-focus-within:opacity-100 transition-opacity">🔍</span>
-            </div>
-        </div>
-
-        <div id="dashboardKoridor" class="space-y-4">
-            </div>
-
-    </main>
-
     <div id="loadingOverlay" class="loading-overlay loading-active">
         <div class="scan-line"></div>
-        
-        <div class="loader" style="border-bottom-color: #0095DA; width: 60px; height: 60px;"></div>
+        <div class="loader" style="border-bottom-color: #0095DA; width: 50px; height: 50px;"></div>
         
         <div class="boot-container">
             <span id="bootMsg1" class="boot-text opacity-0"></span>
@@ -67,51 +21,80 @@
         </div>
     </div>
 
+    <nav class="bg-[#0095DA] text-white p-4 sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div>
+                <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Engineer Panel</p>
+                <h1 class="font-black text-lg">IT STOCK OPNAME</h1>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="namaUser" class="text-xs font-bold bg-white/20 px-3 py-1.5 rounded-full"></span>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 p-2 rounded-lg transition-all">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="p-4 md:p-6 container mx-auto max-w-5xl">
+        <div class="grid grid-cols-3 gap-3 mb-6">
+            <div class="tj-card p-4 text-center bg-white shadow-sm">
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Total</p>
+                <p id="totalHalte" class="text-xl font-black text-slate-800">0</p>
+            </div>
+            <div class="tj-card p-4 text-center bg-white shadow-sm">
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Done</p>
+                <p id="halteSelesai" class="text-xl font-black text-green-600">0</p>
+            </div>
+            <div class="tj-card p-4 text-center bg-[#0095DA] border-none shadow-lg text-white">
+                <p class="text-[9px] font-black opacity-70 uppercase mb-1">Progress</p>
+                <p id="progressVisit" class="text-xl font-black">0%</p>
+            </div>
+        </div>
+
+        <div class="mb-6 sticky top-[75px] z-40">
+            <div class="relative">
+                <input type="text" id="searchHalte" onkeyup="filterHalteManual()" placeholder="Cari Nama Halte..." 
+                    class="w-full p-4 pl-12 rounded-2xl border-none shadow-xl focus:ring-2 focus:ring-[#0095DA] outline-none text-sm">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 opacity-30">🔍</span>
+            </div>
+        </div>
+
+        <div id="dashboardKoridor" class="space-y-4"></div>
+    </main>
+
     <script src="js/config.js"></script>
     <script src="js/auth.js"></script>
     <script src="js/dashboard.js"></script>
-
+    
     <script>
-        // Fungsi untuk buka-tutup koridor
+        // Logika UI Accordion & Search (Sama seperti sebelumnya)
         function toggleAccordion(id) {
             const el = document.getElementById(id);
             const all = document.querySelectorAll('.accordion-item');
-            
             all.forEach(item => {
-                if(item.id === id) {
-                    item.classList.toggle('accordion-active');
-                } else {
-                    item.classList.remove('accordion-active');
-                }
+                if(item.id === id) item.classList.toggle('accordion-active');
+                else item.classList.remove('accordion-active');
             });
         }
 
-        // Fungsi pencarian cerdas
         function filterHalteManual() {
             let input = document.getElementById('searchHalte').value.toLowerCase();
             let items = document.querySelectorAll('.halte-row');
             let headers = document.querySelectorAll('.accordion-item');
-
             if(input === "") {
-                headers.forEach(h => {
-                    h.style.display = "block";
-                    h.classList.remove('accordion-active'); // Tutup semua jika search kosong
-                });
+                headers.forEach(h => { h.style.display = "block"; h.classList.remove('accordion-active'); });
                 items.forEach(i => i.style.display = "flex");
                 return;
             }
-
             items.forEach(item => {
                 let text = item.innerText.toLowerCase();
-                let parentAccordion = item.closest('.accordion-item');
-                
+                let parent = item.closest('.accordion-item');
                 if(text.includes(input)) {
                     item.style.display = "flex";
-                    parentAccordion.classList.add('accordion-active');
-                    parentAccordion.style.display = "block";
-                } else {
-                    item.style.display = "none";
-                }
+                    parent.classList.add('accordion-active');
+                    parent.style.display = "block";
+                } else { item.style.display = "none"; }
             });
         }
     </script>
