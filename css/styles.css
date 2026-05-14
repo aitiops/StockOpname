@@ -38,7 +38,7 @@ body {
 
 @media (max-width: 768px) {
     .tj-bg {
-        background-image: url('assets/Mobile.png');
+        background-image: url('assets/mobile_view.png');
         background-size: cover;
     }
 }
