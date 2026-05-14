@@ -170,3 +170,41 @@ body {
 .loading-active {
     display: flex !important;
 }
+
+/* Update Tambahan di style.css */
+.tj-card {
+    background: white;
+    border-radius: 1.5rem;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+}
+
+.accordion-header {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem;
+    background: #f8fafc;
+    border-radius: 1.25rem;
+}
+
+.accordion-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.accordion-active .accordion-content {
+    max-height: 2000px; /* Cukup besar untuk menampung list */
+}
+
+.accordion-active .chevron-icon {
+    transform: rotate(180deg);
+}
+
+.search-container {
+    position: sticky;
+    top: 70px;
+    z-index: 40;
+}
