@@ -1,0 +1,106 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+
+:root {
+    --tj-blue: #0095DA;
+    --tj-dark: #005696;
+    --btn-dark: #333333;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    overflow: hidden; /* Mencegah scroll yang tidak perlu */
+}
+
+/* Background Logic */
+.tj-bg {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #0b1120;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+@media (min-width: 769px) {
+    .tj-bg {
+        background-image: url('https://uploads.onecompiler.io/444vqrk6r/44pabu3a2/Gemini_Generated_Image_f449m2f449m2f449.png');
+        background-size: cover;
+    }
+}
+
+@media (max-width: 768px) {
+    .tj-bg {
+        background-image: url('https://uploads.onecompiler.io/444vqrk6r/44pabu3a2/mobile%20view.png');
+        background-size: cover;
+    }
+}
+
+/* Glassmorphism Card - DIPERKECIL */
+.glass-card {
+    background: rgba(15, 23, 42, 0.4); /* Lebih transparan biar peta kelihatan */
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 2rem;
+    padding: 1.5rem; /* Padding dikurangi */
+    width: 90%;
+    max-width: 320px; /* Lebar dikurangi dari 400px ke 320px */
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+}
+
+/* Input Styles - DIPERKECIL */
+.tj-input {
+    width: 100%;
+    padding: 0.75rem 1.25rem; /* Padding dikurangi */
+    border-radius: 9999px;
+    border: none;
+    background: white;
+    color: #333;
+    font-size: 0.8rem; /* Font diperkecil */
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+/* Button Styles - DIPERKECIL */
+.tj-btn {
+    width: 100%;
+    padding: 0.85rem;
+    border-radius: 9999px;
+    border: none;
+    background: var(--btn-dark);
+    color: white;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tj-btn:hover { background: #000; }
+
+/* Text & Label - DIPERKECIL */
+.label-text {
+    display: block;
+    color: rgba(255,255,255,0.9);
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+    margin-left: 1rem;
+    letter-spacing: 0.05em;
+}
+
+.checkbox-container span {
+    color: white;
+    font-size: 0.6rem;
+    font-weight: 700;
+    margin-left: 0.5rem;
+}
