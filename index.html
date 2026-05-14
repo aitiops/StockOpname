@@ -32,14 +32,28 @@
         </form>
         <p id="message" style="text-align: center; color: #fbbf24; font-size: 0.65rem; font-weight: 700; margin-top: 1rem;"></p>
     </div>
-
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="loader"></div>
+        <div class="loading-text">Memverifikasi...</div>
+    </div>
     <script>
         function togglePass(id) {
             const x = document.getElementById(id);
             x.type = x.type === "password" ? "text" : "password";
         }
+
+        // FUNGSI BARU UNTUK LOADING
+        function showLoading() {
+            document.getElementById('loadingOverlay').classList.add('loading-active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('loading-active');
+        }
     </script>
     <script src="js/config.js"></script>
     <script src="js/login.js"></script>
+
+    
 </body>
 </html>
