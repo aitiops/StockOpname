@@ -7,37 +7,30 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="tj-bg">
-  
     <div class="glass-card">
         <div style="text-align: center; margin-bottom: 1.5rem;">
             <img src="assets/logo_tj.png" 
-                 alt="Logo TJ" style="height: 50px; margin-bottom: 0.5rem;">
-            
-            <h1 style="color: white; font-weight: 800; font-size: 1rem; text-transform: uppercase;">
-                IT Stock Opname
-            </h1>
+                 alt="Logo TJ" style="height: 45px; margin-bottom: 0.5rem;">
+            <h1 style="color: white; font-weight: 800; font-size: 0.9rem; text-transform: uppercase;">IT Stock Opname</h1>
         </div>
 
         <form onsubmit="event.preventDefault(); login();">
-            <div style="margin-bottom: 1.5rem;">
+            <div style="margin-bottom: 1rem;">
                 <label class="label-text">Username / NIK</label>
-                <input type="text" id="username" class="tj-input" placeholder="Masukkan NIK Anda" required>
+                <input type="text" id="username" class="tj-input" placeholder="NIK Anda" required>
             </div>
 
-            <div style="margin-bottom: 2rem;">
+            <div style="margin-bottom: 1.5rem;">
                 <label class="label-text">Kata Sandi</label>
                 <input type="password" id="password" class="tj-input" placeholder="••••••••" required>
-                
                 <label class="checkbox-container">
                     <input type="checkbox" id="showPass" onclick="togglePass('password')">
                     <span>Tampilkan Sandi</span>
                 </label>
             </div>
-
-            <button type="submit" class="tj-btn">Masuk Aplikasi</button>
+            <button type="submit" class="tj-btn">Masuk</button>
         </form>
-
-        <p id="message" style="text-align: center; color: #fbbf24; font-size: 0.75rem; font-weight: 700; margin-top: 1.5rem;"></p>
+        <p id="message" style="text-align: center; color: #fbbf24; font-size: 0.65rem; font-weight: 700; margin-top: 1rem;"></p>
     </div>
 
     <script>
