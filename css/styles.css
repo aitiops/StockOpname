@@ -118,3 +118,55 @@ body {
     margin-left: 0.5rem;
     text-transform: uppercase;
 }
+
+/* ================= OVERLAY LOADING ================= */
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.7); /* Efek menggelap */
+    backdrop-filter: blur(8px); /* Efek blur */
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 10000;
+    display: none; /* Sembunyi secara default */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+/* Animasi Spinner Keren */
+.loader {
+    width: 48px;
+    height: 48px;
+    border: 5px solid #FFF;
+    border-bottom-color: var(--tj-blue);
+    border-radius: 50%;
+    display: inline-block;
+    box-sizing: border-box;
+    animation: rotation 1s linear infinite;
+    margin-bottom: 1.5rem;
+}
+
+.loading-text {
+    color: white;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes rotation {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* Class untuk memunculkan overlay via JS */
+.loading-active {
+    display: flex !important;
+}
