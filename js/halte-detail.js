@@ -30,8 +30,6 @@ async function loadPerangkat(){
     });
     
     const data = await res.json();
-    console.log("Data dari API:", data); // Cek di console log browser buat mastiin data masuk
-
     perangkatList = data.data || [];
 
     // Summary Counter
@@ -65,7 +63,6 @@ function filterPerangkat(){
   const status = document.getElementById("filterStatus").value;
 
   const filtered = perangkatList.filter(item => {
-    // PROTEKSI: Dijadikan string semua biar gak error kalau serial_number formatnya number
     const nama = String(item.nama_perangkat || "").toLowerCase();
     const sn = String(item.serial_number || "").toLowerCase();
 
@@ -89,7 +86,6 @@ function renderPerangkat(dataList){
   }
 
   dataList.forEach(item => {
-    // PROTEKSI: Handle jika ada field yang undefined/null dari backend
     const photoUrl = item.photo || "";
     const opnameId = item.opname_id || "";
     const statusDevice = item.status || "Unknown";
@@ -155,7 +151,7 @@ async function deletePerangkat(opnameId){
     const data = await res.json();
     if(data.status){
       alert("Data berhasil dihapus");
-      loadPerangkat(); // Reload data biar lsg update
+      loadPerangkat();
     } else {
       alert(data.message);
     }
@@ -170,7 +166,35 @@ function openPhoto(url){
     alert("Foto tidak tersedia atau belum diupload.");
     return;
   }
-  document.getElementById("modalImage").src = url;
+
+  let imgUrl = url;
+  
+  // Konversi link Google Drive ke format Thumbnail agar tidak diblokir (CORS)
+  if (url.includes("lh3.googleusercontent.com/d/")) {
+    const fileId = url.split("/d/")[1].split("/")[0];
+    imgUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+  } else if (url.includes("drive.google.com/file/d/")) {
+    const fileId = url.split("/d/")[1].split("/")[0];
+    imgUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+  } else if (url.includes("uc?id=")) {
+    const fileId = url.split("id=")[1].split("&")[0];
+    imgUrl = `https://drive.google.com/thumbnail?id=${fileId}&sz=w1000`;
+  }
+
+  const modalImg = document.getElementById("modalImage");
+  
+  // Reset event error sebelumnya
+  modalImg.onerror = null; 
+  modalImg.src = imgUrl;
+
+  // JAGA-JAGA: Kalau masih diblokir juga, auto-buka di tab baru
+  modalImg.onerror = function() {
+    this.onerror = null; 
+    alert("Google Drive memblokir preview. Membuka foto di Tab Baru...");
+    closePhoto();
+    window.open(url, "_blank");
+  };
+
   document.getElementById("photoModal").classList.remove("hidden");
   document.getElementById("photoModal").classList.add("flex");
 }
