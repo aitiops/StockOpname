@@ -31,14 +31,14 @@ body {
 
 @media (min-width: 769px) {
     .tj-bg {
-        background-image: url('https://uploads.onecompiler.io/444vqrk6r/44pabu3a2/Gemini_Generated_Image_f449m2f449m2f449.png');
+        background-image: url('assets/desktop_view.png');
         background-size: cover;
     }
 }
 
 @media (max-width: 768px) {
     .tj-bg {
-        background-image: url('https://uploads.onecompiler.io/444vqrk6r/44pabu3a2/mobile%20view.png');
+        background-image: url('assets/Mobile.png');
         background-size: cover;
     }
 }
