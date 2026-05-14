@@ -15,7 +15,10 @@
 body {
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
-    overflow: hidden; /* Mencegah scroll yang tidak perlu */
+    /* PERBAIKAN: Agar bisa ditarik ke bawah untuk refresh di HP */
+    overflow-y: auto; 
+    overscroll-behavior-y: contain; 
+    background-color: #0b1120;
 }
 
 /* Background Logic */
@@ -24,52 +27,55 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background-color: #0b1120;
     background-repeat: no-repeat;
     background-position: center;
 }
 
+/* VIEW DESKTOP */
 @media (min-width: 769px) {
     .tj-bg {
-        background-image: url('assets/desktop_view.png');
+        /* PERBAIKAN PATH: Pakai ../ untuk keluar dari folder css */
+        background-image: url('../assets/desktop_view.png');
         background-size: cover;
     }
 }
 
+/* VIEW MOBILE */
 @media (max-width: 768px) {
     .tj-bg {
-        background-image: url('assets/mobile_view.png');
+        /* PERBAIKAN PATH: Pakai ../ untuk keluar dari folder css */
+        background-image: url('../assets/mobile_view.png');
         background-size: cover;
     }
 }
 
-/* Glassmorphism Card - DIPERKECIL */
+/* Glassmorphism Card */
 .glass-card {
-    background: rgba(15, 23, 42, 0.4); /* Lebih transparan biar peta kelihatan */
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(15, 23, 42, 0.5); 
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 2rem;
-    padding: 1.5rem; /* Padding dikurangi */
+    padding: 1.5rem;
     width: 90%;
-    max-width: 320px; /* Lebar dikurangi dari 400px ke 320px */
+    max-width: 320px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    margin: 20px auto; /* Tambah margin agar pas di tengah saat scroll */
 }
 
-/* Input Styles - DIPERKECIL */
+/* Input & Button Styles (Compact) */
 .tj-input {
     width: 100%;
-    padding: 0.75rem 1.25rem; /* Padding dikurangi */
+    padding: 0.75rem 1.25rem;
     border-radius: 9999px;
     border: none;
     background: white;
     color: #333;
-    font-size: 0.8rem; /* Font diperkecil */
+    font-size: 0.8rem;
     outline: none;
     transition: all 0.2s ease;
 }
 
-/* Button Styles - DIPERKECIL */
 .tj-btn {
     width: 100%;
     padding: 0.85rem;
@@ -81,12 +87,11 @@ body {
     text-transform: uppercase;
     font-size: 0.8rem;
     cursor: pointer;
-    transition: all 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
 
-.tj-btn:hover { background: #000; }
+.tj-btn:active { transform: scale(0.98); }
 
-/* Text & Label - DIPERKECIL */
 .label-text {
     display: block;
     color: rgba(255,255,255,0.9);
@@ -98,9 +103,18 @@ body {
     letter-spacing: 0.05em;
 }
 
+.checkbox-container {
+    display: flex;
+    align-items: center;
+    margin-top: 0.6rem;
+    margin-left: 1rem;
+    cursor: pointer;
+}
+
 .checkbox-container span {
     color: white;
     font-size: 0.6rem;
     font-weight: 700;
     margin-left: 0.5rem;
+    text-transform: uppercase;
 }
