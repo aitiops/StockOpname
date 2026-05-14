@@ -1,6 +1,6 @@
 async function login() {
-  const username = document.getElementById("username").value;
-  const password = document.getElementById("password").value;
+  const username = document.getElementById("username").value.trim();
+  const password = document.getElementById("password").value.trim();
   const message = document.getElementById("message");
 
   if (!username || !password) {
@@ -8,7 +8,9 @@ async function login() {
     return;
   }
 
-  message.innerHTML = "Loading...";
+  // 1. AKTIFKAN LOADING LAYAR GELAP (Sentuhan Modern)
+  if (typeof showLoading === "function") showLoading();
+  message.innerHTML = "";
 
   try {
     const res = await fetch(API_URL, {
@@ -23,19 +25,20 @@ async function login() {
     const data = await res.json();
 
     if (data.status) {
-      // CEK APAKAH PERLU RESET PASSWORD
+      // 2. LOGIKA RESET PASSWORD (Sesuai script kamu)
       if (data.reset) {
+        if (typeof hideLoading === "function") hideLoading();
         alert(data.message);
         window.location.href = `reset-password.html?user_id=${data.user_id}`;
-        return; // Hentikan proses login normal
+        return; 
       }
 
-      // SIMPAN SESSION (Login Normal)
+      // 3. SIMPAN SESSION KE LOCALSTORAGE (Sesuai script kamu)
       localStorage.setItem("token", data.token);
       localStorage.setItem("role", data.user.role);
       localStorage.setItem("nama", data.user.nama);
 
-      // REDIRECT BERDASARKAN ROLE
+      // 4. REDIRECT BERDASARKAN ROLE (Sesuai script kamu)
       if (data.user.role == "engineer") {
         window.location.href = "engineer.html";
       } else if (data.user.role == "koordinator") {
@@ -45,10 +48,19 @@ async function login() {
       }
 
     } else {
+      // Login gagal
+      if (typeof hideLoading === "function") hideLoading();
       message.innerHTML = data.message;
     }
   } catch (err) {
+    // Error koneksi
+    if (typeof hideLoading === "function") hideLoading();
     console.error(err);
     message.innerHTML = "Terjadi kesalahan koneksi ke server.";
   }
 }
+
+// Support tombol Enter untuk login
+document.addEventListener('keypress', function (e) {
+    if (e.key === 'Enter') login();
+});
