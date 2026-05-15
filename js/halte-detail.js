@@ -1,6 +1,6 @@
 /**
  * HALTE DETAIL ENGINE - IT STOCK OPNAME
- * Versi Final: Premium Syncing + Card Rendering
+ * Versi Full Final: Fixed Loading Stuck & Premium UI Render
  */
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -17,7 +17,6 @@ if (!halte_id) window.location.href = 'engineer.html';
 document.getElementById("halteTitle").innerHTML = halte_nama || "Detail Halte";
 document.getElementById("koridorTitle").innerHTML = `Koridor ${koridor_id || "-"}`;
 
-// Jalankan Load Data saat halaman siap
 window.onload = () => {
     loadPerangkat();
 };
@@ -32,9 +31,12 @@ async function loadPerangkat() {
     const overlay = document.getElementById("loadingOverlay");
     const sessionToken = localStorage.getItem("token");
 
-    // Tampilkan Loading
-    if (overlay) overlay.style.display = 'flex';
-    if (statusEl) statusEl.innerText = "Mengambil Data Perangkat...";
+    // Munculkan Loading
+    if (overlay) {
+        overlay.classList.add('loading-active');
+        overlay.style.display = 'flex';
+    }
+    if (statusEl) statusEl.innerText = "Sinkronisasi Perangkat...";
 
     try {
         const res = await fetch(API_URL, {
@@ -52,7 +54,6 @@ async function loadPerangkat() {
         // Hitung Summary
         let totalOn = 0;
         let totalOff = 0;
-
         perangkatList.forEach(item => {
             if (item.status === "On Service") totalOn++;
             else totalOff++;
@@ -65,17 +66,27 @@ async function loadPerangkat() {
 
         renderPerangkat(perangkatList);
 
-        // Tutup Loading
-        if (statusEl) statusEl.innerText = "Sinkronisasi Selesai!";
+        // --- PROSES TUTUP LOADING (FIX STUCK) ---
+        if (statusEl) statusEl.innerText = "Data Sinkron!";
+        
         setTimeout(() => {
-            if (overlay) overlay.style.display = 'none';
+            if (overlay) {
+                // Hapus class agar CSS !important tidak lagi menahan overlay
+                overlay.classList.remove('loading-active');
+                overlay.style.display = 'none';
+            }
         }, 600);
 
     } catch (err) {
         console.error("Gagal load perangkat:", err);
+        // Failsafe: Loading harus tetap hilang kalau error
+        if (overlay) {
+            overlay.classList.remove('loading-active');
+            overlay.style.display = 'none';
+        }
         if (statusEl) {
             statusEl.innerText = "Koneksi Bermasalah!";
-            statusEl.style.color = "red";
+            statusEl.style.color = "#ef4444";
         }
     }
 }
@@ -83,6 +94,7 @@ async function loadPerangkat() {
 // ================= RENDER CARD PERANGKAT =================
 function renderPerangkat(dataList) {
     let html = "";
+    const container = document.getElementById("tablePerangkat");
 
     if (!dataList || dataList.length === 0) {
         html = `
@@ -90,7 +102,7 @@ function renderPerangkat(dataList) {
                 <div class="text-5xl mb-4 opacity-20">📦</div>
                 <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Belum ada perangkat terdaftar</p>
             </div>`;
-        document.getElementById("tablePerangkat").innerHTML = html;
+        container.innerHTML = html;
         return;
     }
 
@@ -144,7 +156,7 @@ function renderPerangkat(dataList) {
             </div>`;
     });
 
-    document.getElementById("tablePerangkat").innerHTML = html;
+    container.innerHTML = html;
 }
 
 // ================= FILTER LOGIC =================
@@ -162,7 +174,7 @@ function filterPerangkat() {
     renderPerangkat(filtered);
 }
 
-// ================= CRUD HELPERS =================
+// ================= DELETE LOGIC =================
 async function deletePerangkat(opnameId) {
     if (!confirm("Hapus perangkat ini dari database?")) return;
     try {
@@ -193,11 +205,23 @@ function openPhoto(url) {
     if (!fileId) { window.open(url, "_blank"); return; }
 
     const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
-    document.getElementById("modalIframe").src = previewUrl;
-    document.getElementById("photoModal").style.display = 'flex';
+    const modal = document.getElementById("photoModal");
+    const iframe = document.getElementById("modalIframe");
+    
+    if(iframe) iframe.src = previewUrl;
+    if(modal) {
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+    }
 }
 
 function closePhoto() {
-    document.getElementById("modalIframe").src = "";
-    document.getElementById("photoModal").style.display = 'none';
+    const modal = document.getElementById("photoModal");
+    const iframe = document.getElementById("modalIframe");
+    
+    if(iframe) iframe.src = "";
+    if(modal) {
+        modal.classList.remove("flex");
+        modal.classList.add("hidden");
+    }
 }
