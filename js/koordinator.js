@@ -1,6 +1,6 @@
 /**
  * KOORDINATOR DASHBOARD ENGINE - FIXED & FILTERED
- * Memastikan Summary hanya menghitung Koridor milik Koordinator
+ * Menampilkan ringkasan berdasarkan wilayah tugas Koordinator
  */
 
 window.onload = () => {
@@ -16,7 +16,7 @@ async function loadDashboardKoordinator() {
     const overlay = document.getElementById("loadingOverlay");
     const token = localStorage.getItem("token");
     
-    // Ambil jatah wilayah (contoh: "1" atau "1,2")
+    // Ambil wilayah jatah (misal: "1" atau "1,2")
     const wilayahAkses = localStorage.getItem("wilayah") || "";
 
     if (overlay) {
@@ -25,6 +25,7 @@ async function loadDashboardKoordinator() {
     }
 
     try {
+        // PENTING: Harus panggil getDashboardKoordinator, bukan getDashboardEngineer
         const res = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({ action: "getDashboardKoordinator", token: token })
@@ -32,6 +33,11 @@ async function loadDashboardKoordinator() {
         
         const result = await res.json();
         const data = result.data || result;
+
+        if (!result.status) {
+            console.error("Gagal ambil data:", result.message);
+            return;
+        }
 
         // ==========================================
         // 1. FILTER DATA BERDASARKAN WILAYAH TUGAS
@@ -42,12 +48,13 @@ async function loadDashboardKoordinator() {
         if (wilayahAkses.toLowerCase() === "all") {
             filteredKoridors = data.koridors || [];
         } else {
+            // Pecah string wilayah "1,2" menjadi array ["1", "2"]
             allowedIDs = wilayahAkses.split(",").map(id => id.trim());
             filteredKoridors = (data.koridors || []).filter(kor => allowedIDs.includes(String(kor.id)));
         }
 
         // ==========================================
-        // 2. HITUNG SUMMARY (HANYA WILAYAH TERKAIT)
+        // 2. HITUNG RINGKASAN (SUMMARY CARDS)
         // ==========================================
         let totalH = 0, selesaiH = 0, totalA = 0;
         
@@ -59,15 +66,17 @@ async function loadDashboardKoordinator() {
 
         const totalProgress = totalH > 0 ? Math.round((selesaiH / totalH) * 100) : 0;
 
-        // Update Elemen Dashboard
+        // Update Angka di Layar
         document.getElementById("totalHalte").innerText = totalH;
         document.getElementById("halteSelesai").innerText = selesaiH;
         document.getElementById("progressVisit").innerText = totalProgress + "%";
         document.getElementById("totalPerangkat").innerText = totalA;
 
         // ==========================================
-        // 3. RENDER LIST ENGINEER & KORIDOR
+        // 3. RENDER DAFTAR ENGINEER & KORIDOR
         // ==========================================
+        
+        // Filter Engineer: Hanya yang bertugas di wilayah Koordinator ini
         const filteredEngineers = wilayahAkses.toLowerCase() === "all" 
             ? (data.engineers || []) 
             : (data.engineers || []).filter(eng => allowedIDs.includes(String(eng.koridor_tugas)));
@@ -92,11 +101,12 @@ function renderEngineers(list) {
     let html = "";
     if (!list || list.length === 0) {
         html = `<div class="bg-white p-10 rounded-[2rem] border border-dashed border-slate-200 text-center">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tidak ada engineer aktif</p>
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
                 </div>`;
     } else {
         list.forEach(eng => {
-            const prog = eng.progress || 0;
+            // Progres engineer dihitung dari alat yang dia input
+            const prog = eng.progress || 0; 
             html += `
                 <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
                     <div class="flex justify-between items-center mb-3">
@@ -107,14 +117,13 @@ function renderEngineers(list) {
                                 <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Koridor ${eng.koridor_tugas || '-'}</p>
                             </div>
                         </div>
-                        <div class="text-right"><span class="text-lg font-black text-[#0095DA]">${prog}%</span></div>
+                        <div class="text-right">
+                            <span class="text-lg font-black text-[#0095DA]">${eng.selesai || 0}</span>
+                            <p class="text-[8px] font-bold text-slate-400 uppercase">Input</p>
+                        </div>
                     </div>
-                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                        <div class="bg-[#0095DA] h-full transition-all duration-1000" style="width: ${prog}%"></div>
-                    </div>
-                    <div class="flex justify-between mt-3 text-[9px] font-black uppercase text-slate-400">
-                        <span>${eng.selesai || 0} ALAT</span>
-                        <span>PROGRESS AKTIF</span>
+                    <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                        <div class="bg-[#0095DA] h-full transition-all duration-1000" style="width: ${prog > 0 ? 100 : 0}%"></div>
                     </div>
                 </div>`;
         });
@@ -126,7 +135,7 @@ function renderKoridor(list) {
     const container = document.getElementById("koridorList");
     let html = "";
     if (!list || list.length === 0) {
-        html = `<p class="text-center py-10 text-slate-400 text-[10px] font-black uppercase">DATA KORIDOR KOSONG</p>`;
+        html = `<p class="text-center py-10 text-slate-400 text-[10px] font-black uppercase tracking-widest">Data Wilayah Tidak Ditemukan</p>`;
     } else {
         list.forEach(kor => {
             const prog = kor.progress || 0;
@@ -151,7 +160,7 @@ function renderKoridor(list) {
 }
 
 function logout() {
-    if(confirm("Apakah Anda ingin logout?")) {
+    if(confirm("Logout dari aplikasi monitoring?")) {
         localStorage.clear();
         window.location.href = "index.html";
     }
