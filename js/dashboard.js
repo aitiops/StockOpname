@@ -1,6 +1,6 @@
 /**
  * DASHBOARD ENGINE - IT STOCK OPNAME
- * Final Fix: Ultra-Smart Search (Hide Empty Corridors)
+ * Final Fix: Smart Search + Anti-Stuck Loading (Guaranteed)
  */
 
 window.onload = () => {
@@ -16,47 +16,53 @@ window.onload = () => {
 };
 
 // ========================================================
-// AMBIL DATA DARI SERVER
+// LOAD DATA UTAMA
 // ========================================================
 async function loadDashboardEngineer() {
     const statusEl = document.getElementById("loadingStatus");
     const overlay = document.getElementById("loadingOverlay");
     const sessionToken = localStorage.getItem("token");
 
+    // 1. Munculkan Loading
     if (overlay) {
         overlay.classList.add('loading-active');
         overlay.style.display = 'flex';
     }
+    if (statusEl) statusEl.innerText = "Sinkronisasi Data...";
 
     try {
-        // 1. Ambil Stats
+        console.log("Memulai Sinkronisasi...");
+
+        // 2. Fetch Stats
         const resStats = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({ action: "getDashboardEngineer", token: sessionToken })
         });
-        const dData = (await resStats.json()).data;
+        const statsJson = await resStats.json();
+        const dData = statsJson.data || statsJson;
 
-        document.getElementById("totalHalte").innerHTML = dData.total_halte || 0;
-        document.getElementById("halteSelesai").innerHTML = dData.halte_selesai || 0;
-        document.getElementById("progressVisit").innerHTML = (dData.progress || 0) + "%";
+        if(document.getElementById("totalHalte")) document.getElementById("totalHalte").innerHTML = dData.total_halte || 0;
+        if(document.getElementById("halteSelesai")) document.getElementById("halteSelesai").innerHTML = dData.halte_selesai || 0;
+        if(document.getElementById("progressVisit")) document.getElementById("progressVisit").innerHTML = (dData.progress || 0) + "%";
 
-        // 2. Ambil List Halte
+        // 3. Fetch List Halte
+        if (statusEl) statusEl.innerText = "Menyusun Koridor...";
         const resHalte = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({ action: "getHalte", token: sessionToken })
         });
-        const halte = (await resHalte.json()).data;
+        const halteJson = await resHalte.json();
+        const listHalte = halteJson.data || halteJson;
 
-        // 3. Grouping Koridor
+        // 4. Grouping & Render
         let koridorMap = {};
-        if (Array.isArray(halte)) {
-            halte.forEach(item => {
+        if (Array.isArray(listHalte)) {
+            listHalte.forEach(item => {
                 if (!koridorMap[item.koridor_id]) koridorMap[item.koridor_id] = [];
                 koridorMap[item.koridor_id].push(item);
             });
         }
 
-        // 4. Render HTML
         let html = "";
         for (let koridor in koridorMap) {
             let halteHtml = "";
@@ -74,7 +80,7 @@ async function loadDashboardEngineer() {
                             <div class="text-[10px] text-slate-400 font-mono">ID: ${item.halte_id}</div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="${badgeClass} text-[9px] font-black px-2 py-1 rounded-md">${isSelesai ? 'DONE' : 'PENDING'}</span>
+                            <span class="${badgeClass} text-[9px] font-black px-2 py-1 rounded-md uppercase">${isSelesai ? 'DONE' : 'PENDING'}</span>
                             <button onclick="window.location.href='halte-detail.html?halte_id=${item.halte_id}&halte_nama=${item.nama_halte}&koridor_id=${item.koridor_id}'" 
                                 class="bg-slate-100 text-slate-600 p-2 rounded-lg hover:bg-[#0095DA] hover:text-white transition-all shadow-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -104,73 +110,64 @@ async function loadDashboardEngineer() {
         }
 
         document.getElementById("dashboardKoridor").innerHTML = html || "<p class='text-center py-10 text-slate-400'>Data tidak tersedia.</p>";
+        if (statusEl) statusEl.innerText = "Data Siap!";
 
-        // Tutup Loading
-        if(statusEl) statusEl.innerText = "Data Sinkron!";
+    } catch (err) {
+        console.error("Sinkronisasi Gagal:", err);
+        if (statusEl) statusEl.innerText = "Gagal Memuat Data";
+    } finally {
+        // --- JURUS PAMUNGKAS ---
+        // Mau sukses atau gagal, loading WAJIB hilang setelah jeda sebentar
         setTimeout(() => {
             if (overlay) {
                 overlay.classList.remove('loading-active');
                 overlay.style.setProperty('display', 'none', 'important');
+                overlay.style.display = 'none';
             }
-        }, 600);
-
-    } catch (err) {
-        console.error(err);
-        if (overlay) overlay.style.display = 'none';
+        }, 800);
     }
 }
 
 // ========================================================
-// PENCARIAN CERDAS (KUNCI UTAMA)
+// PENCARIAN CERDAS (HIDE EMPTY)
 // ========================================================
 function filterHalteManual() {
     const input = document.getElementById('searchHalte').value.toLowerCase().trim();
     const accordions = document.querySelectorAll('.accordion-item');
 
-    // Jika input kosong: Tampilkan semua koridor, tutup semua list
     if (input === "") {
         accordions.forEach(acc => {
             acc.style.setProperty('display', 'block', 'important');
             acc.classList.remove('accordion-active');
-            const rows = acc.querySelectorAll('.halte-row');
-            rows.forEach(row => row.style.setProperty('display', 'flex', 'important'));
+            acc.querySelectorAll('.halte-row').forEach(row => row.style.setProperty('display', 'flex', 'important'));
         });
         return;
     }
 
-    // Jika sedang mencari:
     accordions.forEach(acc => {
         const rows = acc.querySelectorAll('.halte-row');
-        let adaYangCocok = false;
+        let match = false;
 
         rows.forEach(row => {
-            // Kita ambil teks hanya dari nama haltenya saja biar akurat
-            const namaHalte = row.querySelector('.h-nama').innerText.toLowerCase();
-            const idHalte = row.innerText.toLowerCase(); // Tetap cek ID juga kalau mau
-
-            if (namaHalte.includes(input) || idHalte.includes(input)) {
+            const nama = row.querySelector('.h-nama').innerText.toLowerCase();
+            if (nama.includes(input)) {
                 row.style.setProperty('display', 'flex', 'important');
-                adaYangCocok = true;
+                match = true;
             } else {
                 row.style.setProperty('display', 'none', 'important');
             }
         });
 
-        // TAMPILKAN ATAU SEMBUNYIKAN KORIDOR
-        if (adaYangCocok) {
-            acc.style.setProperty('display', 'block', 'important'); // Tampilkan box koridor
-            acc.classList.add('accordion-active'); // Buka list-nya otomatis
+        if (match) {
+            acc.style.setProperty('display', 'block', 'important');
+            acc.classList.add('accordion-active');
         } else {
-            acc.style.setProperty('display', 'none', 'important'); // SEMBUNYIKAN KORIDOR TOTAL
+            acc.style.setProperty('display', 'none', 'important');
         }
     });
 }
 
-// ========================================================
-// UI HELPERS
-// ========================================================
 function toggleAccordion(id) {
     const el = document.getElementById(id);
-    if (!el) return;
-    el.classList.toggle('accordion-active');
+    if (el) el.classList.toggle('accordion-active');
 }
