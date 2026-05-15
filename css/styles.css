@@ -105,25 +105,32 @@ body {
     display: flex !important;
 }
 
-/* --- ANIMASI LOGO TJ (PENGGANTI SPINNER) --- */
+/* --- ANIMASI LOGO TJ (VERSI PNG) --- */
 .premium-loader, .loader {
-    width: 80px; /* Ukuran logo */
-    height: 80px;
-    background-image: url('../assets/logo_tj_biru.png'); /* Panggil Logo SVG */
+    width: 100px; /* Sesuaikan ukuran agar pas */
+    height: 100px;
+    background-image: url('../assets/tj_logo.png'); /* Ganti jadi .png */
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
-    border: none !important; /* Hapus border spinner lama */
-    animation: tjLogoPulse 1.8s ease-in-out infinite; /* Efek berdenyut lembut */
+    border: none !important;
+    animation: tjLogoPulse 1.8s ease-in-out infinite;
     margin-bottom: 1rem;
 }
 
-/* Animasi Denyut Logo yang Elegan */
 @keyframes tjLogoPulse {
-    0%, 100% { opacity: 0.8; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.05); }
+    0%, 100% { 
+        opacity: 0.8; 
+        transform: scale(1); 
+        filter: drop-shadow(0 0 0px rgba(0, 149, 218, 0));
+    }
+    50% { 
+        opacity: 1; 
+        transform: scale(1.08); /* Berdenyut sedikit lebih besar */
+        /* Bonus: Efek glow tipis biar lebih mewah */
+        filter: drop-shadow(0 0 10px rgba(0, 149, 218, 0.3));
+    }
 }
-
 /* Teks Loading (TETAP SAMA, BIRU BERDENYUT) */
 .loading-text, .loading-status {
     color: var(--tj-blue) !important;
