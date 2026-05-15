@@ -126,37 +126,33 @@ async function loadDashboardEngineer() {
 // FUNGSI SEARCH (VERSI SAPU BERSIH)
 // ========================================================
 function filterHalteManual() {
-    // Ambil input dari user
-    const searchVal = document.getElementById('searchHalte').value.toLowerCase().trim();
+    const input = document.getElementById('searchHalte').value.toLowerCase().trim();
     const accordions = document.querySelectorAll('.accordion-item');
 
     accordions.forEach(acc => {
         const rows = acc.querySelectorAll('.halte-row');
-        let hasMatch = false;
+        let adaYangCocok = false;
 
         rows.forEach(row => {
-            // Kita cari di semua teks di dalam baris tersebut
-            const rowText = row.innerText.toLowerCase();
-
-            if (searchVal === "" || rowText.includes(searchVal)) {
+            const text = row.innerText.toLowerCase();
+            if (input === "" || text.includes(input)) {
                 row.style.setProperty('display', 'flex', 'important');
-                if (searchVal !== "") hasMatch = true;
+                if (input !== "") adaYangCocok = true;
             } else {
                 row.style.setProperty('display', 'none', 'important');
             }
         });
 
-        // Tampilkan/Sembunyikan Koridor
-        if (searchVal === "") {
-            // Jika kosong, tampilkan semua koridor dan tutup listnya
+        // SEMBUNYIKAN KORIDOR TOTAL KALAU GAK ADA YANG COCOK
+        if (input === "") {
             acc.style.setProperty('display', 'block', 'important');
             acc.classList.remove('accordion-active');
         } else {
-            if (hasMatch) {
+            if (adaYangCocok) {
                 acc.style.setProperty('display', 'block', 'important');
-                acc.classList.add('accordion-active'); // Buka otomatis kalau ada hasil
+                acc.classList.add('accordion-active'); // Auto-buka
             } else {
-                acc.style.setProperty('display', 'none', 'important'); // SEMBUNYIKAN KORIDOR TOTAL
+                acc.style.setProperty('display', 'none', 'important'); // Sembunyi total
             }
         }
     });
