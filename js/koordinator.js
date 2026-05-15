@@ -1,83 +1,62 @@
 /**
- * KOORDINATOR DASHBOARD ENGINE - FINAL MULTI-SCOPE
- * Mendukung: Single Corridor, Multi (1,2,3), dan Master Access (all)
+ * ENGINEER DASHBOARD ENGINE - IT STOCK OPNAME
+ * Versi: Anti-Zonk & Ultra-Smart Search
  */
 
 window.onload = () => {
     const nama = localStorage.getItem("nama");
     if (document.getElementById("namaUser")) {
-        document.getElementById("namaUser").innerText = nama || "Koordinator";
+        document.getElementById("namaUser").innerText = nama || "Engineer";
     }
-    loadDashboardKoordinator();
+    loadDashboardEngineer();
 };
 
-async function loadDashboardKoordinator() {
+// ========================================================
+// LOAD DATA UTAMA (SUMMARY & LIST)
+// ========================================================
+async function loadDashboardEngineer() {
     const statusEl = document.getElementById("loadingStatus");
     const overlay = document.getElementById("loadingOverlay");
     const token = localStorage.getItem("token");
-    
-    // Ambil data 'wilayah' dari Sheet via LocalStorage
-    const wilayahAkses = localStorage.getItem("wilayah") || "";
 
-    if (overlay) overlay.classList.add('loading-active');
+    // Munculkan Loading Premium
+    if (overlay) {
+        overlay.classList.add('loading-active');
+        overlay.style.display = 'flex';
+    }
+    if (statusEl) statusEl.innerText = "Sinkronisasi Data...";
 
     try {
-        const res = await fetch(API_URL, {
+        // 1. Ambil Summary Stats (Total, Done, Progress)
+        const resStats = await fetch(API_URL, {
             method: "POST",
-            body: JSON.stringify({ action: "getDashboardKoordinator", token: token })
+            body: JSON.stringify({ action: "getDashboardEngineer", token: token })
         });
+        const stats = await resStats.json();
         
-        const result = await res.json();
-        const data = result.data || result;
-
-        // ==========================================
-        // LOGIKA FILTER BERDASARKAN HAK AKSES
-        // ==========================================
-        let filteredKoridors = [];
-        let allowedIDs = [];
-
-        if (wilayahAkses.toLowerCase() === "all") {
-            // Skenario 1: Akses Semua (Tim Malam)
-            filteredKoridors = data.koridors || [];
-        } else {
-            // Skenario 2: Akses Spesifik (contoh: "1" atau "1,2,3")
-            allowedIDs = wilayahAkses.split(",").map(id => id.trim());
-            filteredKoridors = (data.koridors || []).filter(kor => allowedIDs.includes(String(kor.id)));
+        if (stats.status) {
+            document.getElementById("totalHalte").innerText = stats.data.total_halte || 0;
+            document.getElementById("halteSelesai").innerText = stats.data.halte_selesai || 0;
+            document.getElementById("progressVisit").innerText = (stats.data.progress || 0) + "%";
         }
 
-        // ==========================================
-        // HITUNG ULANG SUMMARY BERDASARKAN FILTER
-        // ==========================================
-        let totalH = 0, selesaiH = 0, totalA = 0;
-        
-        filteredKoridors.forEach(k => {
-            totalH += parseInt(k.total_halte || 0);
-            selesaiH += parseInt(k.selesai || 0);
-            totalA += parseInt(k.total_perangkat || 0);
+        // 2. Ambil List Semua Halte (Untuk Accordion)
+        if (statusEl) statusEl.innerText = "Menyusun Koridor...";
+        const resHalte = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "getHalte", token: token })
         });
-
-        const totalProgress = totalH > 0 ? Math.round((selesaiH / totalH) * 100) : 0;
-
-        document.getElementById("totalHalte").innerText = totalH;
-        document.getElementById("halteSelesai").innerText = selesaiH;
-        document.getElementById("progressVisit").innerText = totalProgress + "%";
-        document.getElementById("totalPerangkat").innerText = totalA;
-
-        // ==========================================
-        // RENDER LISTS
-        // ==========================================
+        const halteData = await resHalte.json();
         
-        // Filter Engineer yang hanya kerja di wilayah Koordinator tersebut
-        const filteredEngineers = wilayahAkses.toLowerCase() === "all" 
-            ? (data.engineers || []) 
-            : (data.engineers || []).filter(eng => allowedIDs.includes(String(eng.koridor_tugas)));
-            
-        renderEngineers(filteredEngineers);
-        renderKoridor(filteredKoridors);
+        if (halteData.status) {
+            renderAccordion(halteData.data);
+        }
 
     } catch (err) {
-        console.error("Gagal memuat data koordinator:", err);
+        console.error("Gagal Sinkronisasi:", err);
+        if (statusEl) statusEl.innerText = "Gagal Memuat Data";
     } finally {
+        // MAU SUKSES ATAU GAGAL, LOADING HARUS ILANG
         setTimeout(() => {
             if (overlay) {
                 overlay.classList.remove('loading-active');
@@ -87,71 +66,118 @@ async function loadDashboardKoordinator() {
     }
 }
 
-function renderEngineers(list) {
+// ========================================================
+// RENDER ACCORDION LOGIC
+// ========================================================
+function renderAccordion(listHalte) {
+    const container = document.getElementById("dashboardKoridor");
+    if (!listHalte || listHalte.length === 0) {
+        container.innerHTML = `<p class="text-center py-20 text-slate-400 font-bold uppercase text-xs">Data Halte Tidak Ditemukan</p>`;
+        return;
+    }
+
+    // Grouping halte berdasarkan koridor_id
+    let koridorMap = {};
+    listHalte.forEach(item => {
+        if (!koridorMap[item.koridor_id]) koridorMap[item.koridor_id] = [];
+        koridorMap[item.koridor_id].push(item);
+    });
+
     let html = "";
-    if (!list || list.length === 0) {
-        html = `<div class="bg-white p-10 rounded-[2rem] border border-dashed border-slate-200 text-center">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
-                </div>`;
-    } else {
-        list.forEach(eng => {
-            const prog = eng.progress || 0;
-            html += `
-                <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
-                    <div class="flex justify-between items-center mb-3">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-slate-100 rounded-2xl flex items-center justify-center text-lg">👷</div>
-                            <div>
-                                <h3 class="font-black text-slate-800 text-sm uppercase">${eng.nama}</h3>
-                                <p class="text-[9px] font-bold text-slate-400 uppercase tracking-tighter">Koridor ${eng.koridor_tugas || '-'}</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-lg font-black text-[#0095DA]">${prog}%</span>
-                        </div>
+    // Susun HTML per koridor
+    Object.keys(koridorMap).sort((a, b) => a - b).forEach(kId => {
+        let items = koridorMap[kId];
+        let doneInKoridor = items.filter(h => h.status === "Selesai").length;
+        
+        let halteRows = "";
+        items.forEach(h => {
+            const isDone = h.status === "Selesai";
+            halteRows += `
+                <div class="halte-row flex justify-between items-center p-4 border-b border-slate-50 last:border-none">
+                    <div class="flex-grow">
+                        <div class="font-bold text-slate-700 text-sm h-nama">${h.nama_halte}</div>
+                        <div class="text-[10px] text-slate-400 font-mono uppercase">ID: ${h.halte_id}</div>
                     </div>
-                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                        <div class="bg-[#0095DA] h-full transition-all duration-1000" style="width: ${prog}%"></div>
-                    </div>
-                    <div class="flex justify-between mt-3 text-[9px] font-black uppercase text-slate-400">
-                        <span>${eng.selesai || 0} SELESAI</span>
-                        <span class="text-slate-300">TOTAL ${eng.total_tugas || 0} HALTE</span>
+                    <div class="flex items-center gap-3">
+                        <span class="${isDone ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'} text-[9px] font-black px-2 py-1 rounded-md uppercase">
+                            ${isDone ? 'DONE' : 'PENDING'}
+                        </span>
+                        <button onclick="window.location.href='halte-detail.html?halte_id=${h.halte_id}&halte_nama=${h.nama_halte}&koridor_id=${h.koridor_id}'" 
+                            class="bg-slate-100 text-slate-600 p-2 rounded-lg hover:bg-[#0095DA] hover:text-white transition-all shadow-sm active:scale-90">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
                     </div>
                 </div>`;
         });
-    }
-    document.getElementById("engineerList").innerHTML = html;
+
+        html += `
+            <div class="accordion-item tj-card overflow-hidden bg-white shadow-sm mb-4 border border-slate-100" id="koridor-${kId}">
+                <div class="accordion-header flex justify-between items-center p-4 cursor-pointer hover:bg-slate-50 transition-colors" onclick="toggleAccordion('koridor-${kId}')">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-[#0095DA] text-white rounded-xl flex items-center justify-center font-black shadow-inner">${kId}</div>
+                        <div>
+                            <h2 class="text-sm font-black text-slate-800 uppercase">Koridor ${kId}</h2>
+                            <p class="text-[10px] text-slate-500 font-bold">${doneInKoridor} / ${items.length} Selesai</p>
+                        </div>
+                    </div>
+                    <div class="chevron-icon transition-transform duration-300 opacity-20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </div>
+                </div>
+                <div class="accordion-content bg-white border-t border-slate-50">
+                    <div class="p-1">${halteRows}</div>
+                </div>
+            </div>`;
+    });
+
+    container.innerHTML = html;
 }
 
-function renderKoridor(list) {
-    let html = "";
-    if (!list || list.length === 0) {
-        html = `<p class="text-center py-10 text-slate-400 text-[10px] font-black uppercase">DATA KORIDOR KOSONG</p>`;
-    } else {
-        list.forEach(kor => {
-            const prog = kor.progress || 0;
-            html += `
-                <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm flex items-center gap-4 group hover:border-[#0095DA] transition-all">
-                    <div class="w-12 h-12 bg-slate-800 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-lg group-hover:bg-[#0095DA] transition-colors">
-                        ${kor.id}
-                    </div>
-                    <div class="flex-grow">
-                        <div class="flex justify-between items-end mb-1">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Koridor ${kor.id}</span>
-                            <span class="text-xs font-black text-slate-800">${prog}%</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-slate-800 h-full group-hover:bg-[#0095DA] transition-all duration-1000" style="width: ${prog}%"></div>
-                        </div>
-                    </div>
-                </div>`;
+// ========================================================
+// SMART SEARCH (HIDE EMPTY CORRIDOR)
+// ========================================================
+function filterHalteManual() {
+    const input = document.getElementById('searchHalte').value.toLowerCase().trim();
+    const accordions = document.querySelectorAll('.accordion-item');
+
+    accordions.forEach(acc => {
+        const rows = acc.querySelectorAll('.halte-row');
+        let adaYangCocok = false;
+
+        rows.forEach(row => {
+            const text = row.innerText.toLowerCase();
+            if (input === "" || text.includes(input)) {
+                row.style.setProperty('display', 'flex', 'important');
+                if (input !== "") adaYangCocok = true;
+            } else {
+                row.style.setProperty('display', 'none', 'important');
+            }
         });
-    }
-    document.getElementById("koridorList").innerHTML = html;
+
+        // Tampilkan/Sembunyikan Koridor
+        if (input === "") {
+            // Mode Normal: Semua koridor tampil, semua ketutup
+            acc.style.setProperty('display', 'block', 'important');
+            acc.classList.remove('accordion-active');
+        } else {
+            // Mode Cari: Sembunyi kalau kosong, buka kalau ada isi
+            if (adaYangCocok) {
+                acc.style.setProperty('display', 'block', 'important');
+                acc.classList.add('accordion-active'); 
+            } else {
+                acc.style.setProperty('display', 'none', 'important');
+            }
+        }
+    });
+}
+
+function toggleAccordion(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('accordion-active');
 }
 
 function logout() {
-    if(confirm("Apakah Anda ingin logout?")) {
+    if(confirm("Logout dari aplikasi?")) {
         localStorage.clear();
         window.location.href = "index.html";
     }
