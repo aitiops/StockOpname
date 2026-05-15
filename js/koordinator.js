@@ -1,5 +1,5 @@
 /**
- * KOORDINATOR DASHBOARD ENGINE
+ * KOORDINATOR DASHBOARD ENGINE - MULTI CORRIDOR VERSION
  */
 
 window.onload = () => {
@@ -14,11 +14,11 @@ async function loadDashboardKoordinator() {
     const statusEl = document.getElementById("loadingStatus");
     const overlay = document.getElementById("loadingOverlay");
     const token = localStorage.getItem("token");
+    
+    // Ambil wilayah tugas. Misal: "1" atau "1,2" atau "all"
+    const wilayahTugas = localStorage.getItem("wilayah_tugas") || "";
 
-    if (overlay) {
-        overlay.classList.add('loading-active');
-        overlay.style.display = 'flex';
-    }
+    if (overlay) overlay.classList.add('loading-active');
 
     try {
         const res = await fetch(API_URL, {
@@ -29,17 +29,44 @@ async function loadDashboardKoordinator() {
         const result = await res.json();
         const data = result.data || result;
 
-        // 1. Update Summary
-        document.getElementById("totalHalte").innerText = data.total_halte || 0;
-        document.getElementById("halteSelesai").innerText = data.halte_selesai || 0;
-        document.getElementById("progressVisit").innerText = (data.progress || 0) + "%";
-        document.getElementById("totalPerangkat").innerText = data.total_perangkat || 0;
+        // --- LOGIKA FILTER MULTI-KORIDOR ---
+        let filteredKoridor = [];
+        let allowedIDs = [];
 
-        // 2. Render Engineer Performance
-        renderEngineers(data.engineers || []);
+        if (wilayahTugas.toLowerCase() === "all") {
+            // Jika tim malam (all), tampilkan semua tanpa filter
+            filteredKoridor = data.koridors;
+        } else {
+            // Jika spesifik (1 atau 1,2), pecah string menjadi array
+            allowedIDs = wilayahTugas.split(",").map(id => id.trim());
+            filteredKoridor = data.koridors.filter(kor => allowedIDs.includes(String(kor.id)));
+        }
 
-        // 3. Render Koridor Progress
-        renderKoridor(data.koridors || []);
+        // 1. Update Summary (Akumulasi dari koridor yang boleh dilihat)
+        let totalH = 0, selesaiH = 0, totalA = 0;
+        filteredKoridor.forEach(k => {
+            totalH += parseInt(k.total_halte || 0);
+            selesaiH += parseInt(k.selesai || 0);
+            totalA += parseInt(k.total_perangkat || 0);
+        });
+
+        const totalProgress = totalH > 0 ? Math.round((selesaiH / totalH) * 100) : 0;
+
+        document.getElementById("totalHalte").innerText = totalH;
+        document.getElementById("halteSelesai").innerText = selesaiH;
+        document.getElementById("progressVisit").innerText = totalProgress + "%";
+        document.getElementById("totalPerangkat").innerText = totalA;
+
+        // 2. Render List Engineer
+        // Filter engineer: jika 'all' tampilkan semua, jika tidak, filter yang koridor_tugasnya ada di allowedIDs
+        const filteredEngineers = wilayahTugas.toLowerCase() === "all" 
+            ? data.engineers 
+            : data.engineers.filter(eng => allowedIDs.includes(String(eng.koridor_tugas)));
+            
+        renderEngineers(filteredEngineers);
+
+        // 3. Render List Koridor
+        renderKoridor(filteredKoridor);
 
     } catch (err) {
         console.error(err);
@@ -53,67 +80,4 @@ async function loadDashboardKoordinator() {
     }
 }
 
-function renderEngineers(list) {
-    let html = "";
-    if (list.length === 0) {
-        html = `<p class="text-center py-10 text-slate-400 text-xs font-bold">BELUM ADA DATA ENGINEER</p>`;
-    } else {
-        list.forEach(eng => {
-            const progress = eng.progress || 0;
-            html += `
-                <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm">
-                    <div class="flex justify-between items-center mb-3">
-                        <div>
-                            <h3 class="font-black text-slate-800 text-sm uppercase">${eng.nama}</h3>
-                            <p class="text-[10px] font-bold text-slate-400 italic">${eng.last_update || 'No activity'}</p>
-                        </div>
-                        <div class="text-right">
-                            <span class="text-lg font-black text-[#0095DA]">${progress}%</span>
-                        </div>
-                    </div>
-                    <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
-                        <div class="bg-[#0095DA] h-full transition-all duration-1000" style="width: ${progress}%"></div>
-                    </div>
-                    <div class="flex justify-between mt-2 text-[9px] font-black uppercase text-slate-400">
-                        <span>${eng.selesai || 0} Halte Selesai</span>
-                        <span>Total ${eng.total_tugas || 0} Halte</span>
-                    </div>
-                </div>`;
-        });
-    }
-    document.getElementById("engineerList").innerHTML = html;
-}
-
-function renderKoridor(list) {
-    let html = "";
-    if (list.length === 0) {
-        html = `<p class="text-center py-10 text-slate-400 text-xs font-bold">BELUM ADA DATA KORIDOR</p>`;
-    } else {
-        list.forEach(kor => {
-            const progress = kor.progress || 0;
-            html += `
-                <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm flex items-center gap-4">
-                    <div class="w-12 h-12 bg-slate-800 text-white rounded-2xl flex items-center justify-center font-black text-lg shadow-lg">
-                        ${kor.id}
-                    </div>
-                    <div class="flex-grow">
-                        <div class="flex justify-between items-end mb-1">
-                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Koridor ${kor.id}</span>
-                            <span class="text-xs font-black text-slate-800">${progress}%</span>
-                        </div>
-                        <div class="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                            <div class="bg-slate-800 h-full transition-all duration-1000" style="width: ${progress}%"></div>
-                        </div>
-                    </div>
-                </div>`;
-        });
-    }
-    document.getElementById("koridorList").innerHTML = html;
-}
-
-function logout() {
-    if(confirm("Apakah Anda ingin logout?")) {
-        localStorage.clear();
-        window.location.href = "index.html";
-    }
-}
+// ... fungsi renderEngineers dan renderKoridor tetap sama dengan sebelumnya ...
