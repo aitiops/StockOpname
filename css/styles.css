@@ -109,7 +109,7 @@ body {
 .premium-loader, .loader {
     width: 100px; /* Sesuaikan ukuran agar pas */
     height: 100px;
-    background-image: url('../assets/tj_logo.png'); /* Ganti jadi .png */
+    background-image: url('../assets/logo_tj_biru.png'); /* Ganti jadi .png */
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
