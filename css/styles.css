@@ -85,13 +85,14 @@ body {
     text-transform: uppercase;
 }
 
-/* ================= PREMIUM LOADING OVERLAY ================= */
+/* ================= PREMIUM LOADING OVERLAY (DASHBOARD) ================= */
 .loading-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.9) !important; /* Gelap techy ala Login */
-    backdrop-filter: blur(15px) !important;
-    -webkit-backdrop-filter: blur(15px);
+    /* Latar Belakang Putih Transparan ala Detail Halte/Input */
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px);
     z-index: 10000;
     display: none; 
     flex-direction: column;
@@ -104,19 +105,26 @@ body {
     display: flex !important;
 }
 
-/* Spinner Modern */
+/* --- ANIMASI LOGO TJ (PENGGANTI SPINNER) --- */
 .premium-loader, .loader {
-    width: 48px;
-    height: 48px;
-    border: 5px solid rgba(255, 255, 255, 0.1);
-    border-bottom-color: var(--tj-blue);
-    border-radius: 50%;
-    display: inline-block;
-    animation: rotation 1s linear infinite;
+    width: 80px; /* Ukuran logo */
+    height: 80px;
+    background-image: url('../assets/tj_logo.svg'); /* Panggil Logo SVG */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    border: none !important; /* Hapus border spinner lama */
+    animation: tjLogoPulse 1.8s ease-in-out infinite; /* Efek berdenyut lembut */
     margin-bottom: 1rem;
 }
 
-/* Teks Loading (SEKARANG SERAGAM BIRU) */
+/* Animasi Denyut Logo yang Elegan */
+@keyframes tjLogoPulse {
+    0%, 100% { opacity: 0.8; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+}
+
+/* Teks Loading (TETAP SAMA, BIRU BERDENYUT) */
 .loading-text, .loading-status {
     color: var(--tj-blue) !important;
     font-size: 11px;
@@ -127,11 +135,6 @@ body {
     animation: pulseText 1.5s ease-in-out infinite;
     text-align: center;
     margin-top: 1rem;
-}
-
-@keyframes rotation {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
 }
 
 @keyframes pulseText {
@@ -186,7 +189,7 @@ body {
     border: 1px solid #e2e8f0;
     border-radius: 1.25rem;
     font-size: 15px;
-    font-weight: 400; /* Halus / Tidak Bold */
+    font-weight: 400; 
     color: #475569;
     outline: none;
     transition: all 0.2s ease;
