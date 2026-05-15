@@ -1,78 +1,85 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Detail Halte</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detail Halte - IT Stock Opname</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/styles.css">
 </head>
-<body class="bg-gray-100">
+<body class="bg-slate-50 min-h-screen">
 
-  <!-- NAVBAR -->
-  <div class="bg-blue-600 text-white p-4 flex justify-between items-center shadow-md">
-    <h1 class="font-bold text-lg">Detail Halte</h1>
-    <button onclick="window.location.href='engineer.html'" class="bg-white text-blue-600 px-4 py-1 rounded-lg font-medium hover:bg-gray-100 transition">
-      Kembali
-    </button>
-  </div>
-
-  <div class="p-6">
-    <!-- INFO -->
-    <div class="bg-white p-6 rounded-2xl shadow mb-6 border-l-4 border-blue-600">
-      <h2 id="halteTitle" class="text-2xl font-bold text-gray-800"></h2>
-      <p id="koridorTitle" class="text-gray-500 font-medium"></p>
+    <div id="loadingOverlay" class="loading-overlay loading-active">
+        <div class="premium-loader"></div>
+        <p id="loadingStatus" class="loading-status">Sinkronisasi Perangkat...</p>
     </div>
 
-    <!-- ACTION BUTTON -->
-    <div class="mb-6">
-      <button onclick="goInput()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-xl font-bold shadow-lg transition w-full md:w-auto">
-        + Tambah Perangkat
-      </button>
+    <nav class="bg-[#0095DA] text-white p-4 sticky top-0 z-50 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <button onclick="window.location.href='engineer.html'" class="hover:bg-white/20 p-2 rounded-full transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                </button>
+                <h1 class="font-black text-lg tracking-tight">DETAIL HALTE</h1>
+            </div>
+            <button onclick="goInput()" class="bg-white text-[#0095DA] px-4 py-2 rounded-xl font-bold text-xs shadow-lg hover:bg-slate-100 transition uppercase">
+                + Perangkat
+            </button>
+        </div>
+    </nav>
+
+    <main class="p-4 md:p-6 container mx-auto max-w-6xl">
+        
+        <div class="bg-white p-6 rounded-3xl shadow-sm border-b-8 border-[#0095DA] mb-6">
+            <p class="text-[10px] font-black text-[#0095DA] uppercase tracking-[0.2em] mb-1">Lokasi Pemeriksaan</p>
+            <h2 id="halteTitle" class="text-2xl md:text-3xl font-black text-slate-800 leading-tight"></h2>
+            <div class="flex items-center gap-2 mt-2">
+                <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider" id="koridorTitle"></span>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-3 gap-3 mb-8">
+            <div class="bg-white p-4 rounded-2xl shadow-sm text-center border border-slate-100">
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Total</p>
+                <p id="totalPerangkat" class="text-xl font-black text-slate-800">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm text-center border border-slate-100">
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">On</p>
+                <p id="totalOn" class="text-xl font-black text-green-600">0</p>
+            </div>
+            <div class="bg-white p-4 rounded-2xl shadow-sm text-center border border-slate-100">
+                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Off</p>
+                <p id="totalOff" class="text-xl font-black text-red-600">0</p>
+            </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row gap-3 mb-8 sticky top-[80px] z-40">
+            <div class="relative flex-grow">
+                <input type="text" id="searchInput" placeholder="Cari S/N atau Nama Alat..." onkeyup="filterPerangkat()" 
+                    class="w-full p-4 pl-12 rounded-2xl border-none shadow-xl focus:ring-2 focus:ring-[#0095DA] outline-none text-sm">
+                <span class="absolute left-4 top-1/2 -translate-y-1/2 opacity-30">🔍</span>
+            </div>
+            <select id="filterStatus" onchange="filterPerangkat()" 
+                class="bg-white p-4 rounded-2xl border-none shadow-xl focus:ring-2 focus:ring-[#0095DA] outline-none text-sm font-bold text-slate-600">
+                <option value="">Semua Status</option>
+                <option value="On Service">On Service</option>
+                <option value="Out of Service">Out of Service</option>
+            </select>
+        </div>
+
+        <div id="tablePerangkat" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            </div>
+    </main>
+
+    <div id="photoModal" class="fixed inset-0 bg-slate-900/90 hidden items-center justify-center z-[100] p-4 backdrop-blur-md">
+        <button onclick="closePhoto()" class="absolute top-6 right-6 text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition z-[110]">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+        <iframe id="modalIframe" class="w-full max-w-4xl h-[80vh] rounded-3xl shadow-2xl bg-white overflow-hidden border-4 border-white/10"></iframe>
     </div>
 
-    <!-- FILTER -->
-    <div class="grid md:grid-cols-2 gap-4 mb-6">
-      <input type="text" id="searchInput" placeholder="Cari serial number / perangkat..." onkeyup="filterPerangkat()" class="border p-3 rounded-xl w-full focus:ring-2 focus:ring-blue-500 outline-none shadow-sm">
-      <select id="filterStatus" onchange="filterPerangkat()" class="border p-3 rounded-xl w-full focus:ring-2 focus:ring-blue-500 outline-none shadow-sm">
-        <option value="">Semua Status</option>
-        <option value="On Service">On Service</option>
-        <option value="Out of Service">Out of Service</option>
-      </select>
-    </div>
-
-    <!-- SUMMARY -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-      <div class="bg-white p-4 rounded-2xl shadow border-b-4 border-blue-500">
-        <p class="text-gray-500 text-sm font-bold uppercase tracking-wider">Total Perangkat</p>
-        <p id="totalPerangkat" class="text-3xl font-black text-gray-800">0</p>
-      </div>
-      <div class="bg-white p-4 rounded-2xl shadow border-b-4 border-green-500">
-        <p class="text-gray-500 text-sm font-bold uppercase tracking-wider">On Service</p>
-        <p id="totalOn" class="text-3xl font-black text-green-600">0</p>
-      </div>
-      <div class="bg-white p-4 rounded-2xl shadow border-b-4 border-red-500">
-        <p class="text-gray-500 text-sm font-bold uppercase tracking-wider">Out of Service</p>
-        <p id="totalOff" class="text-3xl font-black text-red-600">0</p>
-      </div>
-    </div>
-
-    <!-- LIST DEVICE -->
-    <div id="tablePerangkat" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-      <!-- Data dirender oleh JS -->
-    </div>
-  </div>
-
-  <!-- PHOTO MODAL DENGAN IFRAME -->
-  <div id="photoModal" class="fixed inset-0 bg-black/90 hidden items-center justify-center z-50 p-4 backdrop-blur-sm">
-    <!-- Close Button -->
-    <button onclick="closePhoto()" class="absolute top-4 right-4 text-white text-5xl font-light hover:text-gray-300 transition z-50">&times;</button>
-    
-    <!-- Iframe untuk load Google Drive Preview -->
-    <iframe id="modalIframe" class="w-full max-w-3xl h-[75vh] rounded-2xl shadow-2xl border-4 border-white/10 bg-white" allow="autoplay"></iframe>
-  </div>
-  
-  <script src="js/config.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/halte-detail.js"></script>
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/halte-detail.js"></script>
 </body>
 </html>
