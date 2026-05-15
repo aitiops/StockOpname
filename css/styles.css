@@ -267,60 +267,51 @@ body {
     backdrop-filter: blur(15px) !important;
 }
 
-/* --- FORM PREMIUM STYLE --- */
+/* --- FORM REFINEMENT: ULTRA SMOOTH --- */
 
-/* --- FORM REFINEMENT (SMOOTHER FONT) --- */
-
-/* Label dibuat sedikit lebih slim tapi tetap tegas */
 .label-text {
     display: block;
     font-size: 11px;
-    font-weight: 700; /* Turun dari 900 ke 700 biar gak 'berteriak' */
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     margin-bottom: 0.6rem;
-    color: #94a3b8; /* Warna slate yang lebih soft */
-    font-family: 'Inter', -apple-system, sans-serif;
+    color: #64748b; /* Slate 500 */
+    font-family: 'Inter', sans-serif;
 }
 
-/* Input & Dropdown dibuat lebih halus */
 .tj-input {
     width: 100%;
-    padding: 0.85rem 1.25rem; /* Padding sedikit lebih rapat */
-    background-color: #ffffff; 
-    border: 1.5px solid #f1f5f9; /* Border lebih tipis & terang */
-    border-radius: 1rem;
-    font-size: 14px;
-    font-weight: 400; /* INI KUNCINYA: Pakai Regular agar halus */
-    color: #334155; /* Slate-700 untuk teks yang nyaman dibaca */
+    padding: 0.85rem 1.25rem;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 1.25rem;
+    font-size: 15px; /* Sedikit lebih besar biar jelas */
+    font-weight: 400; /* INI KUNCINYA: Font reguler agar halus */
+    color: #475569; /* Slate 600 - Warna abu gelap yang lembut */
     outline: none;
-    transition: all 0.2s ease-in-out;
+    transition: all 0.2s ease;
     appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m19 9-7 7-7-7'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
-    background-position: right 1rem center;
+    background-position: right 1.25rem center;
     background-size: 1rem;
-    box-shadow: 0 1px 2px rgba(0,0,0,0.03); /* Shadow sangat tipis */
 }
 
-/* Efek pas diklik (Focus) */
 .tj-input:focus {
     border-color: #0095DA;
-    background-color: #fff;
-    box-shadow: 0 0 0 4px rgba(0, 149, 218, 0.05);
+    box-shadow: 0 0 0 4px rgba(0, 149, 218, 0.08);
 }
 
-/* Placeholder dibuat lebih samar */
-.tj-input::placeholder {
-    color: #cbd5e1;
-    font-weight: 400;
-    font-size: 13px;
-    text-transform: none; /* Jangan uppercase di placeholder biar gak galak */
-}
-
-/* Khusus Serial Number tetap monospaced tapi tipis */
+/* Style khusus untuk S/N agar tetap rapi tapi halus */
 input[type="text"].tj-input {
-    font-family: 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
-    font-weight: 500; 
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.02em;
     background-image: none;
+}
+
+input[type="text"].tj-input::placeholder {
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 400;
 }
