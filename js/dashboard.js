@@ -1,89 +1,62 @@
 /**
  * DASHBOARD ENGINE - IT STOCK OPNAME
- * Versi Final: Robust Data Handling + Anti-Stuck Loading
+ * Final Fix: Ultra-Smart Search (Hide Empty Corridors)
  */
 
 window.onload = () => {
     const path = window.location.pathname;
     const nama = localStorage.getItem("nama");
-    const namaEl = document.getElementById("namaUser");
-    if (namaEl) namaEl.innerHTML = nama || "User";
+    if (document.getElementById("namaUser")) {
+        document.getElementById("namaUser").innerHTML = nama || "User";
+    }
 
     if (path.includes("engineer.html")) {
         loadDashboardEngineer();
-    } else if (path.includes("koordinator.html")) {
-        loadDashboardKoordinator();
-    } else if (path.includes("kasi.html")) {
-        loadDashboardKasi();
     }
 };
 
-// ================= SIMULASI BOOTING =================
-async function runBootSequence() {
-    const messages = ["> CONNECTING...", "> AUTHENTICATING...", "> FETCHING...", "> READY!"];
-    for (let i = 0; i < messages.length; i++) {
-        const el = document.getElementById(`bootMsg${i + 1}`);
-        if (el) {
-            el.innerText = messages[i];
-            el.classList.replace('opacity-0', 'opacity-100');
-            await new Promise(r => setTimeout(r, 250));
-        }
-    }
-}
-
-// ================= LOAD DASHBOARD ENGINEER =================
+// ========================================================
+// AMBIL DATA DARI SERVER
+// ========================================================
 async function loadDashboardEngineer() {
     const statusEl = document.getElementById("loadingStatus");
     const overlay = document.getElementById("loadingOverlay");
     const sessionToken = localStorage.getItem("token");
 
-    // 1. Munculkan loading
     if (overlay) {
         overlay.classList.add('loading-active');
         overlay.style.display = 'flex';
     }
 
-    await runBootSequence();
-
     try {
-        console.log("Memulai fetch data...");
-
-        // 2. Fetch Stats
-        if(statusEl) statusEl.innerText = "Sinkronisasi Statistik...";
+        // 1. Ambil Stats
         const resStats = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({ action: "getDashboardEngineer", token: sessionToken })
         });
-        const rawStats = await resStats.json();
-        // Cek apakah data dibungkus property .data atau tidak
-        const dData = rawStats.data ? rawStats.data : rawStats;
-        
-        console.log("Stats diterima:", dData);
+        const dData = (await resStats.json()).data;
 
-        if(document.getElementById("totalHalte")) document.getElementById("totalHalte").innerHTML = dData.total_halte || 0;
-        if(document.getElementById("halteSelesai")) document.getElementById("halteSelesai").innerHTML = dData.halte_selesai || 0;
-        if(document.getElementById("progressVisit")) document.getElementById("progressVisit").innerHTML = (dData.progress || 0) + "%";
+        document.getElementById("totalHalte").innerHTML = dData.total_halte || 0;
+        document.getElementById("halteSelesai").innerHTML = dData.halte_selesai || 0;
+        document.getElementById("progressVisit").innerHTML = (dData.progress || 0) + "%";
 
-        // 3. Fetch List Halte
-        if(statusEl) statusEl.innerText = "Menyusun Koridor...";
+        // 2. Ambil List Halte
         const resHalte = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({ action: "getHalte", token: sessionToken })
         });
-        const rawHalte = await resHalte.json();
-        const listHalte = rawHalte.data ? rawHalte.data : rawHalte;
+        const halte = (await resHalte.json()).data;
 
-        console.log("List Halte diterima:", listHalte);
-
-        // 4. Grouping & Render
+        // 3. Grouping Koridor
         let koridorMap = {};
-        if (Array.isArray(listHalte)) {
-            listHalte.forEach(item => {
+        if (Array.isArray(halte)) {
+            halte.forEach(item => {
                 if (!koridorMap[item.koridor_id]) koridorMap[item.koridor_id] = [];
                 koridorMap[item.koridor_id].push(item);
             });
         }
 
+        // 4. Render HTML
         let html = "";
         for (let koridor in koridorMap) {
             let halteHtml = "";
@@ -97,11 +70,11 @@ async function loadDashboardEngineer() {
                 halteHtml += `
                     <div class="halte-row flex justify-between items-center p-4 border-b border-slate-50 last:border-none">
                         <div>
-                            <div class="font-bold text-slate-700 text-sm">${item.nama_halte}</div>
+                            <div class="font-bold text-slate-700 text-sm h-nama">${item.nama_halte}</div>
                             <div class="text-[10px] text-slate-400 font-mono">ID: ${item.halte_id}</div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="${badgeClass} text-[9px] font-black px-2 py-1 rounded-md uppercase">${isSelesai ? 'DONE' : 'PENDING'}</span>
+                            <span class="${badgeClass} text-[9px] font-black px-2 py-1 rounded-md">${isSelesai ? 'DONE' : 'PENDING'}</span>
                             <button onclick="window.location.href='halte-detail.html?halte_id=${item.halte_id}&halte_nama=${item.nama_halte}&koridor_id=${item.koridor_id}'" 
                                 class="bg-slate-100 text-slate-600 p-2 rounded-lg hover:bg-[#0095DA] hover:text-white transition-all shadow-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
@@ -130,74 +103,65 @@ async function loadDashboardEngineer() {
                 </div>`;
         }
 
-        const container = document.getElementById("dashboardKoridor");
-        if (container) container.innerHTML = html || "<p class='text-center py-10 text-slate-400'>Data tidak tersedia.</p>";
+        document.getElementById("dashboardKoridor").innerHTML = html || "<p class='text-center py-10 text-slate-400'>Data tidak tersedia.</p>";
 
-        // 5. TUTUP LOADING (PENGUSIR STUCK)
-        if(statusEl) statusEl.innerText = "Selesai!";
-        console.log("Semua proses render selesai.");
-
+        // Tutup Loading
+        if(statusEl) statusEl.innerText = "Data Sinkron!";
         setTimeout(() => {
             if (overlay) {
                 overlay.classList.remove('loading-active');
                 overlay.style.setProperty('display', 'none', 'important');
-                overlay.style.display = 'none';
             }
-        }, 800);
+        }, 600);
 
     } catch (err) {
-        console.error("CRITICAL ERROR:", err);
-        // Failsafe tutup loading
-        if (overlay) {
-            overlay.classList.remove('loading-active');
-            overlay.style.display = 'none';
-        }
-        if (statusEl) {
-            statusEl.innerText = "Gagal Memuat Data";
-            statusEl.style.color = "red";
-        }
+        console.error(err);
+        if (overlay) overlay.style.display = 'none';
     }
 }
 
 // ========================================================
-// SMART SEARCH LOGIC (FIXED)
+// PENCARIAN CERDAS (KUNCI UTAMA)
 // ========================================================
 function filterHalteManual() {
-    let input = document.getElementById('searchHalte').value.toLowerCase();
-    let accordions = document.querySelectorAll('.accordion-item');
+    const input = document.getElementById('searchHalte').value.toLowerCase().trim();
+    const accordions = document.querySelectorAll('.accordion-item');
 
-    // Jika input kosong, kembalikan ke tampilan awal
+    // Jika input kosong: Tampilkan semua koridor, tutup semua list
     if (input === "") {
         accordions.forEach(acc => {
-            acc.style.display = "block"; // Munculkan semua koridor
-            acc.classList.remove('accordion-active'); // Tutup semua accordion
-            let rows = acc.querySelectorAll('.halte-row');
-            rows.forEach(row => row.style.display = "flex"); // Munculkan semua halte
+            acc.style.setProperty('display', 'block', 'important');
+            acc.classList.remove('accordion-active');
+            const rows = acc.querySelectorAll('.halte-row');
+            rows.forEach(row => row.style.setProperty('display', 'flex', 'important'));
         });
         return;
     }
 
-    // Proses pencarian per Koridor
+    // Jika sedang mencari:
     accordions.forEach(acc => {
-        let rows = acc.querySelectorAll('.halte-row');
-        let matchCount = 0;
+        const rows = acc.querySelectorAll('.halte-row');
+        let adaYangCocok = false;
 
         rows.forEach(row => {
-            let text = row.innerText.toLowerCase();
-            if (text.includes(input)) {
-                row.style.display = "flex"; // Munculkan halte yang cocok
-                matchCount++;
+            // Kita ambil teks hanya dari nama haltenya saja biar akurat
+            const namaHalte = row.querySelector('.h-nama').innerText.toLowerCase();
+            const idHalte = row.innerText.toLowerCase(); // Tetap cek ID juga kalau mau
+
+            if (namaHalte.includes(input) || idHalte.includes(input)) {
+                row.style.setProperty('display', 'flex', 'important');
+                adaYangCocok = true;
             } else {
-                row.style.display = "none"; // Sembunyikan yang tidak cocok
+                row.style.setProperty('display', 'none', 'important');
             }
         });
 
-        // LOGIKA UTAMA:
-        if (matchCount > 0) {
-            acc.style.display = "block"; // Tampilkan koridor jika ada yang cocok
-            acc.classList.add('accordion-active'); // Otomatis buka accordion
+        // TAMPILKAN ATAU SEMBUNYIKAN KORIDOR
+        if (adaYangCocok) {
+            acc.style.setProperty('display', 'block', 'important'); // Tampilkan box koridor
+            acc.classList.add('accordion-active'); // Buka list-nya otomatis
         } else {
-            acc.style.display = "none"; // SEMBUNYIKAN KORIDOR TOTAL jika tidak ada hasil
+            acc.style.setProperty('display', 'none', 'important'); // SEMBUNYIKAN KORIDOR TOTAL
         }
     });
 }
@@ -208,16 +172,5 @@ function filterHalteManual() {
 function toggleAccordion(id) {
     const el = document.getElementById(id);
     if (!el) return;
-    
-    // Jika sedang dalam mode pencarian (input tidak kosong), 
-    // kita biarkan user menutup/membuka secara manual juga bisa.
-    const all = document.querySelectorAll('.accordion-item');
-    all.forEach(item => {
-        if(item.id === id) {
-            item.classList.toggle('accordion-active');
-        } else {
-            // Opsional: mau tutup yang lain atau tidak
-            // item.classList.remove('accordion-active'); 
-        }
-    });
+    el.classList.toggle('accordion-active');
 }
