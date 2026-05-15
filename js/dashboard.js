@@ -1,6 +1,6 @@
 /**
  * DASHBOARD ENGINE - IT STOCK OPNAME
- * Final Fix: Anti-Stuck Loading & Booting Logic
+ * Versi Final: Robust Data Handling + Anti-Stuck Loading
  */
 
 window.onload = () => {
@@ -20,19 +20,13 @@ window.onload = () => {
 
 // ================= SIMULASI BOOTING =================
 async function runBootSequence() {
-    const messages = [
-        "> CONNECTING TO TJ_NET...",
-        "> AUTHENTICATING...",
-        "> FETCHING DATA...",
-        "> SYSTEM READY!"
-    ];
-
+    const messages = ["> CONNECTING...", "> AUTHENTICATING...", "> FETCHING...", "> READY!"];
     for (let i = 0; i < messages.length; i++) {
         const el = document.getElementById(`bootMsg${i + 1}`);
         if (el) {
             el.innerText = messages[i];
             el.classList.replace('opacity-0', 'opacity-100');
-            await new Promise(r => setTimeout(r, 300));
+            await new Promise(r => setTimeout(r, 250));
         }
     }
 }
@@ -43,7 +37,7 @@ async function loadDashboardEngineer() {
     const overlay = document.getElementById("loadingOverlay");
     const sessionToken = localStorage.getItem("token");
 
-    // Munculkan loading di awal
+    // 1. Munculkan loading
     if (overlay) {
         overlay.classList.add('loading-active');
         overlay.style.display = 'flex';
@@ -52,30 +46,39 @@ async function loadDashboardEngineer() {
     await runBootSequence();
 
     try {
-        // 1. Fetch Data Stats
+        console.log("Memulai fetch data...");
+
+        // 2. Fetch Stats
         if(statusEl) statusEl.innerText = "Sinkronisasi Statistik...";
-        const dashboardRes = await fetch(API_URL, {
+        const resStats = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({ action: "getDashboardEngineer", token: sessionToken })
         });
-        const dData = (await dashboardRes.json()).data;
+        const rawStats = await resStats.json();
+        // Cek apakah data dibungkus property .data atau tidak
+        const dData = rawStats.data ? rawStats.data : rawStats;
+        
+        console.log("Stats diterima:", dData);
 
-        document.getElementById("totalHalte").innerHTML = dData.total_halte || 0;
-        document.getElementById("halteSelesai").innerHTML = dData.halte_selesai || 0;
-        document.getElementById("progressVisit").innerHTML = (dData.progress || 0) + "%";
+        if(document.getElementById("totalHalte")) document.getElementById("totalHalte").innerHTML = dData.total_halte || 0;
+        if(document.getElementById("halteSelesai")) document.getElementById("halteSelesai").innerHTML = dData.halte_selesai || 0;
+        if(document.getElementById("progressVisit")) document.getElementById("progressVisit").innerHTML = (dData.progress || 0) + "%";
 
-        // 2. Fetch Data Halte
+        // 3. Fetch List Halte
         if(statusEl) statusEl.innerText = "Menyusun Koridor...";
-        const halteRes = await fetch(API_URL, {
+        const resHalte = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({ action: "getHalte", token: sessionToken })
         });
-        const halte = (await halteRes.json()).data;
+        const rawHalte = await resHalte.json();
+        const listHalte = rawHalte.data ? rawHalte.data : rawHalte;
 
-        // 3. Build HTML Accordion
+        console.log("List Halte diterima:", listHalte);
+
+        // 4. Grouping & Render
         let koridorMap = {};
-        if (Array.isArray(halte)) {
-            halte.forEach(item => {
+        if (Array.isArray(listHalte)) {
+            listHalte.forEach(item => {
                 if (!koridorMap[item.koridor_id]) koridorMap[item.koridor_id] = [];
                 koridorMap[item.koridor_id].push(item);
             });
@@ -98,9 +101,9 @@ async function loadDashboardEngineer() {
                             <div class="text-[10px] text-slate-400 font-mono">ID: ${item.halte_id}</div>
                         </div>
                         <div class="flex items-center gap-3">
-                            <span class="${badgeClass} text-[9px] font-black px-2 py-1 rounded-md">${isSelesai ? 'DONE' : 'PENDING'}</span>
+                            <span class="${badgeClass} text-[9px] font-black px-2 py-1 rounded-md uppercase">${isSelesai ? 'DONE' : 'PENDING'}</span>
                             <button onclick="window.location.href='halte-detail.html?halte_id=${item.halte_id}&halte_nama=${item.nama_halte}&koridor_id=${item.koridor_id}'" 
-                                class="bg-slate-100 text-slate-600 p-2 rounded-lg hover:bg-[#0095DA] hover:text-white transition-all">
+                                class="bg-slate-100 text-slate-600 p-2 rounded-lg hover:bg-[#0095DA] hover:text-white transition-all shadow-sm">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                             </button>
                         </div>
@@ -109,7 +112,7 @@ async function loadDashboardEngineer() {
 
             html += `
                 <div class="accordion-item tj-card overflow-hidden bg-white shadow-sm mb-4" id="koridor-${koridor}">
-                    <div class="accordion-header flex justify-between items-center p-4 cursor-pointer" onclick="toggleAccordion('koridor-${koridor}')">
+                    <div class="accordion-header flex justify-between items-center p-4 cursor-pointer hover:bg-slate-50 transition-colors" onclick="toggleAccordion('koridor-${koridor}')">
                         <div class="flex items-center gap-4">
                             <div class="w-10 h-10 bg-[#0095DA] text-white rounded-xl flex items-center justify-center font-black shadow-inner">${koridor}</div>
                             <div>
@@ -117,7 +120,7 @@ async function loadDashboardEngineer() {
                                 <p class="text-[10px] text-slate-500 font-bold">${countSelesai} / ${koridorMap[koridor].length} Selesai</p>
                             </div>
                         </div>
-                        <div class="chevron-icon transition-transform duration-300 opacity-30">
+                        <div class="chevron-icon transition-transform duration-300 opacity-20">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
                         </div>
                     </div>
@@ -127,24 +130,24 @@ async function loadDashboardEngineer() {
                 </div>`;
         }
 
-        document.getElementById("dashboardKoridor").innerHTML = html || "<p class='text-center py-10 text-slate-400'>Data tidak tersedia.</p>";
+        const container = document.getElementById("dashboardKoridor");
+        if (container) container.innerHTML = html || "<p class='text-center py-10 text-slate-400'>Data tidak tersedia.</p>";
 
-        // --- PROSES PENGUSIRAN LOADING (FIX STUCK) ---
-        if(statusEl) statusEl.innerText = "Data Siap!";
-        
+        // 5. TUTUP LOADING (PENGUSIR STUCK)
+        if(statusEl) statusEl.innerText = "Selesai!";
+        console.log("Semua proses render selesai.");
+
         setTimeout(() => {
             if (overlay) {
-                // WAJIB: Hapus class loading-active
                 overlay.classList.remove('loading-active');
-                // PAKSA: display none dengan important
                 overlay.style.setProperty('display', 'none', 'important');
                 overlay.style.display = 'none';
             }
         }, 800);
 
     } catch (err) {
-        console.error(err);
-        // Failsafe: Tetap tutup loading jika error
+        console.error("CRITICAL ERROR:", err);
+        // Failsafe tutup loading
         if (overlay) {
             overlay.classList.remove('loading-active');
             overlay.style.display = 'none';
@@ -156,11 +159,30 @@ async function loadDashboardEngineer() {
     }
 }
 
-// UI HELPERS
+// UI HELPERS (WAJIB ADA)
 function toggleAccordion(id) {
     const all = document.querySelectorAll('.accordion-item');
     all.forEach(item => {
         if(item.id === id) item.classList.toggle('accordion-active');
         else item.classList.remove('accordion-active');
+    });
+}
+
+function filterHalteManual() {
+    let input = document.getElementById('searchHalte').value.toLowerCase();
+    let items = document.querySelectorAll('.halte-row');
+    let headers = document.querySelectorAll('.accordion-item');
+    if(input === "") {
+        headers.forEach(h => { h.style.display = "block"; h.classList.remove('accordion-active'); });
+        items.forEach(i => i.style.display = "flex");
+        return;
+    }
+    items.forEach(item => {
+        let text = item.innerText.toLowerCase();
+        let parent = item.closest('.accordion-item');
+        if(text.includes(input)) {
+            item.style.display = "flex";
+            if(parent) { parent.classList.add('accordion-active'); parent.style.display = "block"; }
+        } else { item.style.display = "none"; }
     });
 }
