@@ -269,54 +269,58 @@ body {
 
 /* --- FORM PREMIUM STYLE --- */
 
-/* Label di atas input */
+/* --- FORM REFINEMENT (SMOOTHER FONT) --- */
+
+/* Label dibuat sedikit lebih slim tapi tetap tegas */
 .label-text {
     display: block;
-    font-size: 10px;
-    font-weight: 900; /* Sangat tebal */
+    font-size: 11px;
+    font-weight: 700; /* Turun dari 900 ke 700 biar gak 'berteriak' */
     text-transform: uppercase;
-    letter-spacing: 0.15em; /* Jarak antar huruf biar elegan */
-    margin-bottom: 0.5rem;
-    color: #64748b; /* Slate-500 */
+    letter-spacing: 0.1em;
+    margin-bottom: 0.6rem;
+    color: #94a3b8; /* Warna slate yang lebih soft */
+    font-family: 'Inter', -apple-system, sans-serif;
 }
 
-/* Kotak Input & Select */
+/* Input & Dropdown dibuat lebih halus */
 .tj-input {
     width: 100%;
-    padding: 1rem 1.25rem;
-    background-color: #f8fafc; /* Slate-50 */
-    border: 1px solid #e2e8f0; /* Slate-200 */
-    border-radius: 1.25rem; /* Sangat bulat */
+    padding: 0.85rem 1.25rem; /* Padding sedikit lebih rapat */
+    background-color: #ffffff; 
+    border: 1.5px solid #f1f5f9; /* Border lebih tipis & terang */
+    border-radius: 1rem;
     font-size: 14px;
-    font-weight: 600;
-    color: #1e293b;
+    font-weight: 400; /* INI KUNCINYA: Pakai Regular agar halus */
+    color: #334155; /* Slate-700 untuk teks yang nyaman dibaca */
     outline: none;
-    transition: all 0.2s ease;
-    appearance: none; /* Hilangkan arrow standar browser */
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m19 9-7 7-7-7'/%3E%3C/svg%3E");
+    transition: all 0.2s ease-in-out;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m19 9-7 7-7-7'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1rem center;
-    background-size: 1.25rem;
+    background-size: 1rem;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.03); /* Shadow sangat tipis */
 }
 
-/* Efek pas diklik */
+/* Efek pas diklik (Focus) */
 .tj-input:focus {
-    background-color: #ffffff;
     border-color: #0095DA;
-    box-shadow: 0 0 0 4px rgba(0, 149, 218, 0.1);
+    background-color: #fff;
+    box-shadow: 0 0 0 4px rgba(0, 149, 218, 0.05);
 }
 
-/* Khusus Input Text (SN) agar font-nya techy */
-input[type="text"].tj-input {
-    font-family: 'Monaco', 'Consolas', monospace;
-    letter-spacing: 0.05em;
-    background-image: none; /* SN tidak butuh arrow dropdown */
-}
-
-/* Placeholder (Tulisan bayangan) */
+/* Placeholder dibuat lebih samar */
 .tj-input::placeholder {
     color: #cbd5e1;
-    font-weight: 500;
-    text-transform: uppercase;
-    font-size: 11px;
+    font-weight: 400;
+    font-size: 13px;
+    text-transform: none; /* Jangan uppercase di placeholder biar gak galak */
+}
+
+/* Khusus Serial Number tetap monospaced tapi tipis */
+input[type="text"].tj-input {
+    font-family: 'ui-monospace', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+    font-weight: 500; 
+    background-image: none;
 }
