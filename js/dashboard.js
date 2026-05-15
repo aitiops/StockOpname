@@ -159,30 +159,65 @@ async function loadDashboardEngineer() {
     }
 }
 
-// UI HELPERS (WAJIB ADA)
-function toggleAccordion(id) {
-    const all = document.querySelectorAll('.accordion-item');
-    all.forEach(item => {
-        if(item.id === id) item.classList.toggle('accordion-active');
-        else item.classList.remove('accordion-active');
+// ========================================================
+// SMART SEARCH LOGIC (FIXED)
+// ========================================================
+function filterHalteManual() {
+    let input = document.getElementById('searchHalte').value.toLowerCase();
+    let accordions = document.querySelectorAll('.accordion-item');
+
+    // Jika input kosong, kembalikan ke tampilan awal
+    if (input === "") {
+        accordions.forEach(acc => {
+            acc.style.display = "block"; // Munculkan semua koridor
+            acc.classList.remove('accordion-active'); // Tutup semua accordion
+            let rows = acc.querySelectorAll('.halte-row');
+            rows.forEach(row => row.style.display = "flex"); // Munculkan semua halte
+        });
+        return;
+    }
+
+    // Proses pencarian per Koridor
+    accordions.forEach(acc => {
+        let rows = acc.querySelectorAll('.halte-row');
+        let matchCount = 0;
+
+        rows.forEach(row => {
+            let text = row.innerText.toLowerCase();
+            if (text.includes(input)) {
+                row.style.display = "flex"; // Munculkan halte yang cocok
+                matchCount++;
+            } else {
+                row.style.display = "none"; // Sembunyikan yang tidak cocok
+            }
+        });
+
+        // LOGIKA UTAMA:
+        if (matchCount > 0) {
+            acc.style.display = "block"; // Tampilkan koridor jika ada yang cocok
+            acc.classList.add('accordion-active'); // Otomatis buka accordion
+        } else {
+            acc.style.display = "none"; // SEMBUNYIKAN KORIDOR TOTAL jika tidak ada hasil
+        }
     });
 }
 
-function filterHalteManual() {
-    let input = document.getElementById('searchHalte').value.toLowerCase();
-    let items = document.querySelectorAll('.halte-row');
-    let headers = document.querySelectorAll('.accordion-item');
-    if(input === "") {
-        headers.forEach(h => { h.style.display = "block"; h.classList.remove('accordion-active'); });
-        items.forEach(i => i.style.display = "flex");
-        return;
-    }
-    items.forEach(item => {
-        let text = item.innerText.toLowerCase();
-        let parent = item.closest('.accordion-item');
-        if(text.includes(input)) {
-            item.style.display = "flex";
-            if(parent) { parent.classList.add('accordion-active'); parent.style.display = "block"; }
-        } else { item.style.display = "none"; }
+// ========================================================
+// UI HELPERS
+// ========================================================
+function toggleAccordion(id) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    
+    // Jika sedang dalam mode pencarian (input tidak kosong), 
+    // kita biarkan user menutup/membuka secara manual juga bisa.
+    const all = document.querySelectorAll('.accordion-item');
+    all.forEach(item => {
+        if(item.id === id) {
+            item.classList.toggle('accordion-active');
+        } else {
+            // Opsional: mau tutup yang lain atau tidak
+            // item.classList.remove('accordion-active'); 
+        }
     });
 }
