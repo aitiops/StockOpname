@@ -1,11 +1,11 @@
 /**
- * STOCK OPNAME ENGINE
- * Versi Final: Image Compression + Sync UI
+ * STOCK OPNAME ENGINE - IT STOCK OPNAME
+ * Versi Full Final: Premium Sync + Image Compression + Anti-Error Logic
  */
 
 let masterPerangkat = [];
 
-// URL PARAMS
+// 1. Ambil Parameter dari URL
 const urlParams = new URLSearchParams(window.location.search);
 const halteId = urlParams.get("halte_id");
 const halteNama = urlParams.get("halte_nama");
@@ -13,32 +13,35 @@ const koridorId = urlParams.get("koridor_id");
 const editMode = urlParams.get("edit");
 const opnameId = urlParams.get("id");
 
-// INIT
+// 2. Jalankan saat halaman siap
 window.onload = async () => {
     showPremiumLoading("Menyiapkan Formulir...");
     
-    // Load data master dan detail halte secara paralel
+    // Load data pendukung secara paralel
     await Promise.all([
         loadMasterPerangkat(),
         loadHalteDetail()
     ]);
 
+    // Jika masuk mode Edit
     if (editMode && opnameId) {
-        document.getElementById("pageTitle").innerText = "Edit Perangkat";
-        document.getElementById("btnSave").innerText = "Update Perangkat";
+        const title = document.getElementById("pageTitle");
+        const btn = document.getElementById("btnSave");
+        if (title) title.innerText = "Edit Perangkat";
+        if (btn) btn.innerText = "Update Data";
         await loadEditData();
     }
 
     hidePremiumLoading();
 };
 
-// ================= UTILITY: LOADING =================
+// ================= UTILITY: LOADING MANAGEMENT =================
 function showPremiumLoading(text) {
     const overlay = document.getElementById("loadingOverlay");
     const status = document.getElementById("loadingStatus");
     if (overlay) {
-        overlay.style.display = 'flex';
         overlay.classList.add('loading-active');
+        overlay.style.display = 'flex';
     }
     if (status) status.innerText = text;
 }
@@ -47,6 +50,7 @@ function hidePremiumLoading() {
     const overlay = document.getElementById("loadingOverlay");
     if (overlay) {
         overlay.classList.remove('loading-active');
+        overlay.style.setProperty('display', 'none', 'important');
         overlay.style.display = 'none';
     }
 }
@@ -73,7 +77,8 @@ async function compressImage(file) {
                 canvas.height = height;
                 const ctx = canvas.getContext("2d");
                 ctx.drawImage(img, 0, 0, width, height);
-                resolve(canvas.toDataURL("image/jpeg", 0.7)); // Quality 0.7 (Optimal)
+                // Kompres ke JPEG kualitas 0.7
+                resolve(canvas.toDataURL("image/jpeg", 0.7));
             };
         };
     });
@@ -84,29 +89,31 @@ async function saveStockOpname() {
     const sessionToken = localStorage.getItem("token");
     const namaUser = localStorage.getItem("nama");
 
+    // Tangkap semua field
     const fields = {
         kategori: document.getElementById("kategori").value,
         namaPerangkat: document.getElementById("namaPerangkat").value,
         merkModel: document.getElementById("merkModel").value,
-        serialNumber: document.getElementById("serialNumber").value.toUpperCase(),
+        serialNumber: document.getElementById("serialNumber").value.trim().toUpperCase(),
         statusPerangkat: document.getElementById("statusPerangkat").value,
         arah: document.getElementById("arahPerangkat") ? document.getElementById("arahPerangkat").value : "",
         photoFile: document.getElementById("photo").files[0]
     };
 
-    if (!fields.kategori || !fields.namaPerangkat || !fields.serialNumber) {
-        alert("Wajib mengisi Kategori, Nama Alat, dan S/N!");
+    // VALIDASI: Cek field wajib
+    if (!fields.kategori || !fields.namaPerangkat || !fields.serialNumber || !fields.statusPerangkat) {
+        alert("⚠️ Mohon lengkapi data wajib:\n- Kategori\n- Nama Perangkat\n- Serial Number\n- Kondisi Perangkat");
         return;
     }
 
-    showPremiumLoading("Memproses Gambar...");
+    showPremiumLoading("Mengolah Gambar...");
     
     let photoBase64 = "";
     if (fields.photoFile) {
         photoBase64 = await compressImage(fields.photoFile);
     }
 
-    showPremiumLoading("Mengirim ke Server...");
+    showPremiumLoading("Mengirim Data...");
 
     try {
         const payload = {
@@ -136,25 +143,26 @@ async function saveStockOpname() {
 
         if (data.status) {
             hidePremiumLoading();
-            alert("Data Berhasil Disimpan!");
+            alert("✅ Data Berhasil Disimpan!");
             window.location.href = `halte-detail.html?halte_id=${halteId}&halte_nama=${halteNama}&koridor_id=${koridorId}`;
         } else {
             hidePremiumLoading();
             if (data.duplicate) {
-                if (confirm("S/N sudah ada di halte lain. Tetap simpan?")) {
+                if (confirm(`S/N ${fields.serialNumber} sudah ada di data lain. Tetap simpan?`)) {
                     saveForce(payload);
                 }
             } else {
-                alert("Error: " + data.message);
+                alert("❌ Error: " + data.message);
             }
         }
     } catch (err) {
+        console.error(err);
         hidePremiumLoading();
-        alert("Terjadi kesalahan koneksi.");
+        alert("❌ Terjadi kesalahan koneksi ke server.");
     }
 }
 
-// Support untuk simpan paksa jika duplikat
+// Fungsi Simpan Paksa (Force Save)
 async function saveForce(payload) {
     showPremiumLoading("Menyimpan Paksa...");
     payload.force_save = true;
@@ -162,12 +170,16 @@ async function saveForce(payload) {
         const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(payload) });
         const data = await res.json();
         if(data.status) {
+            alert("✅ Data Berhasil Disimpan (Paksa)");
             window.location.href = `halte-detail.html?halte_id=${halteId}&halte_nama=${halteNama}&koridor_id=${koridorId}`;
         }
-    } catch (err) { hidePremiumLoading(); }
+    } catch (err) { 
+        console.error(err);
+        hidePremiumLoading(); 
+    }
 }
 
-// ================= LOAD MASTER DATA =================
+// ================= MASTER DATA & DROPDOWN =================
 async function loadMasterPerangkat() {
     const sessionToken = localStorage.getItem("token");
     try {
@@ -176,16 +188,15 @@ async function loadMasterPerangkat() {
             body: JSON.stringify({ action: "getMasterPerangkat", token: sessionToken })
         });
         const data = await res.json();
-        masterPerangkat = data.data;
+        masterPerangkat = data.data || [];
         
         const kategoriUnik = [...new Set(masterPerangkat.map(item => item.kategori))];
         let html = `<option value="">Pilih Kategori</option>`;
         kategoriUnik.forEach(item => { html += `<option value="${item}">${item}</option>`; });
         document.getElementById("kategori").innerHTML = html;
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error("Gagal load master:", err); }
 }
 
-// Cascading Dropdown Logic
 function changeKategori() {
     const kategori = document.getElementById("kategori").value;
     const filtered = masterPerangkat.filter(item => item.kategori == kategori);
@@ -193,6 +204,7 @@ function changeKategori() {
     let html = `<option value="">Pilih Perangkat</option>`;
     unik.forEach(item => { html += `<option value="${item}">${item}</option>`; });
     document.getElementById("namaPerangkat").innerHTML = html;
+    document.getElementById("merkModel").innerHTML = `<option value="">Pilih Merk / Model</option>`;
 }
 
 function changePerangkat() {
@@ -205,7 +217,7 @@ function changePerangkat() {
     document.getElementById("merkModel").innerHTML = html;
 }
 
-// ================= LOAD DETAIL HALTE =================
+// ================= HALTE CONTEXT =================
 async function loadHalteDetail() {
     const sessionToken = localStorage.getItem("token");
     try {
@@ -218,18 +230,24 @@ async function loadHalteDetail() {
             const h = result.data;
             document.getElementById("infoKoridor").innerHTML = `Koridor ${h.koridor_id}`;
             document.getElementById("infoHalte").innerHTML = h.nama_halte;
-            if (h.tipe_halte?.toLowerCase() == "dual") {
-                document.getElementById("arahContainer").classList.remove("hidden");
-                document.getElementById("arahPerangkat").innerHTML = `
-                    <option value="">Pilih Arah</option>
-                    <option value="${h.arah_a}">${h.arah_a}</option>
-                    <option value="${h.arah_b}">${h.arah_b}</option>`;
+            
+            // Logika Halte Dual Arah
+            if (h.tipe_halte?.toLowerCase() === "dual") {
+                const arahContainer = document.getElementById("arahContainer");
+                const arahSelect = document.getElementById("arahPerangkat");
+                if (arahContainer) arahContainer.classList.remove("hidden");
+                if (arahSelect) {
+                    arahSelect.innerHTML = `
+                        <option value="">Pilih Arah</option>
+                        <option value="${h.arah_a}">${h.arah_a}</option>
+                        <option value="${h.arah_b}">${h.arah_b}</option>`;
+                }
             }
         }
-    } catch (err) { console.error(err); }
+    } catch (err) { console.error("Gagal load detail halte:", err); }
 }
 
-// ================= EDIT MODE LOGIC =================
+// ================= EDIT MODE HANDLER =================
 async function loadEditData() {
     const sessionToken = localStorage.getItem("token");
     try {
@@ -241,33 +259,44 @@ async function loadEditData() {
         if (!result.status) return;
 
         const item = result.data;
+        
+        // Isi Form Secara Bertahap (Cascading)
         document.getElementById("kategori").value = item.kategori;
         changeKategori();
 
         setTimeout(() => {
             document.getElementById("namaPerangkat").value = item.nama_perangkat;
             changePerangkat();
+            
             setTimeout(() => {
                 document.getElementById("merkModel").value = item.merk_model;
                 document.getElementById("serialNumber").value = item.serial_number;
                 document.getElementById("statusPerangkat").value = item.status;
+                
                 if (item.arah && document.getElementById("arahPerangkat")) {
                     document.getElementById("arahPerangkat").value = item.arah;
                 }
             }, 300);
         }, 300);
-    } catch (err) { console.error(err); }
+
+    } catch (err) { console.error("Error load edit data:", err); }
 }
 
+// ================= PHOTO PREVIEW =================
 function previewImage(event) {
     const file = event.target.files[0];
     if (!file) return;
+    
     const reader = new FileReader();
     reader.onload = function (e) {
-        document.getElementById("uploadPlaceholder").classList.add("hidden");
+        const placeholder = document.getElementById("uploadPlaceholder");
         const preview = document.getElementById("previewPhoto");
-        preview.src = e.target.result;
-        preview.classList.remove("hidden");
+        
+        if (placeholder) placeholder.classList.add("hidden");
+        if (preview) {
+            preview.src = e.target.result;
+            preview.classList.remove("hidden");
+        }
     };
     reader.readAsDataURL(file);
 }
