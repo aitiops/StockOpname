@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
     --tj-blue: #0095DA;
@@ -15,13 +15,12 @@
 body {
     font-family: 'Inter', sans-serif;
     min-height: 100vh;
-    /* PERBAIKAN: Agar bisa ditarik ke bawah untuk refresh di HP */
     overflow-y: auto; 
     overscroll-behavior-y: contain; 
     background-color: #0b1120;
 }
 
-/* Background Logic */
+/* ================= BACKGROUND LOGIC ================= */
 .tj-bg {
     min-height: 100vh;
     display: flex;
@@ -31,25 +30,15 @@ body {
     background-position: center;
 }
 
-/* VIEW DESKTOP */
 @media (min-width: 769px) {
-    .tj-bg {
-        /* PERBAIKAN PATH: Pakai ../ untuk keluar dari folder css */
-        background-image: url('../assets/desktop_view.png');
-        background-size: cover;
-    }
+    .tj-bg { background-image: url('../assets/desktop_view.png'); background-size: cover; }
 }
 
-/* VIEW MOBILE */
 @media (max-width: 768px) {
-    .tj-bg {
-        /* PERBAIKAN PATH: Pakai ../ untuk keluar dari folder css */
-        background-image: url('../assets/mobile_view.png');
-        background-size: cover;
-    }
+    .tj-bg { background-image: url('../assets/mobile_view.png'); background-size: cover; }
 }
 
-/* Glassmorphism Card */
+/* Glassmorphism Card (Login) */
 .glass-card {
     background: rgba(15, 23, 42, 0.5); 
     backdrop-filter: blur(10px);
@@ -60,22 +49,10 @@ body {
     width: 90%;
     max-width: 320px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-    margin: 20px auto; /* Tambah margin agar pas di tengah saat scroll */
+    margin: 20px auto;
 }
 
-/* Input & Button Styles (Compact) */
-.tj-input {
-    width: 100%;
-    padding: 0.75rem 1.25rem;
-    border-radius: 9999px;
-    border: none;
-    background: white;
-    color: #333;
-    font-size: 0.8rem;
-    outline: none;
-    transition: all 0.2s ease;
-}
-
+/* ================= UNIVERSAL UI COMPONENTS ================= */
 .tj-btn {
     width: 100%;
     padding: 0.85rem;
@@ -91,17 +68,6 @@ body {
 }
 
 .tj-btn:active { transform: scale(0.98); }
-
-.label-text {
-    display: block;
-    color: rgba(255,255,255,0.9);
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    margin-bottom: 0.4rem;
-    margin-left: 1rem;
-    letter-spacing: 0.05em;
-}
 
 .checkbox-container {
     display: flex;
@@ -119,41 +85,48 @@ body {
     text-transform: uppercase;
 }
 
-/* ================= OVERLAY LOADING ================= */
+/* ================= PREMIUM LOADING OVERLAY ================= */
 .loading-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0, 0, 0, 0.7); /* Efek menggelap */
-    backdrop-filter: blur(8px); /* Efek blur */
-    -webkit-backdrop-filter: blur(8px);
+    background: rgba(0, 0, 0, 0.9) !important; /* Gelap techy ala Login */
+    backdrop-filter: blur(15px) !important;
+    -webkit-backdrop-filter: blur(15px);
     z-index: 10000;
-    display: none; /* Sembunyi secara default */
+    display: none; 
     flex-direction: column;
     align-items: center;
     justify-content: center;
     transition: all 0.3s ease;
 }
 
-/* Animasi Spinner Keren */
-.loader {
+.loading-active {
+    display: flex !important;
+}
+
+/* Spinner Modern */
+.premium-loader, .loader {
     width: 48px;
     height: 48px;
-    border: 5px solid #FFF;
+    border: 5px solid rgba(255, 255, 255, 0.1);
     border-bottom-color: var(--tj-blue);
     border-radius: 50%;
     display: inline-block;
-    box-sizing: border-box;
     animation: rotation 1s linear infinite;
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
 }
 
-.loading-text {
-    color: white;
-    font-size: 0.8rem;
-    font-weight: 700;
+/* Teks Loading (SEKARANG SERAGAM BIRU) */
+.loading-text, .loading-status {
+    color: var(--tj-blue) !important;
+    font-size: 11px;
+    font-weight: 800;
     text-transform: uppercase;
     letter-spacing: 0.2em;
-    animation: pulse 1.5s ease-in-out infinite;
+    font-family: 'Inter', sans-serif;
+    animation: pulseText 1.5s ease-in-out infinite;
+    text-align: center;
+    margin-top: 1rem;
 }
 
 @keyframes rotation {
@@ -161,17 +134,12 @@ body {
     100% { transform: rotate(360deg); }
 }
 
-@keyframes pulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 1; }
+@keyframes pulseText {
+    0%, 100% { opacity: 0.6; transform: scale(0.98); }
+    50% { opacity: 1; transform: scale(1); }
 }
 
-/* Class untuk memunculkan overlay via JS */
-.loading-active {
-    display: flex !important;
-}
-
-/* Update Tambahan di style.css */
+/* ================= DASHBOARD & ACCORDION ================= */
 .tj-card {
     background: white;
     border-radius: 1.5rem;
@@ -181,10 +149,6 @@ body {
 
 .accordion-header {
     cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.25rem;
     background: #f8fafc;
     border-radius: 1.25rem;
 }
@@ -196,79 +160,14 @@ body {
 }
 
 .accordion-active .accordion-content {
-    max-height: 2000px; /* Cukup besar untuk menampung list */
+    max-height: 2000px;
 }
 
 .accordion-active .chevron-icon {
     transform: rotate(180deg);
 }
 
-.search-container {
-    position: sticky;
-    top: 70px;
-    z-index: 40;
-}
-
-/* --- LOADING OVERLAY PREMIUM --- */
-.loading-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(255, 255, 255, 0.8); /* Putih bersih transparan */
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    z-index: 10000;
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
-
-/* Spinner Sleek ala iOS/Modern Web */
-.premium-loader {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #f3f3f3;
-    border-top: 3px solid #0095DA; /* Biru TJ */
-    border-radius: 50%;
-    animation: spin 0.8s cubic-bezier(0.5, 0, 0.5, 1) infinite;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
-
-/* Efek Teks Halus */
-.loading-status {
-    margin-top: 1.5rem;
-    color: #1e293b;
-    font-size: 0.85rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-    font-family: 'Inter', sans-serif;
-}
-
-/* SKELETON EFFECT (Ini yang bikin kelihatan mahal) */
-.skeleton {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: skeleton-loading 1.5s infinite;
-    border-radius: 1rem;
-}
-
-@keyframes skeleton-loading {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-/* Modifikasi Overlay biar lebih gelap */
-.loading-overlay {
-    background: rgba(0, 0, 0, 0.9) !important; /* Gelap banget biar techy */
-    backdrop-filter: blur(15px) !important;
-}
-
-/* --- FORM REFINEMENT: ULTRA SMOOTH --- */
-
+/* ================= FORM REFINEMENT (SMOOTH) ================= */
 .label-text {
     display: block;
     font-size: 11px;
@@ -276,7 +175,7 @@ body {
     text-transform: uppercase;
     letter-spacing: 0.08em;
     margin-bottom: 0.6rem;
-    color: #64748b; /* Slate 500 */
+    color: #64748b;
     font-family: 'Inter', sans-serif;
 }
 
@@ -286,9 +185,9 @@ body {
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 1.25rem;
-    font-size: 15px; /* Sedikit lebih besar biar jelas */
-    font-weight: 400; /* INI KUNCINYA: Font reguler agar halus */
-    color: #475569; /* Slate 600 - Warna abu gelap yang lembut */
+    font-size: 15px;
+    font-weight: 400; /* Halus / Tidak Bold */
+    color: #475569;
     outline: none;
     transition: all 0.2s ease;
     appearance: none;
@@ -299,11 +198,11 @@ body {
 }
 
 .tj-input:focus {
-    border-color: #0095DA;
+    border-color: var(--tj-blue);
     box-shadow: 0 0 0 4px rgba(0, 149, 218, 0.08);
 }
 
-/* Style khusus untuk S/N agar tetap rapi tapi halus */
+/* Style Khusus S/N */
 input[type="text"].tj-input {
     font-family: 'Inter', sans-serif;
     letter-spacing: 0.02em;
@@ -314,4 +213,17 @@ input[type="text"].tj-input::placeholder {
     color: #cbd5e1;
     font-size: 13px;
     font-weight: 400;
+}
+
+/* SKELETON EFFECT */
+.skeleton {
+    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+    background-size: 200% 100%;
+    animation: skeleton-loading 1.5s infinite;
+    border-radius: 1rem;
+}
+
+@keyframes skeleton-loading {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
 }
