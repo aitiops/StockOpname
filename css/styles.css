@@ -109,7 +109,7 @@ body {
 .premium-loader, .loader {
     width: 80px; /* Ukuran logo */
     height: 80px;
-    background-image: url('../assets/TJ.svg'); /* Panggil Logo SVG */
+    background-image: url('../assets/logo_tj_biru.png'); /* Panggil Logo SVG */
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
