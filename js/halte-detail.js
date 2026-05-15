@@ -1,6 +1,6 @@
 /**
  * HALTE DETAIL ENGINE - IT STOCK OPNAME
- * Versi Full Final: Fixed Loading Stuck & Premium UI Render
+ * Final Fix: Search Logic + Anti-Stuck Loading
  */
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -8,6 +8,7 @@ const halte_id = urlParams.get("halte_id");
 const halte_nama = urlParams.get("halte_nama");
 const koridor_id = urlParams.get("koridor_id");
 
+// Global Variable untuk menampung data asli dari server
 let perangkatList = [];
 
 // Proteksi: Jika ID tidak ada, balik ke dashboard
@@ -25,13 +26,12 @@ function goInput() {
     window.location.href = `stock-opname.html?halte_id=${halte_id}&halte_nama=${halte_nama}&koridor_id=${koridor_id}`;
 }
 
-// ================= LOAD DATA DARI SERVER =================
+// ================= LOAD DATA =================
 async function loadPerangkat() {
     const statusEl = document.getElementById("loadingStatus");
     const overlay = document.getElementById("loadingOverlay");
     const sessionToken = localStorage.getItem("token");
 
-    // Munculkan Loading
     if (overlay) {
         overlay.classList.add('loading-active');
         overlay.style.display = 'flex';
@@ -49,49 +49,80 @@ async function loadPerangkat() {
         });
 
         const data = await res.json();
+        // Simpan ke variabel global agar bisa difilter nanti
         perangkatList = data.data || [];
 
-        // Hitung Summary
-        let totalOn = 0;
-        let totalOff = 0;
-        perangkatList.forEach(item => {
-            if (item.status === "On Service") totalOn++;
-            else totalOff++;
-        });
+        // Update Summary
+        updateSummary(perangkatList);
 
-        // Update UI Summary
-        document.getElementById("totalPerangkat").innerHTML = perangkatList.length;
-        document.getElementById("totalOn").innerHTML = totalOn;
-        document.getElementById("totalOff").innerHTML = totalOff;
-
+        // Render pertama kali
         renderPerangkat(perangkatList);
 
-        // --- PROSES TUTUP LOADING (FIX STUCK) ---
-        if (statusEl) statusEl.innerText = "Data Sinkron!";
-        
+        // Tutup Loading
+        if (statusEl) statusEl.innerText = "Data Siap!";
         setTimeout(() => {
             if (overlay) {
-                // Hapus class agar CSS !important tidak lagi menahan overlay
                 overlay.classList.remove('loading-active');
+                overlay.style.setProperty('display', 'none', 'important');
                 overlay.style.display = 'none';
             }
         }, 600);
 
     } catch (err) {
-        console.error("Gagal load perangkat:", err);
-        // Failsafe: Loading harus tetap hilang kalau error
+        console.error("Gagal load:", err);
         if (overlay) {
             overlay.classList.remove('loading-active');
             overlay.style.display = 'none';
         }
-        if (statusEl) {
-            statusEl.innerText = "Koneksi Bermasalah!";
-            statusEl.style.color = "#ef4444";
-        }
     }
 }
 
-// ================= RENDER CARD PERANGKAT =================
+// ================= SUMMARY COUNTER =================
+function updateSummary(data) {
+    let totalOn = 0;
+    let totalOff = 0;
+    data.forEach(item => {
+        if (item.status === "On Service") totalOn++;
+        else totalOff++;
+    });
+    if(document.getElementById("totalPerangkat")) document.getElementById("totalPerangkat").innerHTML = data.length;
+    if(document.getElementById("totalOn")) document.getElementById("totalOn").innerHTML = totalOn;
+    if(document.getElementById("totalOff")) document.getElementById("totalOff").innerHTML = totalOff;
+}
+
+// ================= SEARCH & FILTER LOGIC =================
+function filterPerangkat() {
+    // 1. Ambil input dari user
+    const keyword = document.getElementById("searchInput").value.toLowerCase();
+    const statusFilter = document.getElementById("filterStatus").value;
+
+    console.log("Mencari:", keyword, "Status:", statusFilter); // Debugging
+
+    // 2. Lakukan Filter pada list asli
+    const filteredData = perangkatList.filter(item => {
+        // Gabungkan semua field biar pencarian luas
+        const nama = (item.nama_perangkat || "").toLowerCase();
+        const sn = (item.serial_number || "").toLowerCase();
+        const merk = (item.merk_model || "").toLowerCase();
+        const kategori = (item.kategori || "").toLowerCase();
+
+        // Cek kecocokan teks
+        const matchesKeyword = nama.includes(keyword) || 
+                               sn.includes(keyword) || 
+                               merk.includes(keyword) || 
+                               kategori.includes(keyword);
+
+        // Cek kecocokan status
+        const matchesStatus = statusFilter === "" ? true : item.status === statusFilter;
+
+        return matchesKeyword && matchesStatus;
+    });
+
+    // 3. Tampilkan hasil filter
+    renderPerangkat(filteredData);
+}
+
+// ================= RENDER CARD =================
 function renderPerangkat(dataList) {
     let html = "";
     const container = document.getElementById("tablePerangkat");
@@ -99,8 +130,8 @@ function renderPerangkat(dataList) {
     if (!dataList || dataList.length === 0) {
         html = `
             <div class="col-span-full py-20 text-center">
-                <div class="text-5xl mb-4 opacity-20">📦</div>
-                <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Belum ada perangkat terdaftar</p>
+                <div class="text-5xl mb-4 opacity-20">🔍</div>
+                <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Data tidak ditemukan</p>
             </div>`;
         container.innerHTML = html;
         return;
@@ -136,10 +167,6 @@ function renderPerangkat(dataList) {
                             <span class="text-slate-400 font-bold uppercase">Kategori</span>
                             <span class="font-bold text-slate-600">${item.kategori || "-"}</span>
                         </div>
-                        <div class="flex justify-between text-[11px]">
-                            <span class="text-slate-400 font-bold uppercase">Engineer</span>
-                            <span class="font-bold text-slate-600">${item.engineer || "-"}</span>
-                        </div>
                     </div>
                 </div>
 
@@ -155,73 +182,34 @@ function renderPerangkat(dataList) {
                 </div>
             </div>`;
     });
-
     container.innerHTML = html;
 }
 
-// ================= FILTER LOGIC =================
-function filterPerangkat() {
-    const keyword = document.getElementById("searchInput").value.toLowerCase();
-    const status = document.getElementById("filterStatus").value;
-
-    const filtered = perangkatList.filter(item => {
-        const textMatch = (item.nama_perangkat || "").toLowerCase().includes(keyword) || 
-                          (item.serial_number || "").toLowerCase().includes(keyword);
-        const statusMatch = status === "" ? true : item.status === status;
-        return textMatch && statusMatch;
-    });
-
-    renderPerangkat(filtered);
-}
-
-// ================= DELETE LOGIC =================
+// ================= CRUD & MODAL =================
 async function deletePerangkat(opnameId) {
-    if (!confirm("Hapus perangkat ini dari database?")) return;
+    if (!confirm("Hapus perangkat ini?")) return;
     try {
         const res = await fetch(API_URL, {
             method: "POST",
-            body: JSON.stringify({
-                action: "deletePerangkat",
-                token: localStorage.getItem("token"),
-                opname_id: opnameId
-            })
+            body: JSON.stringify({ action: "deletePerangkat", token: localStorage.getItem("token"), opname_id: opnameId })
         });
         const data = await res.json();
-        if (data.status) { loadPerangkat(); } 
-        else { alert(data.message); }
+        if (data.status) { loadPerangkat(); }
     } catch (err) { console.error(err); }
 }
 
-// ================= MODAL PHOTO =================
 function openPhoto(url) {
-    if (!url || url === "undefined" || url === "") {
-        alert("Foto tidak tersedia.");
-        return;
-    }
+    if (!url || url === "undefined" || url === "") { alert("Foto tidak tersedia."); return; }
     let fileId = "";
     if (url.includes("/d/")) fileId = url.split("/d/")[1].split("/")[0];
     else if (url.includes("id=")) fileId = url.split("id=")[1].split("&")[0];
-
     if (!fileId) { window.open(url, "_blank"); return; }
-
     const previewUrl = `https://drive.google.com/file/d/${fileId}/preview`;
-    const modal = document.getElementById("photoModal");
-    const iframe = document.getElementById("modalIframe");
-    
-    if(iframe) iframe.src = previewUrl;
-    if(modal) {
-        modal.classList.remove("hidden");
-        modal.classList.add("flex");
-    }
+    document.getElementById("modalIframe").src = previewUrl;
+    document.getElementById("photoModal").classList.replace("hidden", "flex");
 }
 
 function closePhoto() {
-    const modal = document.getElementById("photoModal");
-    const iframe = document.getElementById("modalIframe");
-    
-    if(iframe) iframe.src = "";
-    if(modal) {
-        modal.classList.remove("flex");
-        modal.classList.add("hidden");
-    }
+    document.getElementById("modalIframe").src = "";
+    document.getElementById("photoModal").classList.replace("flex", "hidden");
 }
