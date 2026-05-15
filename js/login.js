@@ -39,11 +39,11 @@ async function login() {
       localStorage.setItem("nama", data.user.nama);
 
       // 4. REDIRECT BERDASARKAN ROLE (Sesuai script kamu)
-      if (data.user.role == "engineer") {
+      if (data.user.role == "Engineer") {
         window.location.href = "engineer.html";
-      } else if (data.user.role == "koordinator") {
+      } else if (data.user.role == "Koordinator") {
         window.location.href = "koordinator.html";
-      } else if (data.user.role == "kasie") {
+      } else if (data.user.role == "Kasie") {
         window.location.href = "kasie.html";
       }
 
