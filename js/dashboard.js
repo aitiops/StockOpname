@@ -1,6 +1,6 @@
 /**
  * DASHBOARD ENGINE - IT STOCK OPNAME
- * Final Fix: Smart Search + Anti-Stuck Loading (Guaranteed)
+ * Versi "Sapu Bersih": Smart Search + Auto-Hide Corridor + Anti-Stuck
  */
 
 window.onload = () => {
@@ -16,24 +16,20 @@ window.onload = () => {
 };
 
 // ========================================================
-// LOAD DATA UTAMA
+// LOAD DATA DARI SERVER
 // ========================================================
 async function loadDashboardEngineer() {
     const statusEl = document.getElementById("loadingStatus");
     const overlay = document.getElementById("loadingOverlay");
     const sessionToken = localStorage.getItem("token");
 
-    // 1. Munculkan Loading
     if (overlay) {
         overlay.classList.add('loading-active');
         overlay.style.display = 'flex';
     }
-    if (statusEl) statusEl.innerText = "Sinkronisasi Data...";
 
     try {
-        console.log("Memulai Sinkronisasi...");
-
-        // 2. Fetch Stats
+        // 1. Ambil Statistik
         const resStats = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({ action: "getDashboardEngineer", token: sessionToken })
@@ -41,12 +37,12 @@ async function loadDashboardEngineer() {
         const statsJson = await resStats.json();
         const dData = statsJson.data || statsJson;
 
-        if(document.getElementById("totalHalte")) document.getElementById("totalHalte").innerHTML = dData.total_halte || 0;
-        if(document.getElementById("halteSelesai")) document.getElementById("halteSelesai").innerHTML = dData.halte_selesai || 0;
-        if(document.getElementById("progressVisit")) document.getElementById("progressVisit").innerHTML = (dData.progress || 0) + "%";
+        document.getElementById("totalHalte").innerHTML = dData.total_halte || 0;
+        document.getElementById("halteSelesai").innerHTML = dData.halte_selesai || 0;
+        document.getElementById("progressVisit").innerHTML = (dData.progress || 0) + "%";
 
-        // 3. Fetch List Halte
-        if (statusEl) statusEl.innerText = "Menyusun Koridor...";
+        // 2. Ambil Daftar Halte
+        if (statusEl) statusEl.innerText = "Sinkronisasi Koridor...";
         const resHalte = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({ action: "getHalte", token: sessionToken })
@@ -54,7 +50,7 @@ async function loadDashboardEngineer() {
         const halteJson = await resHalte.json();
         const listHalte = halteJson.data || halteJson;
 
-        // 4. Grouping & Render
+        // 3. Mapping Koridor
         let koridorMap = {};
         if (Array.isArray(listHalte)) {
             listHalte.forEach(item => {
@@ -63,6 +59,7 @@ async function loadDashboardEngineer() {
             });
         }
 
+        // 4. Render HTML
         let html = "";
         for (let koridor in koridorMap) {
             let halteHtml = "";
@@ -91,7 +88,7 @@ async function loadDashboardEngineer() {
 
             html += `
                 <div class="accordion-item tj-card overflow-hidden bg-white shadow-sm mb-4" id="koridor-${koridor}">
-                    <div class="accordion-header flex justify-between items-center p-4 cursor-pointer hover:bg-slate-50 transition-colors" onclick="toggleAccordion('koridor-${koridor}')">
+                    <div class="accordion-header flex justify-between items-center p-4 cursor-pointer" onclick="toggleAccordion('koridor-${koridor}')">
                         <div class="flex items-center gap-4">
                             <div class="w-10 h-10 bg-[#0095DA] text-white rounded-xl flex items-center justify-center font-black shadow-inner">${koridor}</div>
                             <div>
@@ -109,60 +106,58 @@ async function loadDashboardEngineer() {
                 </div>`;
         }
 
-        document.getElementById("dashboardKoridor").innerHTML = html || "<p class='text-center py-10 text-slate-400'>Data tidak tersedia.</p>";
-        if (statusEl) statusEl.innerText = "Data Siap!";
+        const container = document.getElementById("dashboardKoridor");
+        if (container) container.innerHTML = html || "<p class='text-center py-20 text-slate-400 font-bold uppercase tracking-widest text-xs'>Data Tidak Ditemukan</p>";
 
     } catch (err) {
-        console.error("Sinkronisasi Gagal:", err);
-        if (statusEl) statusEl.innerText = "Gagal Memuat Data";
+        console.error("Gagal sinkronisasi:", err);
     } finally {
-        // --- JURUS PAMUNGKAS ---
-        // Mau sukses atau gagal, loading WAJIB hilang setelah jeda sebentar
+        // --- JALUR PAKSA TUTUP LOADING ---
         setTimeout(() => {
             if (overlay) {
                 overlay.classList.remove('loading-active');
                 overlay.style.setProperty('display', 'none', 'important');
-                overlay.style.display = 'none';
             }
         }, 800);
     }
 }
 
 // ========================================================
-// PENCARIAN CERDAS (HIDE EMPTY)
+// FUNGSI SEARCH (VERSI SAPU BERSIH)
 // ========================================================
 function filterHalteManual() {
-    const input = document.getElementById('searchHalte').value.toLowerCase().trim();
+    // Ambil input dari user
+    const searchVal = document.getElementById('searchHalte').value.toLowerCase().trim();
     const accordions = document.querySelectorAll('.accordion-item');
-
-    if (input === "") {
-        accordions.forEach(acc => {
-            acc.style.setProperty('display', 'block', 'important');
-            acc.classList.remove('accordion-active');
-            acc.querySelectorAll('.halte-row').forEach(row => row.style.setProperty('display', 'flex', 'important'));
-        });
-        return;
-    }
 
     accordions.forEach(acc => {
         const rows = acc.querySelectorAll('.halte-row');
-        let match = false;
+        let hasMatch = false;
 
         rows.forEach(row => {
-            const nama = row.querySelector('.h-nama').innerText.toLowerCase();
-            if (nama.includes(input)) {
+            // Kita cari di semua teks di dalam baris tersebut
+            const rowText = row.innerText.toLowerCase();
+
+            if (searchVal === "" || rowText.includes(searchVal)) {
                 row.style.setProperty('display', 'flex', 'important');
-                match = true;
+                if (searchVal !== "") hasMatch = true;
             } else {
                 row.style.setProperty('display', 'none', 'important');
             }
         });
 
-        if (match) {
+        // Tampilkan/Sembunyikan Koridor
+        if (searchVal === "") {
+            // Jika kosong, tampilkan semua koridor dan tutup listnya
             acc.style.setProperty('display', 'block', 'important');
-            acc.classList.add('accordion-active');
+            acc.classList.remove('accordion-active');
         } else {
-            acc.style.setProperty('display', 'none', 'important');
+            if (hasMatch) {
+                acc.style.setProperty('display', 'block', 'important');
+                acc.classList.add('accordion-active'); // Buka otomatis kalau ada hasil
+            } else {
+                acc.style.setProperty('display', 'none', 'important'); // SEMBUNYIKAN KORIDOR TOTAL
+            }
         }
     });
 }
