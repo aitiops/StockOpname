@@ -266,3 +266,57 @@ body {
     background: rgba(0, 0, 0, 0.9) !important; /* Gelap banget biar techy */
     backdrop-filter: blur(15px) !important;
 }
+
+/* --- FORM PREMIUM STYLE --- */
+
+/* Label di atas input */
+.label-text {
+    display: block;
+    font-size: 10px;
+    font-weight: 900; /* Sangat tebal */
+    text-transform: uppercase;
+    letter-spacing: 0.15em; /* Jarak antar huruf biar elegan */
+    margin-bottom: 0.5rem;
+    color: #64748b; /* Slate-500 */
+}
+
+/* Kotak Input & Select */
+.tj-input {
+    width: 100%;
+    padding: 1rem 1.25rem;
+    background-color: #f8fafc; /* Slate-50 */
+    border: 1px solid #e2e8f0; /* Slate-200 */
+    border-radius: 1.25rem; /* Sangat bulat */
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    outline: none;
+    transition: all 0.2s ease;
+    appearance: none; /* Hilangkan arrow standar browser */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m19 9-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.25rem;
+}
+
+/* Efek pas diklik */
+.tj-input:focus {
+    background-color: #ffffff;
+    border-color: #0095DA;
+    box-shadow: 0 0 0 4px rgba(0, 149, 218, 0.1);
+}
+
+/* Khusus Input Text (SN) agar font-nya techy */
+input[type="text"].tj-input {
+    font-family: 'Monaco', 'Consolas', monospace;
+    letter-spacing: 0.05em;
+    background-image: none; /* SN tidak butuh arrow dropdown */
+}
+
+/* Placeholder (Tulisan bayangan) */
+.tj-input::placeholder {
+    color: #cbd5e1;
+    font-weight: 500;
+    text-transform: uppercase;
+    font-size: 11px;
+}
