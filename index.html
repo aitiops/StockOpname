@@ -13,7 +13,7 @@
         
         <div class="w-full flex flex-col items-center text-center mb-[1.5rem]">
             <img src="assets/logo_tj.png" alt="Logo TJ" style="height: 45px; margin-bottom: 0.5rem;">
-            <h1 style="color: white; font-weight: 800; font-size: 0.9rem; text-transform: uppercase;">IT Stock Opname</h1>
+            <h1 style="color: white; font-weight: 800; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.05em;">IT Stock Opname</h1>
         </div>
 
         <form onsubmit="event.preventDefault(); login();" class="w-full">
@@ -25,13 +25,13 @@
             <div style="margin-bottom: 1.5rem;">
                 <label class="label-text">Kata Sandi</label>
                 <input type="password" id="password" class="tj-input" placeholder="Password" required>
-                <label class="checkbox-container">
+                <label class="checkbox-container select-none">
                     <input type="checkbox" id="showPass" onclick="togglePass('password')">
                     <span>Tampilkan Sandi</span>
                 </label>
             </div>
             
-            <button type="submit" class="tj-btn">Masuk</button>
+            <button type="submit" class="tj-btn">Masuk System</button>
         </form>
         
         <p id="message" style="text-align: center; color: #fbbf24; font-size: 0.65rem; font-weight: 700; margin-top: 1rem;"></p>
