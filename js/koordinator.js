@@ -165,3 +165,23 @@ function logout() {
         window.location.href = "index.html";
     }
 }
+
+// ========================================================
+// SEARCH ENGINE UNTUK PANEL KOORDINATOR (LIVE FILTER)
+// ========================================================
+function filterKoridorManual() {
+    const input = document.getElementById('searchKoridor').value.toLowerCase().trim();
+    // Bidik semua kotak koridor yang ada di dalam list container
+    const cards = document.querySelectorAll('#koridorList > div');
+
+    cards.forEach(card => {
+        const text = card.innerText.toLowerCase();
+        
+        // Jika ketikan kosong atau teks di dalam kartu cocok dengan pencarian
+        if (input === "" || text.includes(input)) {
+            card.style.setProperty('display', 'flex', 'important');
+        } else {
+            card.style.setProperty('display', 'none', 'important'); // Sembunyikan yang gak cocok
+        }
+    });
+}
