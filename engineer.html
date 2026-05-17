@@ -16,19 +16,71 @@
     <style>
         body { font-family: 'Inter', sans-serif; transition: background-color 0.3s ease, color 0.3s ease; }
         
-        /* FIX TOTAL TULISAN KORIDOR: PAKSA PUTIH DI DARK MODE TANPA HARUS DI-HOVER */
-        .dark .accordion-item { background-color: rgba(19, 34, 71, 0.4) !important; border-color: rgba(30, 41, 59, 0.8) !important; box-shadow: none !important; }
-        .dark .accordion-header:hover { background-color: rgba(24, 38, 71, 0.6) !important; }
+        /* ========================================================
+           ULTRA FORCE OVERRIDE - MODE GELAP (DARK MODE)
+           ======================================================== */
+        /* 1. Paksa BACKGROUND kotak koridor & kartu jadi Biru Navy Command Center */
+        .dark .accordion-item, 
+        .dark .tj-card,
+        .dark .accordion-header {
+            background-color: #132247 !important;
+            background: #132247 !important;
+            border-color: #1e293b !important;
+            box-shadow: none !important;
+        }
+        .dark .accordion-header:hover { 
+            background-color: #182647 !important; 
+            background: #182647 !important;
+        }
+
+        /* 2. Paksa TULISAN UTAMA (Nama Koridor & Halte) jadi PUTIH TERANG sejak awal */
+        .dark .accordion-header h2, 
+        .dark #dashboardKoridor h2,
+        .dark .accordion-item h2,
+        .dark .accordion-header h2 *,
+        .dark .h-nama { 
+            color: #ffffff !important; 
+        }
+
+        /* 3. Paksa TULISAN SUB-TEXT (Status X / Y Selesai) jadi Abu-abu terang */
+        .dark .accordion-header p, 
+        .dark #dashboardKoridor p,
+        .dark .accordion-item p,
+        .dark .accordion-header p * { 
+            color: #94a3b8 !important; 
+        }
+        .dark .chevron-icon svg { 
+            color: #94a3b8 !important; 
+            stroke: #94a3b8 !important; 
+        }
         
-        /* Selector super ketat tembus utility class Tailwind */
-        .dark .accordion-header h2, .dark h2.text-slate-800 { color: #ffffff !important; }
-        .dark .accordion-header p, .dark p.text-slate-500 { color: #94a3b8 !important; }
-        .dark .chevron-icon svg { color: #94a3b8 !important; stroke: #94a3b8 !important; }
-        
-        /* Konten baris halte di dalam */
+        /* 4. Konten baris dalam saat mekar */
         .dark .accordion-content { background-color: transparent !important; border-color: rgba(30, 41, 59, 0.5) !important; }
         .dark .halte-row { border-color: rgba(30, 41, 59, 0.4) !important; }
-        .dark .h-nama { color: #e2e8f0 !important; }
+
+        /* ========================================================
+           ULTRA FORCE OVERRIDE - MODE TERANG (LIGHT MODE)
+           ======================================================== */
+        html:not(.dark) .accordion-item,
+        html:not(.dark) .tj-card,
+        html:not(.dark) .accordion-header {
+            background-color: #ffffff !important;
+            background: #ffffff !important;
+            border-color: #e2e8f0 !important;
+        }
+        html:not(.dark) .accordion-header:hover {
+            background-color: #f8fafc !important;
+            background: #f8fafc !important;
+        }
+        html:not(.dark) .accordion-header h2,
+        html:not(.dark) #dashboardKoridor h2,
+        html:not(.dark) .h-nama {
+            color: #1e293b !important;
+        }
+        html:not(.dark) .accordion-header p,
+        html:not(.dark) #dashboardKoridor p {
+            color: #64748b !important;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 dark:bg-[#0b1329] dark:text-slate-100 min-h-screen pb-10">
