@@ -1,16 +1,31 @@
+/**
+ * GLOBAL AUTH & SESSION SYSTEM - IT STOCK OPNAME
+ * Fitur: Interceptor Session Expired + Global Logout Bulletproof
+ */
+
 // ========================================================
-// GLOBAL SESSION EXPIRED INTERCEPTOR (DYNAMIC MODAL)
+// 1. FUNGSI LOGOUT GLOBAL (ANTI-GAGAL)
+// ========================================================
+window.logout = function() {
+    if (confirm("Apakah Anda yakin ingin keluar dari sistem monitoring?")) {
+        // Bersihkan seluruh data login di browser
+        localStorage.clear();
+        // Tendang langsung ke halaman utama
+        window.location.href = "index.html";
+    }
+};
+
+// ========================================================
+// 2. GLOBAL SESSION EXPIRED INTERCEPTOR (DYNAMIC MODAL)
 // ========================================================
 
-// 1. Fungsi untuk menyuntikkan Modal Premium ke HTML secara otomatis
 function showSessionExpiredModal() {
-    // Cegah duplikasi modal jika sudah ada di layar
     if (document.getElementById("sessionExpiredModal")) return;
 
     const modalHtml = `
-        <div id="sessionExpiredModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 animate-fade-in">
-            <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full text-center shadow-2xl border border-slate-100 transform scale-95 transition-transform duration-300">
-                <div class="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 animate-pulse border border-red-100">
+        <div id="sessionExpiredModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+            <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full text-center shadow-2xl border border-slate-100">
+                <div class="w-16 h-16 bg-red-50 text-red-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 border border-red-100 animate-pulse">
                     🔒
                 </div>
                 <h3 class="text-base font-black text-slate-800 uppercase tracking-tight mb-2">Sesi Anda Telah Berakhir</h3>
@@ -23,34 +38,27 @@ function showSessionExpiredModal() {
             </div>
         </div>
     `;
-
-    // Masukkan modal ke bagian paling bawah body HTML
     document.body.insertAdjacentHTML("beforeend", modalHtml);
 }
 
-// 2. Fungsi Aksi saat tombol Login Ulang diklik
 function forceRedirectToLogin() {
-    localStorage.clear(); // Bersihkan semua token lama
-    window.location.href = "index.html"; // Tendang ke halaman login
+    localStorage.clear();
+    window.location.href = "index.html";
 }
 
-// 3. LOGIKA INTERCEPTOR: Membajak semua fungsi fetch di aplikasi secara global
+// Interceptor: Membajak fetch untuk deteksi otomatis session habis dari Google Script
 const originalFetch = window.fetch;
 window.fetch = async function (...args) {
     const response = await originalFetch(...args);
-    
-    // Clone respon agar tidak mengganggu kodingan utama di file .js lain
     const cloneResponse = response.clone();
     
     try {
         const json = await cloneResponse.json();
-        
-        // Cek apakah server mengirimkan pesan "Session expired"
         if (json && json.message && String(json.message).toLowerCase().includes("session expired")) {
             showSessionExpiredModal();
         }
     } catch (e) {
-        // Abaikan jika respon bukan berupa JSON (misal error 500 html biasa)
+        // Abaikan jika respon bukan berupa JSON
     }
     
     return response;
