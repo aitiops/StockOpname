@@ -5,56 +5,77 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Engineer - IT Stock Opname</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
-    
+<body class="bg-slate-50 min-h-screen pb-10">
+
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loader"></div> 
-        <p id="loadingStatus" class="loading-text">Sinkronisasi Data...</p>
+        <p id="loadingStatus" class="loading-text">Sinkronisasi Data Lapangan...</p>
     </div>
 
-    <nav class="bg-[#0095DA] text-white p-4 sticky top-0 z-50 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <div>
-                <p class="text-[10px] font-black opacity-80 uppercase tracking-widest">Engineer Panel</p>
-                <h1 class="font-black text-lg">IT STOCK OPNAME</h1>
+    <nav class="bg-slate-900 text-white p-4 sticky top-0 z-50 shadow-xl">
+        <div class="container mx-auto flex justify-between items-center max-w-5xl">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 bg-[#0095DA] rounded-xl flex items-center justify-center font-black text-sm shadow-inner animate-pulse">
+                    🛠️
+                </div>
+                <div>
+                    <p class="text-[9px] font-black opacity-60 uppercase tracking-widest leading-none">Transjakarta</p>
+                    <h1 class="font-black text-base tracking-tight uppercase">IT Stock Opname</h1>
+                </div>
             </div>
             <div class="flex items-center gap-3">
-                <span id="namaUser" class="text-xs font-bold bg-white/20 px-3 py-1.5 rounded-full"></span>
-                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 p-2 rounded-lg transition-all">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+                <div class="flex items-center gap-2 bg-white/10 border border-white/10 pl-3 pr-4 py-1.5 rounded-full backdrop-blur-md">
+                    <div class="w-5 h-5 bg-[#0095DA] text-white rounded-full flex items-center justify-center text-[10px] font-black">
+                        👤
+                    </div>
+                    <span id="namaUser" class="text-[11px] font-black uppercase tracking-wider text-slate-200">Engineer</span>
+                </div>
+                <button onclick="logout()" class="bg-red-500 hover:bg-red-600 p-2.5 rounded-xl transition-all shadow-lg shadow-red-950/20 active:scale-90">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
                 </button>
             </div>
         </div>
     </nav>
 
     <main class="p-4 md:p-6 container mx-auto max-w-5xl">
-        <div class="grid grid-cols-3 gap-3 mb-6">
-            <div class="tj-card p-4 text-center bg-white shadow-sm">
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Total</p>
-                <p id="totalHalte" class="text-xl font-black text-slate-800">0</p>
+        
+        <div class="mb-6 px-1">
+            <h2 class="text-xl font-black text-slate-800 uppercase tracking-tight">Daftar Penugasan</h2>
+            <p class="text-slate-400 text-xs font-bold uppercase tracking-tighter">Pemeriksaan Aset Perangkat Halte</p>
+        </div>
+
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm transition-all hover:shadow-md">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Total Halte</p>
+                <p id="totalHalte" class="text-2xl font-black text-slate-800 leading-none">0</p>
             </div>
-            <div class="tj-card p-4 text-center bg-white shadow-sm">
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Done</p>
-                <p id="halteSelesai" class="text-xl font-black text-green-600">0</p>
+            <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm transition-all hover:shadow-md">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Selesai</p>
+                <p id="halteSelesai" class="text-2xl font-black text-green-600 leading-none">0</p>
             </div>
-            <div class="tj-card p-4 text-center bg-[#0095DA] border-none shadow-lg text-white">
-                <p class="text-[9px] font-black opacity-70 uppercase mb-1">Progress</p>
-                <p id="progressVisit" class="text-xl font-black">0%</p>
+            <div class="bg-[#0095DA] p-5 rounded-[2rem] shadow-lg shadow-blue-500/10 text-white flex flex-col justify-between">
+                <p class="text-[9px] font-black opacity-80 uppercase tracking-wider mb-1">Progress</p>
+                <p id="progressVisit" class="text-2xl font-black leading-none">0%</p>
             </div>
         </div>
 
-        <div class="mb-4 px-1">
-            <div class="relative">
-                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-xs">
+        <div class="mb-6 px-1">
+            <div class="relative group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-xs grayscale group-focus-within:grayscale-0 transition-all">
                     🔍
                 </div>
-                <input type="text" id="searchHalte" oninput="filterHalteManual()" placeholder="Cari nama atau ID halte..." class="w-full p-4 pl-12 rounded-2xl border-none shadow-xl focus:ring-2 focus:ring-[#0095DA] outline-none text-sm uppercase">
+                <input type="text" id="searchHalte" oninput="filterHalteManual()" placeholder="Cari nama atau ID halte tugas..." class="w-full p-4 pl-12 bg-white border border-slate-100 rounded-2xl text-xs font-bold text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#0095DA] focus:ring-2 focus:ring-blue-100 shadow-sm transition-all uppercase tracking-wide">
             </div>
         </div>
 
         <div id="dashboardKoridor" class="space-y-4"></div>
+        
     </main>
 
     <script src="js/config.js"></script>
@@ -62,7 +83,7 @@
     <script src="js/dashboard.js"></script>
     
     <script>
-        // Logika UI Accordion Model Eksklusif (Klik satu, yang lain nutup)
+        // Logika UI Accordion Smooth (Klik satu, koridor lain otomatis nutup)
         function toggleAccordion(id) {
             const all = document.querySelectorAll('.accordion-item');
             all.forEach(item => {
