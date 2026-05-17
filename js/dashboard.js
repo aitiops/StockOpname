@@ -123,42 +123,61 @@ async function loadDashboardEngineer() {
 }
 
 // ========================================================
-// FUNGSI SEARCH (VERSI SAPU BERSIH)
+// SMART SEARCH UTAMA (ENGINEER PANEL) - ULTRA STRICT FILTER
 // ========================================================
 function filterHalteManual() {
     const input = document.getElementById('searchHalte').value.toLowerCase().trim();
     const accordions = document.querySelectorAll('.accordion-item');
 
+    console.log("Kata kunci dicari:", input); // Untuk debug di F12 Console
+
     accordions.forEach(acc => {
         const rows = acc.querySelectorAll('.halte-row');
+        const contentContainer = acc.querySelector('.accordion-content');
         let adaYangCocok = false;
 
+        // 1. Filter baris halte di dalam koridor
         rows.forEach(row => {
             const text = row.innerText.toLowerCase();
-            if (input === "" || text.includes(input)) {
+            
+            if (input === "") {
+                // Skenario A: Kolom pencarian kosong -> Tampilkan semua baris halte murni
                 row.style.setProperty('display', 'flex', 'important');
-                if (input !== "") adaYangCocok = true;
+            } else if (text.includes(input)) {
+                // Skenario B: Nama halte cocok dengan ketikan
+                row.style.setProperty('display', 'flex', 'important');
+                adaYangCocok = true;
             } else {
+                // Skenario C: Gak cocok -> Sembunyikan baris haltenya
                 row.style.setProperty('display', 'none', 'important');
             }
         });
 
-        // SEMBUNYIKAN KORIDOR TOTAL KALAU GAK ADA YANG COCOK
+        // 2. Logika Pembersihan & Pemaksaan Visual Koridor (Box Besar)
         if (input === "") {
+            // JIKA INPUT KOSONG: Kembalikan ke mode normal (Tampil semua koridor, tapi ketutup)
             acc.style.setProperty('display', 'block', 'important');
             acc.classList.remove('accordion-active');
+            if (contentContainer) {
+                contentContainer.style.removeProperty('display'); // Biar CSS aslinya kembali bekerja
+            }
         } else {
+            // JIKA SEDANG MENCARI:
             if (adaYangCocok) {
+                // KORIDOR COCOK: Tampilkan box koridor & PAKSA MEKAR kontent di dalamnya!
                 acc.style.setProperty('display', 'block', 'important');
-                acc.classList.add('accordion-active'); // Auto-buka
+                acc.classList.add('accordion-active');
+                if (contentContainer) {
+                    contentContainer.style.setProperty('display', 'block', 'important'); // Jebol proteksi CSS
+                }
             } else {
-                acc.style.setProperty('display', 'none', 'important'); // Sembunyi total
+                // KORIDOR GAK COCOK: MUSNAHKAN TOTAL DARI LAYAR
+                acc.style.setProperty('display', 'none', 'important');
+                acc.classList.remove('accordion-active');
+                if (contentContainer) {
+                    contentContainer.style.setProperty('display', 'none', 'important');
+                }
             }
         }
     });
-}
-
-function toggleAccordion(id) {
-    const el = document.getElementById(id);
-    if (el) el.classList.toggle('accordion-active');
 }
