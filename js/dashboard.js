@@ -1,118 +1,60 @@
 /**
- * DASHBOARD ENGINE - IT STOCK OPNAME
- * Versi "Sapu Bersih": Smart Search + Auto-Hide Corridor + Anti-Stuck
+ * ENGINEER DASHBOARD ENGINE - IT STOCK OPNAME
+ * Version: Ultra Strict Search & Anti-Crash Failsafe
  */
 
 window.onload = () => {
-    const path = window.location.pathname;
     const nama = localStorage.getItem("nama");
     if (document.getElementById("namaUser")) {
-        document.getElementById("namaUser").innerHTML = nama || "User";
+        document.getElementById("namaUser").innerText = nama || "Engineer";
     }
-
-    if (path.includes("engineer.html")) {
-        loadDashboardEngineer();
-    }
+    loadDashboardEngineer();
 };
 
 // ========================================================
-// LOAD DATA DARI SERVER
+// 1. LOAD DATA UTAMA (SUMMARY & LIST ACCORDION)
 // ========================================================
 async function loadDashboardEngineer() {
     const statusEl = document.getElementById("loadingStatus");
     const overlay = document.getElementById("loadingOverlay");
-    const sessionToken = localStorage.getItem("token");
+    const token = localStorage.getItem("token");
 
     if (overlay) {
         overlay.classList.add('loading-active');
         overlay.style.display = 'flex';
     }
+    if (statusEl) statusEl.innerText = "Sinkronisasi Data...";
 
     try {
-        // 1. Ambil Statistik
+        // A. Ambil Summary Stats
         const resStats = await fetch(API_URL, {
             method: "POST",
-            body: JSON.stringify({ action: "getDashboardEngineer", token: sessionToken })
+            body: JSON.stringify({ action: "getDashboardEngineer", token: token })
         });
-        const statsJson = await resStats.json();
-        const dData = statsJson.data || statsJson;
+        const stats = await resStats.json();
+        
+        if (stats.status) {
+            document.getElementById("totalHalte").innerText = stats.data.total_halte || 0;
+            document.getElementById("halteSelesai").innerText = stats.data.halte_selesai || 0;
+            document.getElementById("progressVisit").innerText = (stats.data.progress || 0) + "%";
+        }
 
-        document.getElementById("totalHalte").innerHTML = dData.total_halte || 0;
-        document.getElementById("halteSelesai").innerHTML = dData.halte_selesai || 0;
-        document.getElementById("progressVisit").innerHTML = (dData.progress || 0) + "%";
-
-        // 2. Ambil Daftar Halte
-        if (statusEl) statusEl.innerText = "Sinkronisasi Koridor...";
+        // B. Ambil List Semua Halte untuk Accordion
+        if (statusEl) statusEl.innerText = "Menyusun Koridor...";
         const resHalte = await fetch(API_URL, {
             method: "POST",
-            body: JSON.stringify({ action: "getHalte", token: sessionToken })
+            body: JSON.stringify({ action: "getHalte", token: token })
         });
-        const halteJson = await resHalte.json();
-        const listHalte = halteJson.data || halteJson;
-
-        // 3. Mapping Koridor
-        let koridorMap = {};
-        if (Array.isArray(listHalte)) {
-            listHalte.forEach(item => {
-                if (!koridorMap[item.koridor_id]) koridorMap[item.koridor_id] = [];
-                koridorMap[item.koridor_id].push(item);
-            });
+        const halteData = await resHalte.json();
+        
+        if (halteData.status) {
+            renderAccordion(halteData.data);
         }
-
-        // 4. Render HTML
-        let html = "";
-        for (let koridor in koridorMap) {
-            let halteHtml = "";
-            let countSelesai = 0;
-
-            koridorMap[koridor].forEach(item => {
-                const isSelesai = item.status === "Selesai";
-                if (isSelesai) countSelesai++;
-                let badgeClass = isSelesai ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600";
-                
-                halteHtml += `
-                    <div class="halte-row flex justify-between items-center p-4 border-b border-slate-50 last:border-none">
-                        <div>
-                            <div class="font-bold text-slate-700 text-sm h-nama">${item.nama_halte}</div>
-                            <div class="text-[10px] text-slate-400 font-mono">ID: ${item.halte_id}</div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <span class="${badgeClass} text-[9px] font-black px-2 py-1 rounded-md uppercase">${isSelesai ? 'DONE' : 'PENDING'}</span>
-                            <button onclick="window.location.href='halte-detail.html?halte_id=${item.halte_id}&halte_nama=${item.nama_halte}&koridor_id=${item.koridor_id}'" 
-                                class="bg-slate-100 text-slate-600 p-2 rounded-lg hover:bg-[#0095DA] hover:text-white transition-all shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                            </button>
-                        </div>
-                    </div>`;
-            });
-
-            html += `
-                <div class="accordion-item tj-card overflow-hidden bg-white shadow-sm mb-4" id="koridor-${koridor}">
-                    <div class="accordion-header flex justify-between items-center p-4 cursor-pointer" onclick="toggleAccordion('koridor-${koridor}')">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 bg-[#0095DA] text-white rounded-xl flex items-center justify-center font-black shadow-inner">${koridor}</div>
-                            <div>
-                                <h2 class="text-sm font-black text-slate-800 uppercase">Koridor ${koridor}</h2>
-                                <p class="text-[10px] text-slate-500 font-bold">${countSelesai} / ${koridorMap[koridor].length} Selesai</p>
-                            </div>
-                        </div>
-                        <div class="chevron-icon transition-transform duration-300 opacity-20">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
-                        </div>
-                    </div>
-                    <div class="accordion-content bg-white border-t border-slate-50">
-                        <div class="p-1">${halteHtml}</div>
-                    </div>
-                </div>`;
-        }
-
-        const container = document.getElementById("dashboardKoridor");
-        if (container) container.innerHTML = html || "<p class='text-center py-20 text-slate-400 font-bold uppercase tracking-widest text-xs'>Data Tidak Ditemukan</p>";
 
     } catch (err) {
-        console.error("Gagal sinkronisasi:", err);
+        console.error("Gagal Sinkronisasi Dashboard:", err);
+        if (statusEl) statusEl.innerText = "Gagal Memuat Data";
     } finally {
-        // --- JALUR PAKSA TUTUP LOADING ---
         setTimeout(() => {
             if (overlay) {
                 overlay.classList.remove('loading-active');
@@ -123,71 +65,131 @@ async function loadDashboardEngineer() {
 }
 
 // ========================================================
-// SMART SEARCH UTAMA (ENGINEER PANEL) - ANTI-FAIL VERSION
+// 2. RENDER GENERATE HTML ACCORDION
+// ========================================================
+function renderAccordion(listHalte) {
+    const container = document.getElementById("dashboardKoridor");
+    if (!container) return;
+
+    if (!listHalte || listHalte.length === 0) {
+        container.innerHTML = `<p class="text-center py-20 text-slate-400 font-bold uppercase text-xs">Data Halte Tidak Ditemukan</p>`;
+        return;
+    }
+
+    // Grouping halte berdasarkan koridor_id
+    let koridorMap = {};
+    listHalte.forEach(item => {
+        if (!koridorMap[item.koridor_id]) koridorMap[item.koridor_id] = [];
+        koridorMap[item.koridor_id].push(item);
+    });
+
+    let html = "";
+    Object.keys(koridorMap).sort((a, b) => a - b).forEach(kId => {
+        let items = koridorMap[kId];
+        let doneInKoridor = items.filter(h => h.status === "Selesai").length;
+        
+        let halteRows = "";
+        items.forEach(h => {
+            const isDone = h.status === "Selesai";
+            halteRows += `
+                <div class="halte-row flex justify-between items-center p-4 border-b border-slate-50 last:border-none">
+                    <div class="flex-grow">
+                        <div class="font-bold text-slate-700 text-sm h-nama">${h.nama_halte}</div>
+                        <div class="text-[10px] text-slate-400 font-mono uppercase">ID: ${h.halte_id}</div>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span class="${isDone ? 'bg-green-100 text-green-600' : 'bg-red-100 text-red-600'} text-[9px] font-black px-2 py-1 rounded-md uppercase">
+                            ${isDone ? 'DONE' : 'PENDING'}
+                        </span>
+                        <button onclick="window.location.href='halte-detail.html?halte_id=${h.halte_id}&halte_nama=${h.nama_halte}&koridor_id=${h.koridor_id}'" 
+                            class="bg-slate-100 text-slate-600 p-2 rounded-lg hover:bg-[#0095DA] hover:text-white transition-all shadow-sm active:scale-90">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                        </button>
+                    </div>
+                </div>`;
+        });
+
+        html += `
+            <div class="accordion-item tj-card overflow-hidden bg-white shadow-sm mb-4 border border-slate-100" id="koridor-${kId}">
+                <div class="accordion-header flex justify-between items-center p-4 cursor-pointer hover:bg-slate-50 transition-colors" onclick="toggleAccordion('koridor-${kId}')">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-[#0095DA] text-white rounded-xl flex items-center justify-center font-black shadow-inner">${kId}</div>
+                        <div>
+                            <h2 class="text-sm font-black text-slate-800 uppercase">Koridor ${kId}</h2>
+                            <p class="text-[10px] text-slate-500 font-bold">${doneInKoridor} / ${items.length} Selesai</p>
+                        </div>
+                    </div>
+                    <div class="chevron-icon transition-transform duration-300 opacity-20">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+                    </div>
+                </div>
+                <div class="accordion-content bg-white border-t border-slate-50">
+                    <div class="p-1">${halteRows}</div>
+                </div>
+            </div>`;
+    });
+
+    container.innerHTML = html;
+}
+
+// ========================================================
+// 3. ULTRA FOOLPROOF SEARCH ENGINE (ROW-DRIVEN SELECTION)
 // ========================================================
 function filterHalteManual() {
     const input = document.getElementById('searchHalte').value.toLowerCase().trim();
-    
-    // TRICK SAKTI: Ambil berdasarkan class, atau ID koridor, atau anak dari main container
-    let accordions = document.querySelectorAll('.accordion-item, [id^="koridor-"]');
-    if (accordions.length === 0) {
-        const container = document.getElementById("dashboardKoridor") || document.getElementById("koridorList");
-        if (container) accordions = container.children;
-    }
+    const allRows = document.querySelectorAll('.halte-row');
+    const accordions = document.querySelectorAll('.accordion-item');
 
-    // Failsafe: Jika data element tidak ditemukan, hentikan proses biar ga error
-    if (!accordions || accordions.length === 0) return;
+    // Tahap 1: Saring baris haltenya dulu satu per satu
+    allRows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        if (input === "" || text.includes(input)) {
+            row.style.setProperty('display', 'flex', 'important');
+            row.classList.remove('hidden');
+        } else {
+            row.style.setProperty('display', 'none', 'important');
+            row.classList.add('hidden');
+        }
+    });
 
-    // Lakukan looping ke setiap box Koridor
-    for (let i = 0; i < accordions.length; i++) {
-        const acc = accordions[i];
-        const contentContainer = acc.querySelector('.accordion-content') || acc.children[1];
-        const rows = acc.querySelectorAll('.halte-row') || (contentContainer ? contentContainer.children : []);
+    // Tahap 2: Sembunyikan Box Koridor yang di dalamnya gak ada halte yang lolos filter
+    accordions.forEach(acc => {
+        const contentContainer = acc.querySelector('.accordion-content');
         
         if (input === "") {
-            // KONDISI KOSONG: Kembalikan semua ke normal (Semua tampil, posisi tertutup)
+            // Jika input kosong, tampilkan semua koridor (posisi tertutup semula)
             acc.style.setProperty('display', 'block', 'important');
             acc.classList.remove('hidden', 'accordion-active');
             if (contentContainer) contentContainer.style.removeProperty('display');
-            
-            if (rows) {
-                for (let j = 0; j < rows.length; j++) {
-                    rows[j].style.setProperty('display', 'flex', 'important');
-                    rows[j].classList.remove('hidden');
-                }
-            }
         } else {
-            // KONDISI SEDANG MENCARI DATA
-            const accText = acc.innerText.toLowerCase();
+            // Hitung manual baris halte yang aktif (tidak disembunyikan) di dalam koridor ini
+            let countVisibleHalte = 0;
+            const innerRows = acc.querySelectorAll('.halte-row');
             
-            // Cek apakah seluruh isi box koridor ini mengandung kata yang dicari
-            if (accText.includes(input)) {
-                // JIKA COCOK: Tampilkan koridornya & paksa mekar isinya!
+            innerRows.forEach(row => {
+                if (row.style.display !== 'none' && !row.classList.contains('hidden')) {
+                    countVisibleHalte++;
+                }
+            });
+
+            if (countVisibleHalte > 0) {
+                // JIKA COCOK: Tampilkan box koridor & paksa mekar isinya!
                 acc.style.setProperty('display', 'block', 'important');
                 acc.classList.remove('hidden');
                 acc.classList.add('accordion-active');
                 if (contentContainer) contentContainer.style.setProperty('display', 'block', 'important');
-                
-                // Saring halte di dalamnya agar HANYA halte yang dicari yang tampil
-                if (rows) {
-                    for (let j = 0; j < rows.length; j++) {
-                        const rowText = rows[j].innerText.toLowerCase();
-                        if (rowText.includes(input)) {
-                            rows[j].style.setProperty('display', 'flex', 'important');
-                            rows[j].classList.remove('hidden');
-                        } else {
-                            rows[j].style.setProperty('display', 'none', 'important');
-                            rows[j].classList.add('hidden');
-                        }
-                    }
-                }
             } else {
-                // JIKA SAMA SEKALI GAK COCOK: MUSNAHKAN TOTAL DARI LAYAR!
+                // JIKA TIDAK COCOK: Lenyapkan total koridor dari layar!
                 acc.style.setProperty('display', 'none', 'important');
                 acc.classList.add('hidden');
                 acc.classList.remove('accordion-active');
                 if (contentContainer) contentContainer.style.setProperty('display', 'none', 'important');
             }
         }
-    }
+    });
+}
+
+function toggleAccordion(id) {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('accordion-active');
 }
