@@ -17,10 +17,11 @@ async function handleReset() {
     const btn = document.getElementById("btnReset");
     const msg = document.getElementById("msg");
     const overlay = document.getElementById('loadingOverlay');
+    const statusEl = document.getElementById("loadingStatus");
 
     // 1. Validasi Kecocokan (Menggunakan Premium Modal)
     if (pass !== conf) {
-        showResetValidationModal("Sandi Tidak Cocok", "Konfirmasi kata sandi tidak cocok! Silakan periksa kembali ketikan Anda.");
+        showResetValidationModal("Sandi Tidak Cocok", "Konfirmasi kata sandi tidak cocok! Silakan periksa kembali.");
         return;
     }
 
@@ -29,13 +30,14 @@ async function handleReset() {
         return;
     }
 
-    // 2. AKTIFKAN PREMIUM LOADING OVERLAY (Sama persis seperti menu input & detail)
+    // 2. AKTIFKAN PREMIUM LOADING OVERLAY (Biar muncul animasi berputar)
     if (overlay) {
         overlay.classList.add('loading-active');
         overlay.style.display = 'flex';
     }
+    if (statusEl) statusEl.innerText = "Sedang memproses perubahan...";
     if (btn) btn.disabled = true;
-    if (msg) msg.innerText = "Sedang memproses perubahan...";
+    if (msg) msg.innerText = ""; // Bersihkan teks bawaan agar rapi
 
     try {
         const res = await fetch(API_URL, {
@@ -52,7 +54,7 @@ async function handleReset() {
         const data = await res.json();
 
         if (data.status) {
-            // SUNTIKKAN MODAL SUKSES PREMIUM (Ganti Alert)
+            // SUNTIKKAN MODAL SUKSES PREMIUM
             showResetSuccessModal();
         } else {
             hideResetLoading();
@@ -93,7 +95,7 @@ function showResetSuccessModal() {
 
     const successModalHtml = `
         <div id="successResetModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 animate-fade-in">
-            <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full text-center shadow-2xl border border-slate-100 transform scale-95 transition-transform duration-300">
+            <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full text-center shadow-2xl border border-slate-100 transform scale-100 transition-transform duration-300">
                 <div class="w-16 h-16 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 border border-green-100 animate-bounce">
                     ✅
                 </div>
