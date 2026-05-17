@@ -8,14 +8,16 @@
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body class="bg-slate-50 min-h-screen">
+    
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loader"></div> 
         <p id="loadingStatus" class="loading-text">Sinkronisasi Data...</p>
     </div>
+
     <nav class="bg-[#0095DA] text-white p-4 sticky top-0 z-50 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
             <div>
-                <p class="text-[10px] font-bold opacity-80 uppercase tracking-widest">Engineer Panel</p>
+                <p class="text-[10px] font-black opacity-80 uppercase tracking-widest">Engineer Panel</p>
                 <h1 class="font-black text-lg">IT STOCK OPNAME</h1>
             </div>
             <div class="flex items-center gap-3">
@@ -60,33 +62,15 @@
     <script src="js/dashboard.js"></script>
     
     <script>
-        // Logika UI Accordion & Search (Sama seperti sebelumnya)
+        // Logika UI Accordion Model Eksklusif (Klik satu, yang lain nutup)
         function toggleAccordion(id) {
-            const el = document.getElementById(id);
             const all = document.querySelectorAll('.accordion-item');
             all.forEach(item => {
-                if(item.id === id) item.classList.toggle('accordion-active');
-                else item.classList.remove('accordion-active');
-            });
-        }
-
-        function filterHalteManual() {
-            let input = document.getElementById('searchHalte').value.toLowerCase();
-            let items = document.querySelectorAll('.halte-row');
-            let headers = document.querySelectorAll('.accordion-item');
-            if(input === "") {
-                headers.forEach(h => { h.style.display = "block"; h.classList.remove('accordion-active'); });
-                items.forEach(i => i.style.display = "flex");
-                return;
-            }
-            items.forEach(item => {
-                let text = item.innerText.toLowerCase();
-                let parent = item.closest('.accordion-item');
-                if(text.includes(input)) {
-                    item.style.display = "flex";
-                    parent.classList.add('accordion-active');
-                    parent.style.display = "block";
-                } else { item.style.display = "none"; }
+                if(item.id === id) {
+                    item.classList.toggle('accordion-active');
+                } else {
+                    item.classList.remove('accordion-active');
+                }
             });
         }
     </script>
