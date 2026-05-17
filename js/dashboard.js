@@ -123,64 +123,71 @@ async function loadDashboardEngineer() {
 }
 
 // ========================================================
-// ULTRA STRICT FILTER SEARCH (ENGINEER PANEL) - ANTI CACHE
+// SMART SEARCH UTAMA (ENGINEER PANEL) - ANTI-FAIL VERSION
 // ========================================================
 function filterHalteManual() {
     const input = document.getElementById('searchHalte').value.toLowerCase().trim();
-    const accordions = document.querySelectorAll('.accordion-item');
+    
+    // TRICK SAKTI: Ambil berdasarkan class, atau ID koridor, atau anak dari main container
+    let accordions = document.querySelectorAll('.accordion-item, [id^="koridor-"]');
+    if (accordions.length === 0) {
+        const container = document.getElementById("dashboardKoridor") || document.getElementById("koridorList");
+        if (container) accordions = container.children;
+    }
 
-    accordions.forEach(acc => {
-        const rows = acc.querySelectorAll('.halte-row');
-        const contentContainer = acc.querySelector('.accordion-content');
-        let adaYangCocok = false;
+    // Failsafe: Jika data element tidak ditemukan, hentikan proses biar ga error
+    if (!accordions || accordions.length === 0) return;
 
-        // 1. Cek semua halte di dalam koridor ini
-        rows.forEach(row => {
-            const text = row.innerText.toLowerCase();
-            
-            if (input === "") {
-                row.style.setProperty('display', 'flex', 'important');
-                row.classList.remove('hidden');
-            } else if (text.includes(input)) {
-                row.style.setProperty('display', 'flex', 'important');
-                row.classList.remove('hidden');
-                adaYangCocok = true; // Tandai kalau koridor ini ada halte yang dicari
-            } else {
-                row.style.setProperty('display', 'none', 'important');
-                row.classList.add('hidden');
-            }
-        });
-
-        // 2. Eksekusi Pembantaian Koridor yang Gak Cocok
+    // Lakukan looping ke setiap box Koridor
+    for (let i = 0; i < accordions.length; i++) {
+        const acc = accordions[i];
+        const contentContainer = acc.querySelector('.accordion-content') || acc.children[1];
+        const rows = acc.querySelectorAll('.halte-row') || (contentContainer ? contentContainer.children : []);
+        
         if (input === "") {
-            // JIKA KOSONG: Tampilkan semua koridor lagi (posisi tertutup)
+            // KONDISI KOSONG: Kembalikan semua ke normal (Semua tampil, posisi tertutup)
             acc.style.setProperty('display', 'block', 'important');
-            acc.classList.remove('hidden');
-            acc.classList.remove('accordion-active');
-            if (contentContainer) {
-                contentContainer.style.removeProperty('display');
+            acc.classList.remove('hidden', 'accordion-active');
+            if (contentContainer) contentContainer.style.removeProperty('display');
+            
+            if (rows) {
+                for (let j = 0; j < rows.length; j++) {
+                    rows[j].style.setProperty('display', 'flex', 'important');
+                    rows[j].classList.remove('hidden');
+                }
             }
         } else {
-            // JIKA USER LAGI NYARI DATA:
-            if (adaYangCocok) {
-                // KORIDOR YANG DICARI: Paksa tampil & Paksa Mekar isinya!
+            // KONDISI SEDANG MENCARI DATA
+            const accText = acc.innerText.toLowerCase();
+            
+            // Cek apakah seluruh isi box koridor ini mengandung kata yang dicari
+            if (accText.includes(input)) {
+                // JIKA COCOK: Tampilkan koridornya & paksa mekar isinya!
                 acc.style.setProperty('display', 'block', 'important');
                 acc.classList.remove('hidden');
                 acc.classList.add('accordion-active');
-                if (contentContainer) {
-                    contentContainer.style.setProperty('display', 'block', 'important');
+                if (contentContainer) contentContainer.style.setProperty('display', 'block', 'important');
+                
+                // Saring halte di dalamnya agar HANYA halte yang dicari yang tampil
+                if (rows) {
+                    for (let j = 0; j < rows.length; j++) {
+                        const rowText = rows[j].innerText.toLowerCase();
+                        if (rowText.includes(input)) {
+                            rows[j].style.setProperty('display', 'flex', 'important');
+                            rows[j].classList.remove('hidden');
+                        } else {
+                            rows[j].style.setProperty('display', 'none', 'important');
+                            rows[j].classList.add('hidden');
+                        }
+                    }
                 }
             } else {
-                // KORIDOR LAIN YANG GAK COCOK: TENDANG TOTAL DARI BUMI HTML
+                // JIKA SAMA SEKALI GAK COCOK: MUSNAHKAN TOTAL DARI LAYAR!
                 acc.style.setProperty('display', 'none', 'important');
-                acc.classList.add('hidden'); // Double protection pakai utility Tailwind
+                acc.classList.add('hidden');
                 acc.classList.remove('accordion-active');
-                if (contentContainer) {
-                    contentContainer.style.setProperty('display', 'none', 'important');
-                }
+                if (contentContainer) contentContainer.style.setProperty('display', 'none', 'important');
             }
         }
-    });
+    }
 }
-
-
