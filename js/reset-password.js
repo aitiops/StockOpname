@@ -1,17 +1,19 @@
 /**
  * RESET PASSWORD ENGINE - IT STOCK OPNAME
- * Final Fix: Premium Loader Sync, Anti-Alert, & Success Modal Redirect
+ * Final Fix: Premium Loader Sync, Anti-Alert, & Auto-Block Reload
  */
 
 const urlParams = new URLSearchParams(window.location.search);
 let userId = urlParams.get("user_id");
 
-// Failsafe backup jika parameter URL hilang, ambil dari LocalStorage cadangan
 if (!userId) {
     userId = localStorage.getItem("reset_user_id");
 }
 
-async function handleReset() {
+async function handleReset(event) {
+    // KUNCI UTAMA: Hentikan form agar tidak auto-refresh halaman!
+    if (event) event.preventDefault(); 
+
     const pass = document.getElementById("newPassword").value;
     const conf = document.getElementById("confirmPassword").value;
     const btn = document.getElementById("btnReset");
@@ -19,7 +21,7 @@ async function handleReset() {
     const overlay = document.getElementById('loadingOverlay');
     const statusEl = document.getElementById("loadingStatus");
 
-    // 1. Validasi Kecocokan (Menggunakan Premium Modal)
+    // 1. Validasi Kecocokan
     if (pass !== conf) {
         showResetValidationModal("Sandi Tidak Cocok", "Konfirmasi kata sandi tidak cocok! Silakan periksa kembali.");
         return;
@@ -30,14 +32,14 @@ async function handleReset() {
         return;
     }
 
-    // 2. AKTIFKAN PREMIUM LOADING OVERLAY (Biar muncul animasi berputar)
+    // 2. AKTIFKAN PREMIUM LOADING OVERLAY
     if (overlay) {
         overlay.classList.add('loading-active');
-        overlay.style.display = 'flex';
+        overlay.style.setProperty('display', 'flex', 'important');
     }
     if (statusEl) statusEl.innerText = "Sedang memproses perubahan...";
     if (btn) btn.disabled = true;
-    if (msg) msg.innerText = ""; // Bersihkan teks bawaan agar rapi
+    if (msg) msg.innerText = ""; 
 
     try {
         const res = await fetch(API_URL, {
@@ -54,7 +56,7 @@ async function handleReset() {
         const data = await res.json();
 
         if (data.status) {
-            // SUNTIKKAN MODAL SUKSES PREMIUM
+            // TAMPILKAN MODAL SUKSES
             showResetSuccessModal();
         } else {
             hideResetLoading();
@@ -89,12 +91,11 @@ function hideResetLoading() {
  * FUNGSI TAMPILAN MODAL SUKSES (SUKSES RESET)
  */
 function showResetSuccessModal() {
-    // Matikan loading overlay utama terlebih dahulu
     const overlay = document.getElementById('loadingOverlay');
     if (overlay) overlay.style.setProperty('display', 'none', 'important');
 
     const successModalHtml = `
-        <div id="successResetModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 animate-fade-in">
+        <div id="successResetModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
             <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full text-center shadow-2xl border border-slate-100 transform scale-100 transition-transform duration-300">
                 <div class="w-16 h-16 bg-green-50 text-green-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 border border-green-100 animate-bounce">
                     ✅
