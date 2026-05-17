@@ -5,65 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detail Halte - IT Stock Opname</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-slate-50 min-h-screen">
+<body class="bg-slate-50 min-h-screen pb-10">
 
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loader"></div> 
         <p id="loadingStatus" class="loading-text">Sinkronisasi Data...</p>
     </div>
 
-    <nav class="bg-[#0095DA] text-white p-4 sticky top-0 z-50 shadow-md">
-        <div class="container mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <button onclick="window.location.href='engineer.html'" class="hover:bg-white/20 p-2 rounded-full transition">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+    <nav class="bg-slate-900 text-white p-4 sticky top-0 z-50 shadow-xl">
+        <div class="container mx-auto flex justify-between items-center max-w-6xl">
+            <div class="flex items-center gap-2">
+                <button onclick="window.location.href='engineer.html'" class="hover:bg-white/10 p-2 rounded-xl transition-all active:scale-90">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 </button>
-                <h1 class="font-black text-lg tracking-tight">DETAIL HALTE</h1>
+                <div class="ml-1">
+                    <p class="text-[9px] font-black opacity-50 uppercase tracking-widest leading-none">Informasi Aset</p>
+                    <h1 class="font-black text-sm tracking-tight uppercase mt-0.5">Detail Perangkat</h1>
+                </div>
             </div>
-            <button onclick="goInput()" class="bg-white text-[#0095DA] px-4 py-2 rounded-xl font-bold text-xs shadow-lg hover:bg-slate-100 transition uppercase">
-                + Perangkat
+            <button onclick="goInput()" class="bg-[#0095DA] text-white px-4 py-2.5 rounded-xl font-black text-xs shadow-lg shadow-blue-950/30 hover:bg-[#007bb5] transition-all active:scale-95 uppercase tracking-wider flex items-center gap-1.5">
+                <span>➕</span> Perangkat
             </button>
         </div>
     </nav>
 
     <main class="p-4 md:p-6 container mx-auto max-w-6xl">
         
-        <div class="bg-white p-6 rounded-3xl shadow-sm border-b-8 border-[#0095DA] mb-6">
-            <p class="text-[10px] font-black text-[#0095DA] uppercase tracking-[0.2em] mb-1">Lokasi Pemeriksaan</p>
-            <h2 id="halteTitle" class="text-2xl md:text-3xl font-black text-slate-800 leading-tight"></h2>
-            <div class="flex items-center gap-2 mt-2">
-                <span class="bg-slate-100 text-slate-600 text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider" id="koridorTitle"></span>
+        <div class="bg-white p-6 rounded-[2rem] shadow-sm border border-slate-100 mb-6 flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-24 h-24 bg-blue-50/50 rounded-bl-full flex items-start justify-end p-4 text-xl select-none">
+                📍
+            </div>
+            <div>
+                <p class="text-[9px] font-black text-[#0095DA] uppercase tracking-widest mb-1.5">Lokasi Pemeriksaan Lapangan</p>
+                <h2 id="halteTitle" class="text-xl md:text-2xl font-black text-slate-800 leading-tight uppercase">Menghubungkan Halte...</h2>
+            </div>
+            <div class="flex items-center gap-2 mt-4">
+                <span class="bg-slate-100 text-slate-600 text-[10px] font-black px-3 py-1.5 rounded-xl uppercase tracking-wider border border-slate-200/50" id="koridorTitle">
+                    Memuat Koridor...
+                </span>
             </div>
         </div>
 
-        <div class="grid grid-cols-3 gap-3 mb-8">
-            <div class="bg-white p-4 rounded-2xl shadow-sm text-center border border-slate-100">
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Total</p>
-                <p id="totalPerangkat" class="text-xl font-black text-slate-800">0</p>
+        <div class="grid grid-cols-3 gap-4 mb-6">
+            <div class="bg-white p-5 rounded-[2rem] border border-slate-100 shadow-sm text-center">
+                <p class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">Total Aset</p>
+                <p id="totalPerangkat" class="text-2xl font-black text-slate-800 leading-none">0</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm text-center border border-slate-100">
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">On</p>
-                <p id="totalOn" class="text-xl font-black text-green-600">0</p>
+            <div class="bg-green-50/50 p-5 rounded-[2rem] border border-green-100 shadow-sm text-center">
+                <p class="text-[9px] font-black text-green-600/80 uppercase tracking-wider mb-1">On Service</p>
+                <p id="totalOn" class="text-2xl font-black text-green-600 leading-none">0</p>
             </div>
-            <div class="bg-white p-4 rounded-2xl shadow-sm text-center border border-slate-100">
-                <p class="text-[9px] font-black text-slate-400 uppercase mb-1">Off</p>
-                <p id="totalOff" class="text-xl font-black text-red-600">0</p>
+            <div class="bg-red-50/50 p-5 rounded-[2rem] border border-red-100 shadow-sm text-center">
+                <p class="text-[9px] font-black text-red-500/80 uppercase tracking-wider mb-1">Off / Rusak</p>
+                <p id="totalOff" class="text-2xl font-black text-red-500 leading-none">0</p>
             </div>
         </div>
 
-        <div class="flex flex-col md:flex-row gap-3 mb-8 sticky top-[80px] z-40">
-            <div class="relative flex-grow">
-                <input type="text" id="searchInput" placeholder="Cari S/N atau Nama Alat..." onkeyup="filterPerangkat()" 
-                    class="w-full p-4 pl-12 rounded-2xl border-none shadow-xl focus:ring-2 focus:ring-[#0095DA] outline-none text-sm">
-                <span class="absolute left-4 top-1/2 -translate-y-1/2 opacity-30">🔍</span>
+        <div class="flex flex-col md:flex-row gap-4 mb-6 sticky top-[76px] z-40 bg-slate-50/80 backdrop-blur-md py-2 px-1 rounded-2xl">
+            <div class="relative flex-grow group">
+                <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-xs grayscale group-focus-within:grayscale-0 transition-all">
+                    🔍
+                </div>
+                <input type="text" id="searchInput" placeholder="Cari Serial Number atau Nama Alat..." onkeyup="filterPerangkat()" 
+                    class="w-full p-4 pl-12 bg-white border border-slate-100 rounded-2xl text-xs font-bold text-slate-700 placeholder-slate-400 focus:outline-none focus:border-[#0095DA] focus:ring-2 focus:ring-blue-100 shadow-sm transition-all uppercase tracking-wide">
             </div>
             <select id="filterStatus" onchange="filterPerangkat()" 
-                class="bg-white p-4 rounded-2xl border-none shadow-xl focus:ring-2 focus:ring-[#0095DA] outline-none text-sm font-bold text-slate-600">
-                <option value="">Semua Status</option>
-                <option value="On Service">On Service</option>
-                <option value="Out of Service">Out of Service</option>
+                class="bg-white p-4 pr-10 rounded-2xl border border-slate-100 shadow-sm focus:outline-none focus:border-[#0095DA] focus:ring-2 focus:ring-blue-100 text-xs font-black text-slate-600 tracking-wide uppercase cursor-pointer transition-all">
+                <option value="">Semua Status Alat</option>
+                <option value="On Service">🟢 ON SERVICE</option>
+                <option value="Out of Service">🔴 OUT OF SERVICE</option>
             </select>
         </div>
 
@@ -71,11 +87,11 @@
             </div>
     </main>
 
-    <div id="photoModal" class="fixed inset-0 bg-slate-900/90 hidden items-center justify-center z-[100] p-4 backdrop-blur-md">
-        <button onclick="closePhoto()" class="absolute top-6 right-6 text-white bg-white/10 hover:bg-white/20 p-3 rounded-full transition z-[110]">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+    <div id="photoModal" class="fixed inset-0 bg-slate-950/90 hidden items-center justify-center z-[9999] p-4 backdrop-blur-md animate-fade-in">
+        <button onclick="closePhoto()" class="absolute top-6 right-6 text-white bg-white/10 hover:bg-white/20 p-3 rounded-xl transition-all z-[1010] shadow-xl active:scale-90">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </button>
-        <iframe id="modalIframe" class="w-full max-w-4xl h-[80vh] rounded-3xl shadow-2xl bg-white overflow-hidden border-4 border-white/10"></iframe>
+        <iframe id="modalIframe" class="w-full max-w-4xl h-[80vh] rounded-[2rem] shadow-2xl bg-white overflow-hidden border border-white/10"></iframe>
     </div>
 
     <script src="js/config.js"></script>
