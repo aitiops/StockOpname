@@ -3,7 +3,6 @@
 :root {
     --tj-blue: #0095DA;
     --tj-dark: #005696;
-    --btn-dark: #333333;
 }
 
 * {
@@ -45,7 +44,7 @@ body {
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 2rem;
-    padding: 1.5rem;
+    padding: 1.75rem 1.5rem;
     width: 90%;
     max-width: 320px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
@@ -56,15 +55,21 @@ body {
 .tj-btn {
     width: 100%;
     padding: 0.85rem;
-    border-radius: 9999px;
+    border-radius: 1.25rem; /* Kelengkungan disamakan dengan Input */
     border: none;
-    background: var(--btn-dark);
-    color: white;
-    font-weight: 700;
+    background: var(--tj-blue) !important; /* Paksa pakai Biru Utama Transjakarta */
+    color: white !important;
+    font-weight: 800;
     text-transform: uppercase;
     font-size: 0.8rem;
+    letter-spacing: 0.05em;
     cursor: pointer;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    box-shadow: 0 4px 12px rgba(0, 149, 218, 0.25);
+    transition: all 0.2s ease;
+}
+
+.tj-btn:hover {
+    background: #007bb5 !important;
 }
 
 .tj-btn:active { transform: scale(0.98); }
@@ -73,7 +78,7 @@ body {
     display: flex;
     align-items: center;
     margin-top: 0.6rem;
-    margin-left: 1rem;
+    margin-left: 0.2rem;
     cursor: pointer;
 }
 
@@ -83,9 +88,10 @@ body {
     font-weight: 700;
     margin-left: 0.5rem;
     text-transform: uppercase;
+    letter-spacing: 0.03em;
 }
 
-/* ================= PREMIUM LOADING OVERLAY (DASHBOARD) ================= */
+/* ================= PREMIUM LOADING OVERLAY ================= */
 .loading-overlay {
     position: fixed;
     inset: 0;
@@ -104,7 +110,6 @@ body {
     display: flex !important;
 }
 
-/* --- ANIMASI LOGO TJ (VERSI PNG) --- */
 .premium-loader, .loader {
     width: 100px; 
     height: 100px;
@@ -130,7 +135,6 @@ body {
     }
 }
 
-/* Teks Loading */
 .loading-text, .loading-status {
     color: var(--tj-blue) !important;
     font-size: 11px;
@@ -188,7 +192,7 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
-/* Base input bawaan select koridor */
+/* Base input */
 .tj-input {
     width: 100%;
     padding: 0.85rem 1.25rem;
@@ -196,7 +200,7 @@ body {
     border: 1px solid #e2e8f0;
     border-radius: 1.25rem;
     font-size: 15px;
-    font-weight: 400; 
+    font-weight: 500; 
     color: #475569;
     outline: none;
     transition: all 0.2s ease;
@@ -212,12 +216,13 @@ body {
     box-shadow: 0 0 0 4px rgba(0, 149, 218, 0.08);
 }
 
-/* FIX UTAMA RY: MATIKAN PANAH DROP-DOWN PALSU DI INPUT TEXT DAN PASSWORD! */
+/* RESET TOTAL: PAKSA HILANGKAN PANAH SELECT DI INPUT TEXT DAN PASSWORD HALAMAN LOGIN */
 input[type="text"].tj-input,
 input[type="password"].tj-input {
     font-family: 'Inter', sans-serif;
     letter-spacing: 0.02em;
-    background-image: none !important; /* Paksa musnahkan gambar panah select */
+    background-image: none !important; /* Buang panah chevron */
+    padding-right: 1.25rem !important; /* Reset padding kanan */
 }
 
 input[type="text"].tj-input::placeholder,
