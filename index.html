@@ -5,56 +5,67 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
     <title>Login - IT Stock Opname</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="tj-bg">
-    <div class="glass-card">
-        <div style="text-align: center; margin-bottom: 1.5rem;">
-            <img src="assets/logo_tj.png" 
-                 alt="Logo TJ" style="height: 45px; margin-bottom: 0.5rem;">
-            <h1 style="color: white; font-weight: 800; font-size: 0.9rem; text-transform: uppercase;">IT Stock Opname</h1>
+<body class="tj-bg min-h-screen overflow-y-auto bg-[#0b1120]">
+
+    <div class="glass-card flex flex-col items-center">
+        
+        <div class="w-full flex flex-col items-center text-center mb-6">
+            <img src="assets/logo_tj.png" alt="Logo TJ" class="h-11 mb-2 object-contain">
+            <h1 class="text-white font-extrabold text-xs uppercase tracking-widest">IT Stock Opname</h1>
         </div>
 
-        <form onsubmit="event.preventDefault(); login();">
-            <div style="margin-bottom: 1rem;">
+        <form onsubmit="event.preventDefault(); login();" class="w-full">
+            <div class="mb-4">
                 <label class="label-text">Username / NIK</label>
                 <input type="text" id="username" class="tj-input" placeholder="NIK Anda" required>
             </div>
 
-            <div style="margin-bottom: 1.5rem;">
+            <div class="mb-6">
                 <label class="label-text">Kata Sandi</label>
                 <input type="password" id="password" class="tj-input" placeholder="Password" required>
-                <label class="checkbox-container">
-                    <input type="checkbox" id="showPass" onclick="togglePass('password')">
+                
+                <label class="checkbox-container select-none">
+                    <input type="checkbox" id="showPass" onclick="togglePass('password')" class="rounded bg-slate-900 border-slate-700 text-[#0095DA] focus:ring-0">
                     <span>Tampilkan Sandi</span>
                 </label>
             </div>
-            <button type="submit" class="tj-btn">Masuk</button>
+
+            <button type="submit" class="tj-btn bg-[#0095DA] hover:bg-[#007bb5] text-white py-3.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all shadow-lg shadow-blue-950/20 active:scale-95">
+                Masuk System
+            </button>
         </form>
-        <p id="message" style="text-align: center; color: #fbbf24; font-size: 0.65rem; font-weight: 700; margin-top: 1rem;"></p>
+
+        <p id="message" class="text-center text-amber-400 text-[10px] font-bold uppercase tracking-wider mt-4 min-h-[1rem]"></p>
     </div>
+
     <div id="loadingOverlay" class="loading-overlay">
         <div class="loader"></div>
         <div class="loading-text">Memverifikasi...</div>
     </div>
+
     <script>
         function togglePass(id) {
             const x = document.getElementById(id);
-            x.type = x.type === "password" ? "text" : "password";
+            if (x) x.type = x.type === "password" ? "text" : "password";
         }
 
-        // FUNGSI BARU UNTUK LOADING
         function showLoading() {
-            document.getElementById('loadingOverlay').classList.add('loading-active');
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.classList.add('loading-active');
         }
 
         function hideLoading() {
-            document.getElementById('loadingOverlay').classList.remove('loading-active');
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) overlay.classList.remove('loading-active');
         }
     </script>
     <script src="js/config.js"></script>
     <script src="js/login.js"></script>
-
-    
 </body>
 </html>
