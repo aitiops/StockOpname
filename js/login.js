@@ -48,11 +48,14 @@ async function login() {
                 forceHideLoading();
                 localStorage.setItem("reset_user_id", data.user_id);
                 
-                // SUNTIKKAN MODAL PERINGATAN PREMIUM (Ganti Alert Jadul)
+                // Proteksi Anti-Duplikat: Jika modal sudah ada di layar, jangan disuntik lagi
+                if (document.getElementById("passwordWarningModal")) return;
+                
+                // SUNTIKKAN MODAL PERINGATAN PREMIUM
                 const warningModalHtml = `
-                    <div id="passwordWarningModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4 animate-fade-in">
-                        <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full text-center shadow-2xl border border-slate-100 transform scale-95 transition-transform duration-300">
-                            <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 border border-amber-100">
+                    <div id="passwordWarningModal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm flex items-center justify-center z-[9999] p-4">
+                        <div class="bg-white rounded-[2.5rem] p-8 max-w-sm w-full text-center shadow-2xl border border-slate-100 transform scale-100 transition-transform duration-300">
+                            <div class="w-16 h-16 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 border border-amber-100 animate-pulse">
                                 ⚠️
                             </div>
                             <h3 class="text-base font-black text-slate-800 uppercase tracking-tight mb-2">Keamanan Akun</h3>
