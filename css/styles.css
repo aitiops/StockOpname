@@ -1,8 +1,3 @@
-/**
- * CORE STYLESHEET - IT STOCK OPNAME TRANSJAKARTA
- * Version: Full Final Consolidated & Bug Free
- */
-
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 :root {
@@ -25,9 +20,7 @@ body {
     background-color: #0b1120;
 }
 
-/* ========================================================
-   1. BACKGROUND LOGIC (LOGIN PAGE)
-   ======================================================== */
+/* ================= BACKGROUND LOGIC ================= */
 .tj-bg {
     min-height: 100vh;
     display: flex;
@@ -38,36 +31,28 @@ body {
 }
 
 @media (min-width: 769px) {
-    .tj-bg { 
-        background-image: url('../assets/desktop_view.png'); 
-        background-size: cover; 
-    }
+    .tj-bg { background-image: url('../assets/desktop_view.png'); background-size: cover; }
 }
 
 @media (max-width: 768px) {
-    .tj-bg { 
-        background-image: url('../assets/mobile_view.png'); 
-        background-size: cover; 
-    }
+    .tj-bg { background-image: url('../assets/mobile_view.png'); background-size: cover; }
 }
 
-/* Glassmorphism Card Container */
+/* Glassmorphism Card (Login) */
 .glass-card {
     background: rgba(15, 23, 42, 0.5); 
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 2rem;
-    padding: 2rem 1.5rem;
+    padding: 1.5rem;
     width: 90%;
     max-width: 320px;
     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
     margin: 20px auto;
 }
 
-/* ========================================================
-   2. UNIVERSAL UI COMPONENTS
-   ======================================================== */
+/* ================= UNIVERSAL UI COMPONENTS ================= */
 .tj-btn {
     width: 100%;
     padding: 0.85rem;
@@ -80,36 +65,33 @@ body {
     font-size: 0.8rem;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-    transition: all 0.2s ease;
 }
 
-.tj-btn:active { 
-    transform: scale(0.98); 
-}
+.tj-btn:active { transform: scale(0.98); }
 
 .checkbox-container {
     display: flex;
     align-items: center;
     margin-top: 0.6rem;
-    margin-left: 0.2rem;
+    margin-left: 1rem;
     cursor: pointer;
 }
 
 .checkbox-container span {
-    color: #94a3b8;
-    激 font-size: 0.65rem;
+    color: white;
+    font-size: 0.6rem;
     font-weight: 700;
     margin-left: 0.5rem;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
 }
 
-/* ========================================================
-   3. PREMIUM LOADING OVERLAY SYSTEM
-   ======================================================== */
+/* ================= PREMIUM LOADING OVERLAY (DASHBOARD) ================= */
 .loading-overlay {
     position: fixed;
     inset: 0;
+    background: rgba(255, 255, 255, 0.85) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px);
     z-index: 10000;
     display: none; 
     flex-direction: column;
@@ -122,7 +104,7 @@ body {
     display: flex !important;
 }
 
-/* Animasi Logo TJ Berdenyut Premium */
+/* --- ANIMASI LOGO TJ (VERSI PNG) --- */
 .premium-loader, .loader {
     width: 100px; 
     height: 100px;
@@ -143,12 +125,12 @@ body {
     }
     50% { 
         opacity: 1; 
-        transform: scale(1.06); 
-        filter: drop-shadow(0 0 12px rgba(0, 149, 218, 0.4));
+        transform: scale(1.08); 
+        filter: drop-shadow(0 0 10px rgba(0, 149, 218, 0.3));
     }
 }
 
-/* Teks Status Loading */
+/* Teks Loading */
 .loading-text, .loading-status {
     color: var(--tj-blue) !important;
     font-size: 11px;
@@ -166,18 +148,18 @@ body {
     50% { opacity: 1; transform: scale(1); }
 }
 
-/* ========================================================
-   4. DASHBOARD STRUCTURE & ACCORDION
-   ======================================================== */
+/* ================= DASHBOARD & ACCORDION ================= */
 .tj-card {
+    background: white;
     border-radius: 1.5rem;
+    border: 1px solid #e2e8f0;
     transition: all 0.2s ease;
 }
 
 .accordion-header {
     cursor: pointer;
+    background: #f8fafc;
     border-radius: 1.25rem;
-    transition: background-color 0.2s ease;
 }
 
 .accordion-content {
@@ -186,7 +168,6 @@ body {
     transition: max-height 0.3s ease-out;
 }
 
-/* Trigger Mekar Saat Aktif */
 .accordion-active .accordion-content {
     max-height: 2000px;
 }
@@ -195,9 +176,7 @@ body {
     transform: rotate(180deg);
 }
 
-/* ========================================================
-   5. FORM REFINEMENT & DROPDOWN FIXES
-   ======================================================== */
+/* ================= FORM REFINEMENT (SMOOTH) ================= */
 .label-text {
     display: block;
     font-size: 11px;
@@ -209,20 +188,19 @@ body {
     font-family: 'Inter', sans-serif;
 }
 
-/* Gaya dasar input (Dipakai select option koridor bawaan) */
+/* Base input bawaan select koridor */
 .tj-input {
     width: 100%;
     padding: 0.85rem 1.25rem;
     background-color: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 1.25rem;
-    font-size: 14px;
-    font-weight: 500; 
+    font-size: 15px;
+    font-weight: 400; 
     color: #475569;
     outline: none;
     transition: all 0.2s ease;
     appearance: none;
-    -webkit-appearance: none;
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m19 9-7 7-7-7'/%3E%3C/svg%3E");
     background-repeat: no-repeat;
     background-position: right 1.25rem center;
@@ -234,12 +212,12 @@ body {
     box-shadow: 0 0 0 4px rgba(0, 149, 218, 0.08);
 }
 
-/* FIX RY: MATIKAN PANAH DROP-DOWN PALSU DI KOLOM TEXT DAN PASSWORD INPUT */
+/* FIX UTAMA RY: MATIKAN PANAH DROP-DOWN PALSU DI INPUT TEXT DAN PASSWORD! */
 input[type="text"].tj-input,
 input[type="password"].tj-input {
     font-family: 'Inter', sans-serif;
     letter-spacing: 0.02em;
-    background-image: none !important; /* Lenyapkan paksa asset svg arrow */
+    background-image: none !important; /* Paksa musnahkan gambar panah select */
 }
 
 input[type="text"].tj-input::placeholder,
@@ -249,9 +227,7 @@ input[type="password"].tj-input::placeholder {
     font-weight: 400;
 }
 
-/* ========================================================
-   6. VISUAL EFFECTS (SKELETON ANIMATION)
-   ======================================================== */
+/* SKELETON EFFECT */
 .skeleton {
     background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
     background-size: 200% 100%;
