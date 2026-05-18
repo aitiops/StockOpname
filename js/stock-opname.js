@@ -1,9 +1,10 @@
 /**
  * STOCK OPNAME ENGINE - ULTRA FOOLPROOF FINAL FIX
- * Version: Internal Anti-Blank Guard & Premium Success Modal Trigger
+ * Version: Internal Anti-Blank Guard, Premium Success Modal & PIS Single-Halte Auto Arah
  */
 
 let masterPerangkat = [];
+let currentHalteData = null; // FIX Ry: Simpan data halte secara global agar bisa dibaca fungsi kategori
 
 const urlParams = new URLSearchParams(window.location.search);
 const halteId = urlParams.get("halte_id");
@@ -43,7 +44,39 @@ function hideLoading() {
     }
 }
 
-// FUNGSI PEMICU MODAL PREMIUM GLOBAL
+// LOGIKA OTOMATISASI PENAMPILAN ARAH PERANGKAT (FIX PIS RY)
+function checkArahVisibility() {
+    if (!currentHalteData) return;
+    
+    const kategoriValue = document.getElementById("kategori").value.toUpperCase();
+    const isPIS = kategoriValue.includes("PIS"); // Deteksi kata "PIS"
+    const isDual = currentHalteData.tipe_halte?.toLowerCase() === "dual";
+    
+    const arahContainer = document.getElementById("arahContainer");
+    const arahPerangkat = document.getElementById("arahPerangkat");
+    
+    // Jika tipe halte dual ATAU kategori mengandung kata PIS, munculkan arah
+    if (isDual || isPIS) {
+        if (arahContainer) arahContainer.classList.remove("hidden");
+        
+        if (arahPerangkat) {
+            let options = `<option value="">Pilih Arah</option>`;
+            if (currentHalteData.arah_a) options += `<option value="${currentHalteData.arah_a}">${currentHalteData.arah_a}</option>`;
+            if (currentHalteData.arah_b) options += `<option value="${currentHalteData.arah_b}">${currentHalteData.arah_b}</option>`;
+            
+            // Jaga-jaga kalau di Google Sheets halte single arah_a/b kosong, kasih fallback aman
+            if (!currentHalteData.arah_a && !currentHalteData.arah_b) {
+                options += `<option value="Arah Jalur">Arah Jalur Utama</option>`;
+            }
+            arahPerangkat.innerHTML = options;
+        }
+    } else {
+        // Sembunyikan dan kosongkan jika tidak memenuhi syarat
+        if (arahContainer) arahContainer.classList.add("hidden");
+        if (arahPerangkat) arahPerangkat.value = "";
+    }
+}
+
 function triggerSuccessRedirect() {
     hideLoading();
     const sm = document.getElementById("successModal");
@@ -51,7 +84,6 @@ function triggerSuccessRedirect() {
         sm.classList.remove("hidden");
         sm.classList.add("flex");
     }
-    // Delay 1.5 detik agar animasi modal terlihat premium, lalu auto-redirect
     setTimeout(() => {
         window.location.href = `halte-detail.html?halte_id=${halteId}&halte_nama=${halteNama}&koridor_id=${koridorId}`;
     }, 1500);
@@ -120,7 +152,6 @@ async function saveStockOpname() {
         const data = await res.json();
 
         if (data.status) {
-            // FIX UTAMA: Panggil modal animasi custom, matikan alert() ghaib browser
             triggerSuccessRedirect();
         } else if (data.duplicate) {
             hideLoading();
@@ -142,7 +173,6 @@ async function saveForce(p) {
         const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(p) });
         const data = await res.json();
         if (data.status) {
-            // FIX UTAMA: Panggil modal animasi custom, matikan alert() ghaib browser
             triggerSuccessRedirect();
         } else {
             hideLoading();
@@ -155,7 +185,7 @@ async function saveForce(p) {
 }
 
 // ========================================================
-// DROPDOWN RENDERING LOGIC (PROTECTED WITH FILTER BOOLEAN)
+// DROPDOWN RENDERING LOGIC
 // ========================================================
 async function loadMasterPerangkat() {
     const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getMasterPerangkat", token: localStorage.getItem("token") }) });
@@ -177,6 +207,9 @@ function changeKategori() {
     document.getElementById("namaPerangkat").innerHTML = h;
     
     document.getElementById("merkModel").innerHTML = `<option value="">Pilih Merk / Model</option>`;
+    
+    // Pemicu pengecekan arah ketika kategori diubah oleh user Ry
+    checkArahVisibility();
 }
 
 function changePerangkat() {
@@ -194,17 +227,12 @@ async function loadHalteDetail() {
     const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getHalteDetail", token: localStorage.getItem("token"), halte_id: halteId }) });
     const r = await res.json();
     if (r.status) {
-        const h = r.data;
-        document.getElementById("infoKoridor").innerHTML = `Koridor ${h.koridor_id}`;
-        document.getElementById("infoHalte").innerHTML = h.nama_halte;
-        if (h.tipe_halte?.toLowerCase() === "dual") {
-            const arahContainer = document.getElementById("arahContainer");
-            const arahPerangkat = document.getElementById("arahPerangkat");
-            if (arahContainer) arahContainer.classList.remove("hidden");
-            if (arahPerangkat) {
-                arahPerangkat.innerHTML = `<option value="">Pilih Arah</option><option value="${h.arah_a}">${h.arah_a}</option><option value="${h.arah_b}">${h.arah_b}</option>`;
-            }
-        }
+        currentHalteData = r.data; // FIX: Simpan ke variabel global
+        document.getElementById("infoKoridor").innerHTML = `Koridor ${currentHalteData.koridor_id}`;
+        document.getElementById("infoHalte").innerHTML = currentHalteData.nama_halte;
+        
+        // Cek visibilitas arah saat awal halaman di-load
+        checkArahVisibility();
     }
 }
 
