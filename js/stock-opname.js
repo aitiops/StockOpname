@@ -1,5 +1,6 @@
 /**
- * STOCK OPNAME ENGINE - FINAL FIX
+ * STOCK OPNAME ENGINE - ULTRA FOOLPROOF FINAL FIX
+ * Version: Internal Anti-Blank Guard & Android Dropdown Matcher
  */
 
 let masterPerangkat = [];
@@ -13,11 +14,12 @@ const opnameId = urlParams.get("id");
 
 window.onload = async () => {
     showLoading("Menyiapkan Formulir...");
+    // Eksekusi load data utama secara paralel
     await Promise.all([loadMasterPerangkat(), loadHalteDetail()]);
 
     if (editMode && opnameId) {
-        document.getElementById("pageTitle").innerText = "Edit Status";
-        document.getElementById("btnSave").innerText = "Update Status";
+        if (document.getElementById("pageTitle")) document.getElementById("pageTitle").innerText = "Edit Status";
+        if (document.getElementById("btnSave")) document.getElementById("btnSave").innerText = "Update Status";
         await loadEditData();
     }
     hideLoading();
@@ -25,13 +27,21 @@ window.onload = async () => {
 
 function showLoading(txt) {
     const ov = document.getElementById("loadingOverlay");
-    if(ov) { ov.classList.add('loading-active'); ov.style.display = 'flex'; }
-    if(document.getElementById("loadingStatus")) document.getElementById("loadingStatus").innerText = txt;
+    if (ov) { 
+        ov.classList.add('loading-active'); 
+        ov.style.setProperty('display', 'flex', 'important'); 
+    }
+    if (document.getElementById("loadingStatus")) {
+        document.getElementById("loadingStatus").innerText = txt;
+    }
 }
 
 function hideLoading() {
     const ov = document.getElementById("loadingOverlay");
-    if(ov) { ov.classList.remove('loading-active'); ov.style.display = 'none'; }
+    if (ov) { 
+        ov.classList.remove('loading-active'); 
+        ov.style.setProperty('display', 'none', 'important'); 
+    }
 }
 
 async function compressImage(file) {
@@ -87,7 +97,7 @@ async function saveStockOpname() {
             nama_perangkat: fields.nama,
             merk_model: fields.merk,
             serial_number: fields.sn,
-            status: fields.status, // On Service / Out of Service
+            status: fields.status,
             arah: fields.arah,
             force_save: false,
             photo: photoBase64
@@ -107,7 +117,10 @@ async function saveStockOpname() {
             hideLoading();
             alert("Gagal: " + data.message);
         }
-    } catch (err) { hideLoading(); alert("Kesalahan Jaringan!"); }
+    } catch (err) { 
+        hideLoading(); 
+        alert("Kesalahan Jaringan!"); 
+    }
 }
 
 async function saveForce(p) {
@@ -118,10 +131,15 @@ async function saveForce(p) {
     if(data.status) window.location.href = `halte-detail.html?halte_id=${halteId}&halte_nama=${halteNama}&koridor_id=${koridorId}`;
 }
 
+// ========================================================
+// DROPDOWN RENDERING LOGIC (PROTECTED WITH FILTER BOOLEAN)
+// ========================================================
 async function loadMasterPerangkat() {
     const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getMasterPerangkat", token: localStorage.getItem("token") }) });
     masterPerangkat = (await res.json()).data || [];
-    const unik = [...new Set(masterPerangkat.map(i => i.kategori))];
+    
+    // Proteksi filter menghilangkan row kosong/null dari database
+    const unik = [...new Set(masterPerangkat.map(i => i.kategori).filter(Boolean))];
     let h = `<option value="">Pilih Kategori</option>`;
     unik.forEach(i => h += `<option value="${i}">${i}</option>`);
     document.getElementById("kategori").innerHTML = h;
@@ -130,17 +148,24 @@ async function loadMasterPerangkat() {
 function changeKategori() {
     const kat = document.getElementById("kategori").value;
     const filtered = masterPerangkat.filter(i => i.kategori == kat);
-    const unik = [...new Set(filtered.map(i => i.nama_perangkat))];
+    
+    // Proteksi filter menghilangkan row kosong/null dari database
+    const unik = [...new Set(filtered.map(i => i.nama_perangkat).filter(Boolean))];
     let h = `<option value="">Pilih Perangkat</option>`;
     unik.forEach(i => h += `<option value="${i}">${i}</option>`);
     document.getElementById("namaPerangkat").innerHTML = h;
+    
+    // Reset dropdown anak di bawahnya agar tidak rancu
+    document.getElementById("merkModel").innerHTML = `<option value="">Pilih Merk / Model</option>`;
 }
 
 function changePerangkat() {
     const kat = document.getElementById("kategori").value;
     const n = document.getElementById("namaPerangkat").value;
     const filtered = masterPerangkat.filter(i => i.kategori == kat && i.nama_perangkat == n);
-    const unik = [...new Set(filtered.map(i => i.merk_model))];
+    
+    // Proteksi filter menghilangkan row kosong/null dari database
+    const unik = [...new Set(filtered.map(i => i.merk_model).filter(Boolean))];
     let h = `<option value="">Pilih Merk / Model</option>`;
     unik.forEach(i => h += `<option value="${i}">${i}</option>`);
     document.getElementById("merkModel").innerHTML = h;
@@ -154,8 +179,12 @@ async function loadHalteDetail() {
         document.getElementById("infoKoridor").innerHTML = `Koridor ${h.koridor_id}`;
         document.getElementById("infoHalte").innerHTML = h.nama_halte;
         if (h.tipe_halte?.toLowerCase() === "dual") {
-            document.getElementById("arahContainer").classList.remove("hidden");
-            document.getElementById("arahPerangkat").innerHTML = `<option value="">Pilih Arah</option><option value="${h.arah_a}">${h.arah_a}</option><option value="${h.arah_b}">${h.arah_b}</option>`;
+            const arahContainer = document.getElementById("arahContainer");
+            const arahPerangkat = document.getElementById("arahPerangkat");
+            if (arahContainer) arahContainer.classList.remove("hidden");
+            if (arahPerangkat) {
+                arahPerangkat.innerHTML = `<option value="">Pilih Arah</option><option value="${h.arah_a}">${h.arah_a}</option><option value="${h.arah_b}">${h.arah_b}</option>`;
+            }
         }
     }
 }
@@ -165,6 +194,7 @@ async function loadEditData() {
     const r = await res.json();
     if (!r.status) return;
     const i = r.data;
+    
     document.getElementById("kategori").value = i.kategori;
     changeKategori();
     setTimeout(() => {
@@ -174,7 +204,9 @@ async function loadEditData() {
             document.getElementById("merkModel").value = i.merk_model;
             document.getElementById("serialNumber").value = i.serial_number;
             document.getElementById("statusPerangkat").value = i.status;
-            if (i.arah && document.getElementById("arahPerangkat")) document.getElementById("arahPerangkat").value = i.arah;
+            if (i.arah && document.getElementById("arahPerangkat")) {
+                document.getElementById("arahPerangkat").value = i.arah;
+            }
         }, 300);
     }, 300);
 }
@@ -184,9 +216,14 @@ function previewImage(event) {
     if (!f) return;
     const reader = new FileReader();
     reader.onload = (e) => {
-        document.getElementById("uploadPlaceholder").classList.add("hidden");
+        if (document.getElementById("uploadPlaceholder")) {
+            document.getElementById("uploadPlaceholder").classList.add("hidden");
+        }
         const p = document.getElementById("previewPhoto");
-        p.src = e.target.result; p.classList.remove("hidden");
+        if (p) {
+            p.src = e.target.result; 
+            p.classList.remove("hidden");
+        }
     };
     reader.readAsDataURL(f);
 }
