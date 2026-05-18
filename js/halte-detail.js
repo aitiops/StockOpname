@@ -1,6 +1,6 @@
 /**
  * HALTE DETAIL ENGINE - IT STOCK OPNAME
- * Final Fix: Safe-String Search Logic + Anti-Crashing Mobile Filter
+ * Final Fix: Native 5s Safe-Countdown Delete Modal & Unified Loading Overlay
  */
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -8,9 +8,10 @@ const halte_id = urlParams.get("halte_id");
 const halte_nama = urlParams.get("halte_nama");
 const koridor_id = urlParams.get("koridor_id");
 
-// Global Variable untuk menampung data asli dari server
+// Global Variable penampung data asli dari server
 let perangkatList = [];
 let currentDeleteId = null; // Menyimpan ID perangkat yang akan dihapus
+let deleteCountdownInterval = null; // Handler timer interval countdown
 
 // Proteksi: Jika ID tidak ada, balik ke dashboard
 if (!halte_id) window.location.href = 'engineer.html';
@@ -27,17 +28,30 @@ function goInput() {
     window.location.href = `stock-opname.html?halte_id=${halte_id}&halte_nama=${halte_nama}&koridor_id=${koridor_id}`;
 }
 
+// ================= UNIFIED LOADING OVERLAY CONTROL =================
+function showLoading(txt) {
+    const ov = document.getElementById("loadingOverlay");
+    if (ov) { 
+        ov.classList.add('loading-active'); 
+        ov.style.setProperty('display', 'flex', 'important'); 
+    }
+    if (document.getElementById("loadingStatus")) {
+        document.getElementById("loadingStatus").innerText = txt;
+    }
+}
+
+function hideLoading() {
+    const ov = document.getElementById("loadingOverlay");
+    if (ov) { 
+        ov.classList.remove('loading-active'); 
+        ov.style.setProperty('display', 'none', 'important'); 
+    }
+}
+
 // ================= LOAD DATA =================
 async function loadPerangkat() {
-    const statusEl = document.getElementById("loadingStatus");
-    const overlay = document.getElementById("loadingOverlay");
+    showLoading("Sinkronisasi Perangkat...");
     const sessionToken = localStorage.getItem("token");
-
-    if (overlay) {
-        overlay.classList.add('loading-active');
-        overlay.style.display = 'flex';
-    }
-    if (statusEl) statusEl.innerText = "Sinkronisasi Perangkat...";
 
     try {
         const res = await fetch(API_URL, {
@@ -59,21 +73,14 @@ async function loadPerangkat() {
         renderPerangkat(perangkatList);
 
         // Tutup Loading
-        if (statusEl) statusEl.innerText = "Data Siap!";
-        setTimeout(() => {
-            if (overlay) {
-                overlay.classList.remove('loading-active');
-                overlay.style.setProperty('display', 'none', 'important');
-                overlay.style.display = 'none';
-            }
-        }, 600);
+        if (document.getElementById("loadingStatus")) {
+            document.getElementById("loadingStatus").innerText = "Data Siap!";
+        }
+        setTimeout(() => { hideLoading(); }, 600);
 
     } catch (err) {
         console.error("Gagal load:", err);
-        if (overlay) {
-            overlay.classList.remove('loading-active');
-            overlay.style.display = 'none';
-        }
+        hideLoading();
     }
 }
 
@@ -90,31 +97,27 @@ function updateSummary(data) {
     if(document.getElementById("totalOff")) document.getElementById("totalOff").innerHTML = totalOff;
 }
 
-// ================= SEARCH & FILTER LOGIC (ANTI-CRASH FIX) =================
+// ================= SEARCH & FILTER LOGIC =================
 function filterPerangkat() {
     const keyword = document.getElementById("searchInput").value.toLowerCase().trim();
     const statusFilter = document.getElementById("filterStatus").value;
 
     const filteredData = perangkatList.filter(item => {
-        // FIX UTAMA RY: Paksa konversi ke String bawaan JavaScript biar murni angka gak bikin crash!
         const nama = String(item.nama_perangkat || "").toLowerCase();
         const sn = String(item.serial_number || "").toLowerCase();
         const merk = String(item.merk_model || "").toLowerCase();
         const kategori = String(item.kategori || "").toLowerCase();
 
-        // Cek kecocokan teks keyword
         const matchesKeyword = nama.includes(keyword) || 
                                sn.includes(keyword) || 
                                merk.includes(keyword) || 
                                kategori.includes(keyword);
 
-        // Cek kecocokan filter dropdown status
         const matchesStatus = statusFilter === "" ? true : item.status === statusFilter;
 
         return matchesKeyword && matchesStatus;
     });
 
-    // Render ulang kartu yang lolos filter
     renderPerangkat(filteredData);
 }
 
@@ -181,9 +184,24 @@ function renderPerangkat(dataList) {
     container.innerHTML = html;
 }
 
-// ================= NATIVE MODAL CONTROL Ry =================
+// ================= NATIVE MODAL TIMED CONTROL Ry =================
 function deletePerangkat(opnameId) {
     currentDeleteId = opnameId;
+    
+    // Reset isi modal ke tampilan dasar awal konfirmasi
+    document.getElementById("deleteModalIcon").innerText = "⚠️";
+    document.getElementById("deleteModalTitle").innerText = "Hapus Perangkat?";
+    document.getElementById("deleteModalDesc").innerText = "Tindakan ini bersifat permanen. Data perangkat ini akan sepenuhnya dihapus dari sistem monitoring.";
+    
+    document.getElementById("deleteModalActions").innerHTML = `
+        <button onclick="closeDeleteModal()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95">
+            Batal
+        </button>
+        <button onclick="startDeleteCountdown()" class="bg-rose-500 hover:bg-rose-600 text-white py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-rose-500/20 active:scale-95">
+            Ya, Hapus
+        </button>
+    `;
+
     const dModal = document.getElementById('deleteModal');
     if (dModal) {
         dModal.classList.remove('hidden');
@@ -192,6 +210,10 @@ function deletePerangkat(opnameId) {
 }
 
 function closeDeleteModal() {
+    if (deleteCountdownInterval) {
+        clearInterval(deleteCountdownInterval);
+        deleteCountdownInterval = null;
+    }
     const dModal = document.getElementById('deleteModal');
     if (dModal) {
         dModal.classList.remove('flex');
@@ -200,11 +222,46 @@ function closeDeleteModal() {
     currentDeleteId = null;
 }
 
-async function executeDelete() {
+// FUNGSI DELAY COUNTDOWN 5 DETIK SEBELUM FIRE API
+function startDeleteCountdown() {
+    if (!currentDeleteId) return;
+
+    let secondsLeft = 5;
+    
+    // Transform UI modal ke mode countdown interaktif
+    document.getElementById("deleteModalIcon").innerText = "⏳";
+    document.getElementById("deleteModalTitle").innerText = "Memproses Penghapusan...";
+    document.getElementById("deleteModalDesc").innerHTML = `Data akan terhapus permanen dalam <span class="font-black text-rose-500 text-sm">${secondsLeft}</span> detik.`;
+    
+    // Ganti grid tombol menjadi satu tombol pembatalan mutlak
+    document.getElementById("deleteModalActions").innerHTML = `
+        <button onclick="closeDeleteModal()" class="col-span-full bg-rose-500 hover:bg-rose-600 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-rose-500/20 active:scale-95">
+            BATALKAN PROSES (${secondsLeft}s)
+        </button>
+    `;
+
+    deleteCountdownInterval = setInterval(async () => {
+        secondsLeft--;
+        if (secondsLeft > 0) {
+            const btn = document.getElementById("deleteModalActions").querySelector("button");
+            if (btn) btn.innerText = `BATALKAN PROSES (${secondsLeft}s)`;
+            document.getElementById("deleteModalDesc").innerHTML = `Data akan terhapus permanen dalam <span class="font-black text-rose-500 text-sm">${secondsLeft}</span> detik.`;
+        } else {
+            // Bersihkan timer, tutup modal konfirmasi, lempar ke screen loading transjakarta
+            clearInterval(deleteCountdownInterval);
+            deleteCountdownInterval = null;
+            await executeDeleteRequest();
+        }
+    }, 1000);
+}
+
+// EKSEKUSI API REQUEST HAPUS DATA SESUNGGUHNYA
+async function executeDeleteRequest() {
     if (!currentDeleteId) return;
     
-    showLoading("Menghapus Perangkat...");
-    closeDeleteModal();
+    showLoading("Menghapus Perangkat Lapangan...");
+    const savedId = currentDeleteId;
+    closeDeleteModal(); // Bersihkan object memory modal
 
     try {
         const res = await fetch(API_URL, {
@@ -212,18 +269,20 @@ async function executeDelete() {
             body: JSON.stringify({ 
                 action: "deletePerangkat", 
                 token: localStorage.getItem("token"), 
-                opname_id: currentDeleteId 
+                opname_id: savedId 
             })
         });
         const data = await res.json();
         if (data.status) { 
-            loadPerangkat();
+            loadPerangkat(); // Tarik & render ulang data kartu terbaru
         } else {
             alert("Gagal menghapus: " + data.message);
+            hideLoading();
         }
     } catch (err) { 
         console.error(err); 
-        alert("Kesalahan Jaringan!");
+        alert("Kesalahan Jaringan Backend!");
+        hideLoading();
     }
 }
 
