@@ -30,7 +30,7 @@
         }
         .dark .tj-input:focus { border-color: #0095DA !important; }
         
-        /* ANTI-GHAIB DROPDOWN FIX: Biarkan sistem browser mengontrol teks saat di-highlight */
+        /* ANTI-GHAIB DROPDOWN FIX: Serahkan hak highlight warna ke OS browser mobile */
         .dark select.tj-input option { 
             background-color: #1e293b; 
             color: #ffffff; 
@@ -48,7 +48,7 @@
         <div class="container mx-auto flex justify-between items-center max-w-2xl">
             <div class="flex items-center gap-3">
                 <button onclick="window.history.back()" class="hover:bg-white/20 p-2 rounded-xl transition-all active:scale-90 text-white">
-                    <svg xmlns="http://www.w3.org/2000/xl" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 </button>
                 <div>
                     <p class="text-[9px] font-black opacity-60 uppercase tracking-widest leading-none">Formulir</p>
@@ -145,6 +145,7 @@
     <script>
         const themeBtn = document.getElementById('themeBtn');
 
+        // Read local storage on load
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
             if (themeBtn) themeBtn.innerText = 'LIGHT MODE';
@@ -153,6 +154,7 @@
             if (themeBtn) themeBtn.innerText = 'DARK MODE';
         }
 
+        // Toggle theme engine
         function toggleTheme() {
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
@@ -164,41 +166,6 @@
                 if (themeBtn) themeBtn.innerText = 'LIGHT MODE';
             }
         }
-    </script>
-
-    <script>
-        // Override JS functions asli untuk mematikan rendering baris kosong dari database
-        const originalLoadMaster = loadMasterPerangkat;
-        loadMasterPerangkat = async () => {
-            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getMasterPerangkat", token: localStorage.getItem("token") }) });
-            masterPerangkat = (await res.json()).data || [];
-            // Tambahkan .filter(Boolean) agar string kosong/null terbuang dari daftar
-            const unik = [...new Set(masterPerangkat.map(i => i.kategori).filter(Boolean))];
-            let h = `<option value="">Pilih Kategori</option>`;
-            unik.forEach(i => h += `<option value="${i}">${i}</option>`);
-            document.getElementById("kategori").innerHTML = h;
-        };
-
-        const originalChangeKategori = changeKategori;
-        changeKategori = () => {
-            const kat = document.getElementById("kategori").value;
-            const filtered = masterPerangkat.filter(i => i.kategori == kat);
-            const unik = [...new Set(filtered.map(i => i.nama_perangkat).filter(Boolean))];
-            let h = `<option value="">Pilih Perangkat</option>`;
-            unik.forEach(i => h += `<option value="${i}">${i}</option>`);
-            document.getElementById("namaPerangkat").innerHTML = h;
-        };
-
-        const originalChangePerangkat = changePerangkat;
-        changePerangkat = () => {
-            const kat = document.getElementById("kategori").value;
-            const n = document.getElementById("namaPerangkat").value;
-            const filtered = masterPerangkat.filter(i => i.kategori == kat && i.nama_perangkat == n);
-            const unik = [...new Set(filtered.map(i => i.merk_model).filter(Boolean))];
-            let h = `<option value="">Pilih Merk / Model</option>`;
-            unik.forEach(i => h += `<option value="${i}">${i}</option>`);
-            document.getElementById("merkModel").innerHTML = h;
-        };
     </script>
 
     <script src="js/config.js"></script>
