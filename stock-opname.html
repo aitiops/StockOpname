@@ -44,6 +44,16 @@
         <p id="loadingStatus" class="loading-text text-slate-600 dark:text-slate-300">Menyiapkan Formulir...</p>
     </div>
 
+    <div id="successModal" class="fixed inset-0 bg-slate-950/60 hidden items-center justify-center z-[9999] p-4 backdrop-blur-sm transition-all duration-300">
+        <div class="bg-white dark:bg-[#132247] w-full max-w-sm rounded-[2.5rem] p-6 shadow-2xl border border-slate-200/60 dark:border-slate-800/60 text-center">
+            <div class="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/30 text-emerald-500 dark:text-emerald-400 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-4 shadow-inner animate-bounce">
+                ✓
+            </div>
+            <h3 class="text-slate-800 dark:text-white font-black text-sm uppercase tracking-wider mb-2">Sinkronisasi Berhasil</h3>
+            <p class="text-slate-400 dark:text-slate-400 text-xs font-medium px-2 leading-relaxed">Data stock opname berhasil disimpan dan diperbarui ke dalam sistem.</p>
+        </div>
+    </div>
+
     <nav class="bg-slate-900 border-b border-slate-800 text-white p-4 sticky top-0 z-50 shadow-xl">
         <div class="container mx-auto flex justify-between items-center max-w-2xl">
             <div class="flex items-center gap-3">
@@ -145,7 +155,6 @@
     <script>
         const themeBtn = document.getElementById('themeBtn');
 
-        // Read local storage on load
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
             if (themeBtn) themeBtn.innerText = 'LIGHT MODE';
@@ -154,7 +163,6 @@
             if (themeBtn) themeBtn.innerText = 'DARK MODE';
         }
 
-        // Toggle theme engine
         function toggleTheme() {
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
