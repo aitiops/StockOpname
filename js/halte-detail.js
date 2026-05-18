@@ -1,6 +1,6 @@
 /**
  * HALTE DETAIL ENGINE - IT STOCK OPNAME
- * Final Fix: Native Premium Delete Modal + Hybrid Dark Mode Responsive Cards
+ * Final Fix: Safe-String Search Logic + Anti-Crashing Mobile Filter
  */
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -90,27 +90,31 @@ function updateSummary(data) {
     if(document.getElementById("totalOff")) document.getElementById("totalOff").innerHTML = totalOff;
 }
 
-// ================= SEARCH & FILTER LOGIC =================
+// ================= SEARCH & FILTER LOGIC (ANTI-CRASH FIX) =================
 function filterPerangkat() {
-    const keyword = document.getElementById("searchInput").value.toLowerCase();
+    const keyword = document.getElementById("searchInput").value.toLowerCase().trim();
     const statusFilter = document.getElementById("filterStatus").value;
 
     const filteredData = perangkatList.filter(item => {
-        const nama = (item.nama_perangkat || "").toLowerCase();
-        const sn = (item.serial_number || "").toLowerCase();
-        const merk = (item.merk_model || "").toLowerCase();
-        const kategori = (item.kategori || "").toLowerCase();
+        // FIX UTAMA RY: Paksa konversi ke String bawaan JavaScript biar murni angka gak bikin crash!
+        const nama = String(item.nama_perangkat || "").toLowerCase();
+        const sn = String(item.serial_number || "").toLowerCase();
+        const merk = String(item.merk_model || "").toLowerCase();
+        const kategori = String(item.kategori || "").toLowerCase();
 
+        // Cek kecocokan teks keyword
         const matchesKeyword = nama.includes(keyword) || 
                                sn.includes(keyword) || 
                                merk.includes(keyword) || 
                                kategori.includes(keyword);
 
+        // Cek kecocokan filter dropdown status
         const matchesStatus = statusFilter === "" ? true : item.status === statusFilter;
 
         return matchesKeyword && matchesStatus;
     });
 
+    // Render ulang kartu yang lolos filter
     renderPerangkat(filteredData);
 }
 
@@ -179,11 +183,11 @@ function renderPerangkat(dataList) {
 
 // ================= NATIVE MODAL CONTROL Ry =================
 function deletePerangkat(opnameId) {
-    currentDeleteId = opnameId; // Kunci ID yang mau dihapus di memori
+    currentDeleteId = opnameId;
     const dModal = document.getElementById('deleteModal');
     if (dModal) {
         dModal.classList.remove('hidden');
-        dModal.classList.add('flex'); // Tampilkan Modal Custom Premium
+        dModal.classList.add('flex');
     }
 }
 
@@ -193,7 +197,7 @@ function closeDeleteModal() {
         dModal.classList.remove('flex');
         dModal.classList.add('hidden');
     }
-    currentDeleteId = null; // Kosongkan memori
+    currentDeleteId = null;
 }
 
 async function executeDelete() {
@@ -213,7 +217,7 @@ async function executeDelete() {
         });
         const data = await res.json();
         if (data.status) { 
-            loadPerangkat(); // Refresh data kartu baru
+            loadPerangkat();
         } else {
             alert("Gagal menghapus: " + data.message);
         }
