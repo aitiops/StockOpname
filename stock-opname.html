@@ -29,7 +29,12 @@
             color: #f1f5f9 !important; 
         }
         .dark .tj-input:focus { border-color: #0095DA !important; }
-        .dark select.tj-input option { background-color: #111c3a !important; color: #ffffff !important; }
+        
+        /* ANTI-GHAIB DROPDOWN FIX: Biarkan sistem browser mengontrol teks saat di-highlight */
+        .dark select.tj-input option { 
+            background-color: #1e293b; 
+            color: #ffffff; 
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 dark:bg-[#0b1329] dark:text-slate-100 min-h-screen pb-10">
@@ -43,7 +48,7 @@
         <div class="container mx-auto flex justify-between items-center max-w-2xl">
             <div class="flex items-center gap-3">
                 <button onclick="window.history.back()" class="hover:bg-white/20 p-2 rounded-xl transition-all active:scale-90 text-white">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/xl" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
                 </button>
                 <div>
                     <p class="text-[9px] font-black opacity-60 uppercase tracking-widest leading-none">Formulir</p>
@@ -61,11 +66,11 @@
         <div class="bg-gradient-to-br from-blue-50/80 via-slate-50 to-white dark:from-[#132247] dark:via-[#111c3a] dark:to-[#0f172e] p-6 rounded-[2rem] shadow-md shadow-slate-200/60 dark:shadow-2xl border border-blue-100/50 dark:border-slate-800/80 mb-6 relative overflow-hidden">
             <div class="grid grid-cols-2 gap-4 relative z-10">
                 <div>
-                    <p class="label-text mb-1 text-[#0095DA] dark:text-[#0095DA]">Koridor Kerja</p>
+                    <p class="label-text mb-1 text-[#0095DA]">Koridor Kerja</p>
                     <p id="infoKoridor" class="font-black text-slate-800 dark:text-white uppercase tracking-wide text-sm">-</p>
                 </div>
                 <div>
-                    <p class="label-text mb-1 text-[#0095DA] dark:text-[#0095DA]">Halte Tujuan</p>
+                    <p class="label-text mb-1 text-[#0095DA]">Halte Tujuan</p>
                     <p id="infoHalte" class="font-black text-slate-800 dark:text-white uppercase tracking-wide text-sm">-</p>
                 </div>
             </div>
@@ -140,7 +145,6 @@
     <script>
         const themeBtn = document.getElementById('themeBtn');
 
-        // 1. Sinkronisasi awal membaca preferensi memori dari penyimpanan browser
         if (localStorage.getItem('theme') === 'dark') {
             document.documentElement.classList.add('dark');
             if (themeBtn) themeBtn.innerText = 'LIGHT MODE';
@@ -149,7 +153,6 @@
             if (themeBtn) themeBtn.innerText = 'DARK MODE';
         }
 
-        // 2. Fungsi eksekusi penukaran tema data
         function toggleTheme() {
             if (document.documentElement.classList.contains('dark')) {
                 document.documentElement.classList.remove('dark');
@@ -161,6 +164,41 @@
                 if (themeBtn) themeBtn.innerText = 'LIGHT MODE';
             }
         }
+    </script>
+
+    <script>
+        // Override JS functions asli untuk mematikan rendering baris kosong dari database
+        const originalLoadMaster = loadMasterPerangkat;
+        loadMasterPerangkat = async () => {
+            const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getMasterPerangkat", token: localStorage.getItem("token") }) });
+            masterPerangkat = (await res.json()).data || [];
+            // Tambahkan .filter(Boolean) agar string kosong/null terbuang dari daftar
+            const unik = [...new Set(masterPerangkat.map(i => i.kategori).filter(Boolean))];
+            let h = `<option value="">Pilih Kategori</option>`;
+            unik.forEach(i => h += `<option value="${i}">${i}</option>`);
+            document.getElementById("kategori").innerHTML = h;
+        };
+
+        const originalChangeKategori = changeKategori;
+        changeKategori = () => {
+            const kat = document.getElementById("kategori").value;
+            const filtered = masterPerangkat.filter(i => i.kategori == kat);
+            const unik = [...new Set(filtered.map(i => i.nama_perangkat).filter(Boolean))];
+            let h = `<option value="">Pilih Perangkat</option>`;
+            unik.forEach(i => h += `<option value="${i}">${i}</option>`);
+            document.getElementById("namaPerangkat").innerHTML = h;
+        };
+
+        const originalChangePerangkat = changePerangkat;
+        changePerangkat = () => {
+            const kat = document.getElementById("kategori").value;
+            const n = document.getElementById("namaPerangkat").value;
+            const filtered = masterPerangkat.filter(i => i.kategori == kat && i.nama_perangkat == n);
+            const unik = [...new Set(filtered.map(i => i.merk_model).filter(Boolean))];
+            let h = `<option value="">Pilih Merk / Model</option>`;
+            unik.forEach(i => h += `<option value="${i}">${i}</option>`);
+            document.getElementById("merkModel").innerHTML = h;
+        };
     </script>
 
     <script src="js/config.js"></script>
