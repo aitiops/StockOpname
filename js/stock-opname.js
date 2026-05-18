@@ -1,6 +1,6 @@
 /**
  * STOCK OPNAME ENGINE - ULTRA FOOLPROOF FINAL FIX
- * Version: Internal Anti-Blank Guard & Android Dropdown Matcher
+ * Version: Internal Anti-Blank Guard & Premium Success Modal Trigger
  */
 
 let masterPerangkat = [];
@@ -14,7 +14,6 @@ const opnameId = urlParams.get("id");
 
 window.onload = async () => {
     showLoading("Menyiapkan Formulir...");
-    // Eksekusi load data utama secara paralel
     await Promise.all([loadMasterPerangkat(), loadHalteDetail()]);
 
     if (editMode && opnameId) {
@@ -42,6 +41,20 @@ function hideLoading() {
         ov.classList.remove('loading-active'); 
         ov.style.setProperty('display', 'none', 'important'); 
     }
+}
+
+// FUNGSI PEMICU MODAL PREMIUM GLOBAL
+function triggerSuccessRedirect() {
+    hideLoading();
+    const sm = document.getElementById("successModal");
+    if (sm) {
+        sm.classList.remove("hidden");
+        sm.classList.add("flex");
+    }
+    // Delay 1.5 detik agar animasi modal terlihat premium, lalu auto-redirect
+    setTimeout(() => {
+        window.location.href = `halte-detail.html?halte_id=${halteId}&halte_nama=${halteNama}&koridor_id=${koridorId}`;
+    }, 1500);
 }
 
 async function compressImage(file) {
@@ -107,9 +120,8 @@ async function saveStockOpname() {
         const data = await res.json();
 
         if (data.status) {
-            hideLoading();
-            alert("Data Berhasil Disinkronkan!");
-            window.location.href = `halte-detail.html?halte_id=${halteId}&halte_nama=${halteNama}&koridor_id=${koridorId}`;
+            // FIX UTAMA: Panggil modal animasi custom, matikan alert() ghaib browser
+            triggerSuccessRedirect();
         } else if (data.duplicate) {
             hideLoading();
             if (confirm("S/N terdeteksi duplikat. Tetap simpan?")) saveForce(payload);
@@ -126,9 +138,20 @@ async function saveStockOpname() {
 async function saveForce(p) {
     showLoading("Menyimpan Paksa...");
     p.force_save = true;
-    const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(p) });
-    const data = await res.json();
-    if(data.status) window.location.href = `halte-detail.html?halte_id=${halteId}&halte_nama=${halteNama}&koridor_id=${koridorId}`;
+    try {
+        const res = await fetch(API_URL, { method: "POST", body: JSON.stringify(p) });
+        const data = await res.json();
+        if (data.status) {
+            // FIX UTAMA: Panggil modal animasi custom, matikan alert() ghaib browser
+            triggerSuccessRedirect();
+        } else {
+            hideLoading();
+            alert("Gagal Simpan Paksa: " + data.message);
+        }
+    } catch (err) {
+        hideLoading();
+        alert("Kesalahan Jaringan!");
+    }
 }
 
 // ========================================================
@@ -138,7 +161,6 @@ async function loadMasterPerangkat() {
     const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getMasterPerangkat", token: localStorage.getItem("token") }) });
     masterPerangkat = (await res.json()).data || [];
     
-    // Proteksi filter menghilangkan row kosong/null dari database
     const unik = [...new Set(masterPerangkat.map(i => i.kategori).filter(Boolean))];
     let h = `<option value="">Pilih Kategori</option>`;
     unik.forEach(i => h += `<option value="${i}">${i}</option>`);
@@ -149,13 +171,11 @@ function changeKategori() {
     const kat = document.getElementById("kategori").value;
     const filtered = masterPerangkat.filter(i => i.kategori == kat);
     
-    // Proteksi filter menghilangkan row kosong/null dari database
     const unik = [...new Set(filtered.map(i => i.nama_perangkat).filter(Boolean))];
     let h = `<option value="">Pilih Perangkat</option>`;
     unik.forEach(i => h += `<option value="${i}">${i}</option>`);
     document.getElementById("namaPerangkat").innerHTML = h;
     
-    // Reset dropdown anak di bawahnya agar tidak rancu
     document.getElementById("merkModel").innerHTML = `<option value="">Pilih Merk / Model</option>`;
 }
 
@@ -164,7 +184,6 @@ function changePerangkat() {
     const n = document.getElementById("namaPerangkat").value;
     const filtered = masterPerangkat.filter(i => i.kategori == kat && i.nama_perangkat == n);
     
-    // Proteksi filter menghilangkan row kosong/null dari database
     const unik = [...new Set(filtered.map(i => i.merk_model).filter(Boolean))];
     let h = `<option value="">Pilih Merk / Model</option>`;
     unik.forEach(i => h += `<option value="${i}">${i}</option>`);
