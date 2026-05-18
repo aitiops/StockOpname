@@ -55,9 +55,9 @@ body {
 .tj-btn {
     width: 100%;
     padding: 0.85rem;
-    border-radius: 1.25rem; /* Kelengkungan disamakan dengan Input */
+    border-radius: 1.25rem;
     border: none;
-    background: var(--tj-blue) !important; /* Paksa pakai Biru Utama Transjakarta */
+    background: var(--tj-blue) !important;
     color: white !important;
     font-weight: 800;
     text-transform: uppercase;
@@ -91,19 +91,25 @@ body {
     letter-spacing: 0.03em;
 }
 
-/* ================= PREMIUM LOADING OVERLAY ================= */
+/* ================= PREMIUM LOADING OVERLAY (FROSTED GLASS UPGRADE) ================= */
 .loading-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(255, 255, 255, 0.85) !important;
-    backdrop-filter: blur(12px) !important;
-    -webkit-backdrop-filter: blur(12px);
+    /* UPGRADE RY: Menggunakan efek kaca transparan abu-abu lembut agar background asli samar-samar kelihatan */
+    background: rgba(226, 232, 240, 0.45) !important; 
+    backdrop-filter: blur(25px) !important; /* Efek blur kaca dipertebal biar premium */
+    -webkit-backdrop-filter: blur(25px) !important;
     z-index: 10000;
     display: none; 
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    transition: all 0.3s ease;
+    transition: background-color 0.3s ease !important;
+}
+
+/* OTOMATIS BERUBAH JADI KACA GELAP PAS THEME GELAP AKTIF (ANTI-SILAU) */
+.dark .loading-overlay {
+    background: rgba(11, 19, 41, 0.75) !important; /* Gelap transparan */
 }
 
 .loading-active {
@@ -131,7 +137,7 @@ body {
     50% { 
         opacity: 1; 
         transform: scale(1.08); 
-        filter: drop-shadow(0 0 10px rgba(0, 149, 218, 0.3));
+        filter: drop-shadow(0 0 15px rgba(0, 149, 218, 0.4)); /* Glow efek diperhalus */
     }
 }
 
@@ -145,6 +151,13 @@ body {
     animation: pulseText 1.5s ease-in-out infinite;
     text-align: center;
     margin-top: 1rem;
+    text-shadow: 0 2px 4px rgba(255, 255, 255, 0.5); /* Kasih shadow tipis biar kebaca di mode terang */
+}
+
+/* Jaga kontras teks di mode gelap */
+.dark .loading-text, .dark .loading-status {
+    color: #00a2ed !important; /* Warna biru sedikit lebih terang agar menyala di kaca gelap */
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
 }
 
 @keyframes pulseText {
