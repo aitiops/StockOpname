@@ -1,6 +1,6 @@
 /**
  * HALTE DETAIL ENGINE - IT STOCK OPNAME
- * Final Fix: Native 5s Safe-Countdown Delete Modal & Unified Loading Overlay
+ * Final Fix: Dynamic Role Routing (Engineer vs Koordinator Protection)
  */
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -8,23 +8,46 @@ const halte_id = urlParams.get("halte_id");
 const halte_nama = urlParams.get("halte_nama");
 const koridor_id = urlParams.get("koridor_id");
 
-// Global Variable penampung data asli dari server
+// Ambil data Role Akun yang sedang login saat ini Ry
+const USER_ROLE = (localStorage.getItem("role") || "").toLowerCase();
+
+// Global Variable untuk menampung data asli dari server
 let perangkatList = [];
-let currentDeleteId = null; // Menyimpan ID perangkat yang akan dihapus
-let deleteCountdownInterval = null; // Handler timer interval countdown
+let currentDeleteId = null; 
 
-// Proteksi: Jika ID tidak ada, balik ke dashboard
-if (!halte_id) window.location.href = 'engineer.html';
+// ================= DYNAMIC BACK BUTTON ROUTING Ry =================
+function goBackDashboard() {
+    if (USER_ROLE === "koordinator") {
+        window.location.href = 'koordinator.html';
+    } else if (USER_ROLE === "kasi") {
+        window.location.href = 'kasi.html';
+    } else {
+        window.location.href = 'engineer.html';
+    }
+}
 
-// ================= INIT VIEW =================
-document.getElementById("halteTitle").innerHTML = halte_nama || "Detail Halte";
-document.getElementById("koridorTitle").innerHTML = `Koridor ${koridor_id || "-"}`;
+// Proteksi Awal: Jika ID tidak ada, paksa pulang sesuai role
+if (!halte_id) goBackDashboard();
 
 window.onload = () => {
+    // Jalankan proteksi tampilan tombol aksi berdasarkan role koordinator
+    applyRoleVisibilityProtection();
     loadPerangkat();
 };
 
+// Sembunyikan fitur input jika yang masuk bukan engineer
+function applyRoleVisibilityProtection() {
+    const btnTambah = document.getElementById("btnTambahPerangkat");
+    if (USER_ROLE !== "engineer") {
+        if (btnTambah) btnTambah.style.setProperty('display', 'none', 'important');
+    }
+}
+
 function goInput() {
+    if (USER_ROLE !== "engineer") {
+        alert("Akses Ditolak: Hanya engineer lapangan yang dapat menambah data!");
+        return;
+    }
     window.location.href = `stock-opname.html?halte_id=${halte_id}&halte_nama=${halte_nama}&koridor_id=${koridor_id}`;
 }
 
@@ -66,13 +89,9 @@ async function loadPerangkat() {
         const data = await res.json();
         perangkatList = data.data || [];
 
-        // Update Summary Counter atas
         updateSummary(perangkatList);
-
-        // Render Kartu Perangkat
         renderPerangkat(perangkatList);
 
-        // Tutup Loading
         if (document.getElementById("loadingStatus")) {
             document.getElementById("loadingStatus").innerText = "Data Siap!";
         }
@@ -84,7 +103,6 @@ async function loadPerangkat() {
     }
 }
 
-// ================= SUMMARY COUNTER =================
 function updateSummary(data) {
     let totalOn = 0;
     let totalOff = 0;
@@ -121,7 +139,7 @@ function filterPerangkat() {
     renderPerangkat(filteredData);
 }
 
-// ================= RENDER CARD HYBRID DARK MODE =================
+// ================= RENDER CARD HYBRID (WITH ROLE LOCK) =================
 function renderPerangkat(dataList) {
     let html = "";
     const container = document.getElementById("tablePerangkat");
@@ -169,7 +187,7 @@ function renderPerangkat(dataList) {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-2 border-t border-slate-100 dark:border-slate-800/40">
+                <div class="${USER_ROLE === 'engineer' ? 'grid' : 'hidden'} grid-cols-2 border-t border-slate-100 dark:border-slate-800/40">
                     <button onclick="window.location.href='stock-opname.html?edit=1&id=${item.opname_id}&halte_id=${halte_id}&halte_nama=${halte_nama}&koridor_id=${koridor_id}'" 
                         class="p-4 text-xs font-black text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-colors uppercase border-r border-slate-100 dark:border-slate-800/40">
                         Edit
@@ -184,11 +202,11 @@ function renderPerangkat(dataList) {
     container.innerHTML = html;
 }
 
-// ================= NATIVE MODAL TIMED CONTROL Ry =================
+// ================= NATIVE MODAL TIMED CONTROL =================
 function deletePerangkat(opnameId) {
+    if (USER_ROLE !== "engineer") return;
     currentDeleteId = opnameId;
     
-    // Reset isi modal ke tampilan dasar awal konfirmasi
     document.getElementById("deleteModalIcon").innerText = "⚠️";
     document.getElementById("deleteModalTitle").innerText = "Hapus Perangkat?";
     document.getElementById("deleteModalDesc").innerText = "Tindakan ini bersifat permanen. Data perangkat ini akan sepenuhnya dihapus dari sistem monitoring.";
@@ -222,18 +240,15 @@ function closeDeleteModal() {
     currentDeleteId = null;
 }
 
-// FUNGSI DELAY COUNTDOWN 5 DETIK SEBELUM FIRE API
+let deleteCountdownInterval = null;
 function startDeleteCountdown() {
     if (!currentDeleteId) return;
 
     let secondsLeft = 5;
-    
-    // Transform UI modal ke mode countdown interaktif
     document.getElementById("deleteModalIcon").innerText = "⏳";
     document.getElementById("deleteModalTitle").innerText = "Memproses Penghapusan...";
     document.getElementById("deleteModalDesc").innerHTML = `Data akan terhapus permanen dalam <span class="font-black text-rose-500 text-sm">${secondsLeft}</span> detik.`;
     
-    // Ganti grid tombol menjadi satu tombol pembatalan mutlak
     document.getElementById("deleteModalActions").innerHTML = `
         <button onclick="closeDeleteModal()" class="col-span-full bg-rose-500 hover:bg-rose-600 text-white py-3.5 rounded-xl font-black text-xs uppercase tracking-widest transition-all shadow-lg shadow-rose-500/20 active:scale-95">
             BATALKAN PROSES (${secondsLeft}s)
@@ -247,7 +262,6 @@ function startDeleteCountdown() {
             if (btn) btn.innerText = `BATALKAN PROSES (${secondsLeft}s)`;
             document.getElementById("deleteModalDesc").innerHTML = `Data akan terhapus permanen dalam <span class="font-black text-rose-500 text-sm">${secondsLeft}</span> detik.`;
         } else {
-            // Bersihkan timer, tutup modal konfirmasi, lempar ke screen loading transjakarta
             clearInterval(deleteCountdownInterval);
             deleteCountdownInterval = null;
             await executeDeleteRequest();
@@ -255,13 +269,12 @@ function startDeleteCountdown() {
     }, 1000);
 }
 
-// EKSEKUSI API REQUEST HAPUS DATA SESUNGGUHNYA
 async function executeDeleteRequest() {
     if (!currentDeleteId) return;
     
     showLoading("Menghapus Perangkat Lapangan...");
     const savedId = currentDeleteId;
-    closeDeleteModal(); // Bersihkan object memory modal
+    closeDeleteModal();
 
     try {
         const res = await fetch(API_URL, {
@@ -274,7 +287,7 @@ async function executeDeleteRequest() {
         });
         const data = await res.json();
         if (data.status) { 
-            loadPerangkat(); // Tarik & render ulang data kartu terbaru
+            loadPerangkat();
         } else {
             alert("Gagal menghapus: " + data.message);
             hideLoading();
