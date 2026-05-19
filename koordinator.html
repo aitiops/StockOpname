@@ -94,29 +94,5 @@
 
         </div>
     </main>
-
-    <script>
-        const themeBtn = document.getElementById('themeBtn');
-
-        if (localStorage.getItem('theme') === 'dark') {
-            document.documentElement.classList.add('dark');
-            if (themeBtn) themeBtn.innerText = 'LIGHT MODE';
-        } else {
-            document.documentElement.classList.remove('dark');
-            if (themeBtn) themeBtn.innerText = 'DARK MODE';
-        }
-
-        function toggleTheme() {
-            if (document.documentElement.classList.contains('dark')) {
-                document.documentElement.classList.remove('dark');
-                localStorage.setItem('theme', 'light');
-                if (themeBtn) themeBtn.innerText = 'DARK MODE';
-            } else {
-                document.documentElement.classList.add('dark');
-                localStorage.setItem('theme', 'dark');
-                if (themeBtn) themeBtn.innerText = 'LIGHT MODE';
-            }
-        }
-    </script>
 </body>
 </html>
