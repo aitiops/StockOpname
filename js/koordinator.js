@@ -1,6 +1,6 @@
 /**
  * KOORDINATOR DASHBOARD ENGINE - PREMIUM ACCORDION UPGRADE
- * Version: Real-time Engineer Percentage, Expandable Halte Grid & Badging System (BUG FIXED)
+ * Version: Core Target Mapping & Dynamic Link Parameter Sender (FIX BACK BUTTON ROUTING)
  */
 
 window.onload = () => {
@@ -12,11 +12,8 @@ window.onload = () => {
 };
 
 async function loadDashboardKoordinator() {
-    const statusEl = document.getElementById("loadingStatus");
     const overlay = document.getElementById("loadingOverlay");
     const token = localStorage.getItem("token");
-    
-    // Ambil jatah wilayah akses (misal: "1" atau "1,2" atau "all")
     const wilayahAkses = localStorage.getItem("wilayah") || "";
 
     if (overlay) {
@@ -64,7 +61,6 @@ async function loadDashboardKoordinator() {
 
         const totalProgress = totalH > 0 ? Math.round((selesaiH / totalH) * 100) : 0;
 
-        // Update Angka di Layar Card Atas
         document.getElementById("totalHalte").innerText = totalH;
         document.getElementById("halteSelesai").innerText = selesaiH;
         document.getElementById("progressVisit").innerText = totalProgress + "%";
@@ -98,18 +94,17 @@ function renderEngineers(list) {
     let html = "";
     
     if (!list || list.length === 0) {
-        html = `<div class="bg-white dark:bg-[#132247]/40 p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 text-center backdrop-blur-sm">
-                    <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
+        html = `<div class="bg-white p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 text-center backdrop-blur-sm">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
                 </div>`;
     } else {
         list.forEach(eng => {
             const prog = eng.progress || 0; 
-            // FIX MASALAH UTAMA: Teks '28px' typo ghaib yang bikin crash sudah dibersihkan total Ry!
             html += `
                 <div class="bg-white dark:bg-[#132247]/40 p-5 rounded-[2rem] border border-slate-200/60 dark:border-slate-800/60 shadow-sm backdrop-blur-sm">
                     <div class="flex justify-between items-center mb-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-lg shadow-inner">👷</div>
+                            <div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-lg shadow-inner"> Arden👷</div>
                             <div>
                                 <h3 class="font-black text-slate-800 dark:text-white text-sm uppercase leading-tight">${eng.nama}</h3>
                                 <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter mt-0.5">Tugas: Koridor ${eng.koridor_tugas || '-'}</p>
@@ -179,6 +174,7 @@ function renderKoridor(list) {
     container.innerHTML = html;
 }
 
+// FIX UTAMA RY: Mengikat parameter halte_id, halte_nama, dan koridor_id secara eksplisit pas dilempar ke URL
 function renderHalteChildRows(haltes, koridorId) {
     if (!haltes || haltes.length === 0) {
         return `<p class="text-[10px] font-bold text-slate-400 text-center py-2 uppercase">Belum ada halte terdaftar</p>`;
@@ -196,11 +192,11 @@ function renderHalteChildRows(haltes, koridorId) {
 
         rowsHtml += `
             <div onclick="window.location.href='halte-detail.html?halte_id=${h.id}&halte_nama=${encodeURIComponent(h.nama_halte)}&koridor_id=${koridorId}'"
-                class="flex justify-between items-center bg-white dark:bg-[#111c3a]/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800/40 hover:border-[#0095DA] dark:hover:border-[#0095DA] cursor-pointer transition-all active:scale-[0.99]">
+                class="flex justify-between items-center bg-white dark:bg-[#111c3a]/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800/40 hover:border-[#0095DA] dark:hover:border-[#0095DA] cursor-pointer transition-all active:scale-[0.99] group">
                 <div class="flex items-center gap-2">
                     <span class="text-xs">📍</span>
                     <div>
-                        <p class="text-xs font-black text-slate-700 dark:text-slate-200 uppercase tracking-tight">${h.nama_halte}</p>
+                        <p class="text-xs font-black text-slate-700 dark:text-slate-200 group-hover:text-[#0095DA] transition-colors uppercase tracking-tight">${h.nama_halte}</p>
                         <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-0.5 uppercase">${h.total_perangkat || 0} Total Alat Terpasang</p>
                     </div>
                 </div>
