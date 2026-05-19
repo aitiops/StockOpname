@@ -1,6 +1,6 @@
 /**
- * KOORDINATOR DASHBOARD ENGINE - PREMIUM ACCORDION UPGRADE
- * Version: Core Target Mapping & Dynamic Link Parameter Sender (FIX BACK BUTTON ROUTING)
+ * KOORDINATOR DASHBOARD ENGINE - ULTRA PREMIUM EXECUTIVE VERSION
+ * Version: Minimalist Interactive Pins & Clean Layout Overhaul (No More Overlapping Badges Ry)
  */
 
 window.onload = () => {
@@ -94,8 +94,8 @@ function renderEngineers(list) {
     let html = "";
     
     if (!list || list.length === 0) {
-        html = `<div class="bg-white p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 text-center backdrop-blur-sm">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
+        html = `<div class="bg-white dark:bg-[#132247]/40 p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 text-center backdrop-blur-sm">
+                    <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
                 </div>`;
     } else {
         list.forEach(eng => {
@@ -104,7 +104,7 @@ function renderEngineers(list) {
                 <div class="bg-white dark:bg-[#132247]/40 p-5 rounded-[2rem] border border-slate-200/60 dark:border-slate-800/60 shadow-sm backdrop-blur-sm">
                     <div class="flex justify-between items-center mb-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-lg shadow-inner"> Arden👷</div>
+                            <div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-lg shadow-inner">👷</div>
                             <div>
                                 <h3 class="font-black text-slate-800 dark:text-white text-sm uppercase leading-tight">${eng.nama}</h3>
                                 <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter mt-0.5">Tugas: Koridor ${eng.koridor_tugas || '-'}</p>
@@ -174,7 +174,7 @@ function renderKoridor(list) {
     container.innerHTML = html;
 }
 
-// FIX UTAMA RY: Mengikat parameter halte_id, halte_nama, dan koridor_id secara eksplisit pas dilempar ke URL
+// UPGRADE ULTRA PREMIUM: Mengganti badge teks kaku dengan visual Smart Reactive Pins Ry!
 function renderHalteChildRows(haltes, koridorId) {
     if (!haltes || haltes.length === 0) {
         return `<p class="text-[10px] font-bold text-slate-400 text-center py-2 uppercase">Belum ada halte terdaftar</p>`;
@@ -182,29 +182,28 @@ function renderHalteChildRows(haltes, koridorId) {
 
     let rowsHtml = "";
     haltes.forEach(h => {
-        const isDone = h.status?.toLowerCase() === "selesai";
-        const badgeColor = isDone ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400';
+        const isDone = h.status === "SELESAI";
+        // Jika selesai kasih pin hijau (🟢), jika belum/proses kasih pin merah (🔴)
+        const pinIndicator = isDone ? "🟢" : "🔴";
         
         const totalOff = parseInt(h.total_off || 0);
         const offBadge = totalOff > 0 
-            ? `<span class="bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 text-[8px] font-black px-2 py-1 rounded-md">🔴 ${totalOff} ALAT DOWN</span>` 
+            ? `<span class="bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 text-[8px] font-black px-2 py-1 rounded-md animate-pulse">⚠️ ${totalOff} DOWN</span>` 
             : "";
 
         rowsHtml += `
             <div onclick="window.location.href='halte-detail.html?halte_id=${h.id}&halte_nama=${encodeURIComponent(h.nama_halte)}&koridor_id=${koridorId}'"
                 class="flex justify-between items-center bg-white dark:bg-[#111c3a]/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800/40 hover:border-[#0095DA] dark:hover:border-[#0095DA] cursor-pointer transition-all active:scale-[0.99] group">
-                <div class="flex items-center gap-2">
-                    <span class="text-xs">📍</span>
+                <div class="flex items-center gap-3">
+                    <span class="text-xs transition-transform group-hover:scale-125 duration-300">${pinIndicator}</span>
                     <div>
                         <p class="text-xs font-black text-slate-700 dark:text-slate-200 group-hover:text-[#0095DA] transition-colors uppercase tracking-tight">${h.nama_halte}</p>
-                        <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-0.5 uppercase">${h.total_perangkat || 0} Total Alat Terpasang</p>
+                        <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-0.5 uppercase">${h.total_perangkat || 0} Perangkat Terdata</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
                     ${offBadge}
-                    <span class="text-[9px] font-black uppercase px-2 py-1 rounded-md tracking-wider ${badgeColor}">
-                        ${h.status || 'BELUM'}
-                    </span>
+                    <span class="text-slate-300 dark:text-slate-600 group-hover:text-[#0095DA] group-hover:translate-x-1 transition-all text-xs font-black">➔</span>
                 </div>
             </div>`;
     });
