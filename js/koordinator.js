@@ -1,6 +1,6 @@
 /**
  * KOORDINATOR DASHBOARD ENGINE - PREMIUM ACCORDION UPGRADE
- * Version: Real-time Engineer Percentage, Expandable Halte Grid & Badging System
+ * Version: Real-time Engineer Percentage, Expandable Halte Grid & Badging System (BUG FIXED)
  */
 
 window.onload = () => {
@@ -103,13 +103,13 @@ function renderEngineers(list) {
                 </div>`;
     } else {
         list.forEach(eng => {
-            // FIX RY: Menampilkan angka persentase real-time target kontribusi input lapangan
             const prog = eng.progress || 0; 
+            // FIX MASALAH UTAMA: Teks '28px' typo ghaib yang bikin crash sudah dibersihkan total Ry!
             html += `
                 <div class="bg-white dark:bg-[#132247]/40 p-5 rounded-[2rem] border border-slate-200/60 dark:border-slate-800/60 shadow-sm backdrop-blur-sm">
                     <div class="flex justify-between items-center mb-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-lg shadow-inner">28px👷</div>
+                            <div class="w-10 h-10 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-lg shadow-inner">👷</div>
                             <div>
                                 <h3 class="font-black text-slate-800 dark:text-white text-sm uppercase leading-tight">${eng.nama}</h3>
                                 <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter mt-0.5">Tugas: Koridor ${eng.koridor_tugas || '-'}</p>
@@ -145,8 +145,6 @@ function renderKoridor(list) {
 
     list.forEach(kor => {
         const prog = kor.progress || 0;
-        
-        // Buat ID unik untuk pembungkus element akordeon halte anak
         const accordionId = `child-halte-koridor-${kor.id}`;
         
         html += `
@@ -181,7 +179,6 @@ function renderKoridor(list) {
     container.innerHTML = html;
 }
 
-// GENERATE BARIS HALTE ANAK SECARA INTERNAL
 function renderHalteChildRows(haltes, koridorId) {
     if (!haltes || haltes.length === 0) {
         return `<p class="text-[10px] font-bold text-slate-400 text-center py-2 uppercase">Belum ada halte terdaftar</p>`;
@@ -192,7 +189,6 @@ function renderHalteChildRows(haltes, koridorId) {
         const isDone = h.status?.toLowerCase() === "selesai";
         const badgeColor = isDone ? 'bg-emerald-100 text-emerald-600 dark:bg-emerald-950/40 dark:text-emerald-400' : 'bg-amber-100 text-amber-600 dark:bg-amber-950/40 dark:text-amber-400';
         
-        // Detektor Kerusakan Alarme Ghaib Ry: Jika ada alat off, buat badge merah menyala
         const totalOff = parseInt(h.total_off || 0);
         const offBadge = totalOff > 0 
             ? `<span class="bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 text-[8px] font-black px-2 py-1 rounded-md">🔴 ${totalOff} ALAT DOWN</span>` 
@@ -219,7 +215,6 @@ function renderHalteChildRows(haltes, koridorId) {
     return rowsHtml;
 }
 
-// LOGIKA ANIMASI AKORDEON EXPANDABLE Ry
 function toggleAccordionKoridor(elementId) {
     const el = document.getElementById(elementId);
     const icon = document.getElementById(`icon-${elementId}`);
@@ -229,7 +224,6 @@ function toggleAccordionKoridor(elementId) {
         el.style.setProperty('border-color', 'transparent', 'important');
         if (icon) icon.style.transform = "rotate(0deg)";
     } else {
-        // Setel tinggi maksimal dinamis berdasarkan scrollHeight asli kontennya
         el.style.maxHeight = el.scrollHeight + "px";
         el.style.borderColor = "rgba(226, 232, 240, 0.6)";
         if (icon) icon.style.transform = "rotate(180deg)";
@@ -243,7 +237,6 @@ function logout() {
     }
 }
 
-// ================= LIVE SEARCH CARDS FILTER =================
 function filterKoridorManual() {
     const input = document.getElementById('searchKoridor').value.toLowerCase().trim();
     const cards = document.querySelectorAll('#koridorList > div');
