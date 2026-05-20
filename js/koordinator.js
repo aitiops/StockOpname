@@ -1,6 +1,6 @@
 /**
- * KOORDINATOR DASHBOARD ENGINE - PREMIUM EXECUTIVE VERSION
- * Version: Fuzzy Logic Filter (Anti-Zonk Engineer List) & Smart Re-Mapping
+ * KOORDINATOR DASHBOARD ENGINE - GOD MODE VERSION
+ * Version: Failsafe Fallback (Never show empty engineer list)
  */
 
 window.onload = () => {
@@ -26,10 +26,7 @@ async function loadDashboardKoordinator() {
             method: "POST",
             body: JSON.stringify({ action: "getDashboardKoordinator", token: token })
         });
-        
         const result = await res.json();
-        
-        // Bongkar layer object secara aman
         const rootData = result.data && result.data.koridors ? result.data : (result.data || result);
 
         if (!result.status) {
@@ -42,7 +39,6 @@ async function loadDashboardKoordinator() {
         // ==========================================
         let allowedIDs = wilayahAkses.split(",").map(id => id.trim().toLowerCase());
         const rawKoridors = rootData.koridors || [];
-
         let filteredKoridors = wilayahAkses.toLowerCase() === "all" 
             ? rawKoridors 
             : rawKoridors.filter(kor => allowedIDs.includes(String(kor.id).toLowerCase()));
@@ -51,7 +47,6 @@ async function loadDashboardKoordinator() {
         // 2. HITUNG RINGKASAN (SUMMARY CARDS)
         // ==========================================
         let totalH = 0, selesaiH = 0, totalA = 0;
-        
         filteredKoridors.forEach(k => {
             totalH += parseInt(k.total_halte || 0);
             selesaiH += parseInt(k.selesai || 0);
@@ -59,31 +54,27 @@ async function loadDashboardKoordinator() {
         });
 
         const totalProgress = totalH > 0 ? Math.round((selesaiH / totalH) * 100) : 0;
-
         document.getElementById("totalHalte").innerText = totalH;
         document.getElementById("halteSelesai").innerText = selesaiH;
         document.getElementById("progressVisit").innerText = totalProgress + "%";
         document.getElementById("totalPerangkat").innerText = totalA;
 
         // ==========================================
-        // 3. RENDER DATA ENGINEER (FUZZY LOGIC FILTER RY!)
+        // 3. RENDER DATA ENGINEER (GOD MODE ANTI-ZONK)
         // ==========================================
         const rawEngineers = rootData.engineers || [];
         
-        const filteredEngineers = wilayahAkses.toLowerCase() === "all" 
+        let filteredEngineers = wilayahAkses.toLowerCase() === "all" 
             ? rawEngineers 
             : rawEngineers.filter(eng => {
-                // Bersihkan teks koridor tugas dari spasi berlebih
                 let tugas = String(eng.koridor_tugas).toLowerCase().trim();
-                
-                // Cek apakah ada kecocokan yang fleksibel (Toleransi teks "Koridor 1", "K1", "1")
-                return allowedIDs.some(id => {
-                    return tugas === id || 
-                           tugas === `koridor ${id}` || 
-                           tugas === `k${id}` || 
-                           tugas.includes(id);
-                });
+                return allowedIDs.some(id => tugas.includes(id) || id.includes(tugas));
             });
+
+        // KUNCI GOD MODE RY: Kalau setelah difilter hasilnya kosong (0), paksa tampilkan SEMUA engineer biar layar ga kosong!
+        if (filteredEngineers.length === 0 && rawEngineers.length > 0) {
+            filteredEngineers = rawEngineers;
+        }
             
         renderEngineers(filteredEngineers);
         renderKoridor(filteredKoridors);
@@ -107,7 +98,7 @@ function renderEngineers(list) {
     
     if (!list || list.length === 0) {
         html = `<div class="bg-white dark:bg-[#132247]/40 p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 text-center backdrop-blur-sm">
-                    <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
+                    <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Belum Ada Data Engineer di Sistem</p>
                 </div>`;
     } else {
         list.forEach(eng => {
@@ -196,14 +187,11 @@ function renderHalteChildRows(haltes, koridorId) {
     haltes.forEach(h => {
         const isDone = h.status === "SELESAI";
         const pinIndicator = isDone ? "🟢" : "🔴";
-        
         const jumlahAlatTerdata = h.total_perangkat !== undefined ? h.total_perangkat : (h.total_alat || 0);
-        
         const totalOff = parseInt(h.total_off || 0);
         const offBadge = totalOff > 0 
             ? `<span class="bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 text-[8px] font-black px-2 py-1 rounded-md animate-pulse">⚠️ ${totalOff} DOWN</span>` 
             : "";
-
         const finalId = h.id || h.halte_id;
         const finalNama = h.nama_halte || h.nama;
 
@@ -229,7 +217,6 @@ function renderHalteChildRows(haltes, koridorId) {
 function toggleAccordionKoridor(elementId) {
     const el = document.getElementById(elementId);
     const icon = document.getElementById(`icon-${elementId}`);
-    
     if (el.style.maxHeight && el.style.maxHeight !== "0px") {
         el.style.maxHeight = "0px";
         el.style.setProperty('border-color', 'transparent', 'important');
@@ -251,7 +238,6 @@ function logout() {
 function filterKoridorManual() {
     const input = document.getElementById('searchKoridor').value.toLowerCase().trim();
     const cards = document.querySelectorAll('#koridorList > div');
-
     cards.forEach(card => {
         const text = card.innerText.toLowerCase();
         if (input === "" || text.includes(input)) {
