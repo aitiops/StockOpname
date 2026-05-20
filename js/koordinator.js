@@ -1,6 +1,6 @@
 /**
- * KOORDINATOR DASHBOARD ENGINE - GOD MODE VERSION
- * Version: Failsafe Fallback (Never show empty engineer list)
+ * KOORDINATOR DASHBOARD ENGINE - REGION-BASED MATCHING
+ * Version: Smart Comma Splitter (Membaca "1, 2, 3" secara cerdas)
  */
 
 window.onload = () => {
@@ -35,13 +35,21 @@ async function loadDashboardKoordinator() {
         }
 
         // ==========================================
-        // 1. FILTER DATA BERDASARKAN WILAYAH TUGAS
+        // SMART COMMA SPLITTER RY: Pecah "1, 2" jadi array ['1', '2']
         // ==========================================
-        let allowedIDs = wilayahAkses.split(",").map(id => id.trim().toLowerCase());
+        const isAll = wilayahAkses.toLowerCase().trim() === "all";
+        const koorNumbers = wilayahAkses.match(/\d+/g) || []; // Ekstrak semua angka murni milik Koordinator
+
+        // ==========================================
+        // 1. FILTER KORIDOR (PANEL KANAN)
+        // ==========================================
         const rawKoridors = rootData.koridors || [];
-        let filteredKoridors = wilayahAkses.toLowerCase() === "all" 
+        let filteredKoridors = isAll 
             ? rawKoridors 
-            : rawKoridors.filter(kor => allowedIDs.includes(String(kor.id).toLowerCase()));
+            : rawKoridors.filter(kor => {
+                let korIdNumbers = String(kor.id).match(/\d+/g) || [];
+                return korIdNumbers.some(num => koorNumbers.includes(num));
+            });
 
         // ==========================================
         // 2. HITUNG RINGKASAN (SUMMARY CARDS)
@@ -60,21 +68,18 @@ async function loadDashboardKoordinator() {
         document.getElementById("totalPerangkat").innerText = totalA;
 
         // ==========================================
-        // 3. RENDER DATA ENGINEER (GOD MODE ANTI-ZONK)
+        // 3. FILTER ENGINEER (PANEL KIRI STRICT CROSS-MATCH)
         // ==========================================
         const rawEngineers = rootData.engineers || [];
-        
-        let filteredEngineers = wilayahAkses.toLowerCase() === "all" 
+        let filteredEngineers = isAll 
             ? rawEngineers 
             : rawEngineers.filter(eng => {
-                let tugas = String(eng.koridor_tugas).toLowerCase().trim();
-                return allowedIDs.some(id => tugas.includes(id) || id.includes(tugas));
+                // Ekstrak semua angka wilayah milik engineer (Contoh dari sheet: "1, 2, 3")
+                let engNumbers = String(eng.koridor_tugas).match(/\d+/g) || [];
+                
+                // Cek irisan (Overlap): Jika minimal ada 1 wilayah yg sama, tampilkan!
+                return engNumbers.some(num => koorNumbers.includes(num));
             });
-
-        // KUNCI GOD MODE RY: Kalau setelah difilter hasilnya kosong (0), paksa tampilkan SEMUA engineer biar layar ga kosong!
-        if (filteredEngineers.length === 0 && rawEngineers.length > 0) {
-            filteredEngineers = rawEngineers;
-        }
             
         renderEngineers(filteredEngineers);
         renderKoridor(filteredKoridors);
@@ -98,7 +103,7 @@ function renderEngineers(list) {
     
     if (!list || list.length === 0) {
         html = `<div class="bg-white dark:bg-[#132247]/40 p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 text-center backdrop-blur-sm">
-                    <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Belum Ada Data Engineer di Sistem</p>
+                    <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tidak ada tim yang ditugaskan di wilayah ini</p>
                 </div>`;
     } else {
         list.forEach(eng => {
