@@ -1,6 +1,6 @@
 /**
- * KOORDINATOR DASHBOARD ENGINE - REGION-BASED MATCHING
- * Version: Smart Comma Splitter (Membaca "1, 2, 3" secara cerdas)
+ * KOORDINATOR DASHBOARD ENGINE - CROSS-REGION INTERSECTION RY
+ * Version: Strict Cross-Match (Toleransi angka berkoma seperti "1,13")
  */
 
 window.onload = () => {
@@ -35,10 +35,10 @@ async function loadDashboardKoordinator() {
         }
 
         // ==========================================
-        // SMART COMMA SPLITTER RY: Pecah "1, 2" jadi array ['1', '2']
+        // EKSTRAK ANGKA WILAYAH KOORDINATOR
         // ==========================================
         const isAll = wilayahAkses.toLowerCase().trim() === "all";
-        const koorNumbers = wilayahAkses.match(/\d+/g) || []; // Ekstrak semua angka murni milik Koordinator
+        const koorNumbers = wilayahAkses.match(/\d+/g) || []; // Contoh: "1" -> ['1']
 
         // ==========================================
         // 1. FILTER KORIDOR (PANEL KANAN)
@@ -68,16 +68,22 @@ async function loadDashboardKoordinator() {
         document.getElementById("totalPerangkat").innerText = totalA;
 
         // ==========================================
-        // 3. FILTER ENGINEER (PANEL KIRI STRICT CROSS-MATCH)
+        // 3. FILTER ENGINEER (PANEL KIRI) - CEK IRISAN WILAYAH!
         // ==========================================
         const rawEngineers = rootData.engineers || [];
+        
         let filteredEngineers = isAll 
             ? rawEngineers 
             : rawEngineers.filter(eng => {
-                // Ekstrak semua angka wilayah milik engineer (Contoh dari sheet: "1, 2, 3")
-                let engNumbers = String(eng.koridor_tugas).match(/\d+/g) || [];
+                let wilayahEng = String(eng.koridor_tugas).toLowerCase().trim();
                 
-                // Cek irisan (Overlap): Jika minimal ada 1 wilayah yg sama, tampilkan!
+                // Jika engineer ditugaskan "all", dia otomatis tampil di semua koordinator
+                if (wilayahEng === 'all') return true; 
+
+                // Ekstrak angka murni tugas si engineer (Contoh: "1,13" -> ['1', '13'])
+                let engNumbers = wilayahEng.match(/\d+/g) || [];
+                
+                // CEK IRISAN: Jika minimal 1 area sama, tampilkan! (e.g. koor ['1'] includes eng ['1', '13'])
                 return engNumbers.some(num => koorNumbers.includes(num));
             });
             
@@ -103,7 +109,7 @@ function renderEngineers(list) {
     
     if (!list || list.length === 0) {
         html = `<div class="bg-white dark:bg-[#132247]/40 p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 text-center backdrop-blur-sm">
-                    <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tidak ada tim yang ditugaskan di wilayah ini</p>
+                    <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
                 </div>`;
     } else {
         list.forEach(eng => {
