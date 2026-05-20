@@ -1,6 +1,6 @@
 /**
  * KOORDINATOR DASHBOARD ENGINE - ULTRA PREMIUM EXECUTIVE VERSION
- * Version: Strict Target Mapping, Failsafe Multi-Variable Receiver & Dynamic Link Parameter Sender
+ * Version: Failsafe Multi-Layer Object Extractor & Multi-Variable Asset Counter (FULL FINAL FIXED Ry)
  */
 
 window.onload = () => {
@@ -28,7 +28,9 @@ async function loadDashboardKoordinator() {
         });
         
         const result = await res.json();
-        const data = result.data || result;
+        
+        // --- BONGKAR LAYER OBJECT SECARA FAILSAFE (FIX UTAMA LOG CONSOLE RY) ---
+        const rootData = result.data && result.data.koridors ? result.data : (result.data || result);
 
         if (!result.status) {
             console.error("Gagal ambil data:", result.message);
@@ -40,12 +42,13 @@ async function loadDashboardKoordinator() {
         // ==========================================
         let filteredKoridors = [];
         let allowedIDs = [];
+        const rawKoridors = rootData.koridors || [];
 
         if (wilayahAkses.toLowerCase() === "all") {
-            filteredKoridors = data.koridors || [];
+            filteredKoridors = rawKoridors;
         } else {
             allowedIDs = wilayahAkses.split(",").map(id => id.trim());
-            filteredKoridors = (data.koridors || []).filter(kor => allowedIDs.includes(String(kor.id)));
+            filteredKoridors = rawKoridors.filter(kor => allowedIDs.includes(String(kor.id)));
         }
 
         // ==========================================
@@ -69,9 +72,10 @@ async function loadDashboardKoordinator() {
         // ==========================================
         // 3. RENDER DATA KE PANEL LAYAR
         // ==========================================
+        const rawEngineers = rootData.engineers || [];
         const filteredEngineers = wilayahAkses.toLowerCase() === "all" 
-            ? (data.engineers || []) 
-            : (data.engineers || []).filter(eng => allowedIDs.includes(String(eng.koridor_tugas)));
+            ? rawEngineers 
+            : rawEngineers.filter(eng => allowedIDs.includes(String(eng.koridor_tugas)));
             
         renderEngineers(filteredEngineers);
         renderKoridor(filteredKoridors);
@@ -94,7 +98,7 @@ function renderEngineers(list) {
     let html = "";
     
     if (!list || list.length === 0) {
-        html = `<div class="bg-white p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 text-center backdrop-blur-sm">
+        html = `<div class="bg-white dark:bg-[#132247]/40 p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 text-center backdrop-blur-sm">
                     <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
                 </div>`;
     } else {
@@ -174,7 +178,7 @@ function renderKoridor(list) {
     container.innerHTML = html;
 }
 
-// ================= RENDER ROWS HALTE ANAK (FAILSAFE FIXED MULTI-VARIABLE Ry) =================
+// ================= RENDER ROWS HALTE ANAK =================
 function renderHalteChildRows(haltes, koridorId) {
     if (!haltes || haltes.length === 0) {
         return `<p class="text-[10px] font-bold text-slate-400 text-center py-2 uppercase">Belum ada halte terdaftar</p>`;
@@ -185,7 +189,7 @@ function renderHalteChildRows(haltes, koridorId) {
         const isDone = h.status === "SELESAI";
         const pinIndicator = isDone ? "🟢" : "🔴";
         
-        // AMBIL VARIABEL DENGAN METODE TINGKAT TINGGI: total_perangkat ok, total_alat ok, fallback 0 ok
+        // DETEKSI GANDA VARIABEL SINKRON: total_perangkat atau total_alat ok
         const jumlahAlatTerdata = h.total_perangkat !== undefined ? h.total_perangkat : (h.total_alat || 0);
         
         const totalOff = parseInt(h.total_off || 0);
@@ -193,7 +197,6 @@ function renderHalteChildRows(haltes, koridorId) {
             ? `<span class="bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 text-[8px] font-black px-2 py-1 rounded-md animate-pulse">⚠️ ${totalOff} DOWN</span>` 
             : "";
 
-        // URL ENCODE DIKUNCI MATANG MULTI-KEY BERSAMA-SAMA
         const finalId = h.id || h.halte_id;
         const finalNama = h.nama_halte || h.nama;
 
