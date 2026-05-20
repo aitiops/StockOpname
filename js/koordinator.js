@@ -1,6 +1,6 @@
 /**
- * KOORDINATOR DASHBOARD ENGINE - ULTRA PREMIUM EXECUTIVE VERSION
- * Version: Failsafe Multi-Layer Object Extractor & Multi-Variable Asset Counter (FULL FINAL FIXED Ry)
+ * KOORDINATOR DASHBOARD ENGINE - PREMIUM EXECUTIVE VERSION
+ * Version: Fuzzy Logic Filter (Anti-Zonk Engineer List) & Smart Re-Mapping
  */
 
 window.onload = () => {
@@ -29,7 +29,7 @@ async function loadDashboardKoordinator() {
         
         const result = await res.json();
         
-        // --- BONGKAR LAYER OBJECT SECARA FAILSAFE (FIX UTAMA LOG CONSOLE RY) ---
+        // Bongkar layer object secara aman
         const rootData = result.data && result.data.koridors ? result.data : (result.data || result);
 
         if (!result.status) {
@@ -40,16 +40,12 @@ async function loadDashboardKoordinator() {
         // ==========================================
         // 1. FILTER DATA BERDASARKAN WILAYAH TUGAS
         // ==========================================
-        let filteredKoridors = [];
-        let allowedIDs = [];
+        let allowedIDs = wilayahAkses.split(",").map(id => id.trim().toLowerCase());
         const rawKoridors = rootData.koridors || [];
 
-        if (wilayahAkses.toLowerCase() === "all") {
-            filteredKoridors = rawKoridors;
-        } else {
-            allowedIDs = wilayahAkses.split(",").map(id => id.trim());
-            filteredKoridors = rawKoridors.filter(kor => allowedIDs.includes(String(kor.id)));
-        }
+        let filteredKoridors = wilayahAkses.toLowerCase() === "all" 
+            ? rawKoridors 
+            : rawKoridors.filter(kor => allowedIDs.includes(String(kor.id).toLowerCase()));
 
         // ==========================================
         // 2. HITUNG RINGKASAN (SUMMARY CARDS)
@@ -70,12 +66,24 @@ async function loadDashboardKoordinator() {
         document.getElementById("totalPerangkat").innerText = totalA;
 
         // ==========================================
-        // 3. RENDER DATA KE PANEL LAYAR
+        // 3. RENDER DATA ENGINEER (FUZZY LOGIC FILTER RY!)
         // ==========================================
         const rawEngineers = rootData.engineers || [];
+        
         const filteredEngineers = wilayahAkses.toLowerCase() === "all" 
             ? rawEngineers 
-            : rawEngineers.filter(eng => allowedIDs.includes(String(eng.koridor_tugas)));
+            : rawEngineers.filter(eng => {
+                // Bersihkan teks koridor tugas dari spasi berlebih
+                let tugas = String(eng.koridor_tugas).toLowerCase().trim();
+                
+                // Cek apakah ada kecocokan yang fleksibel (Toleransi teks "Koridor 1", "K1", "1")
+                return allowedIDs.some(id => {
+                    return tugas === id || 
+                           tugas === `koridor ${id}` || 
+                           tugas === `k${id}` || 
+                           tugas.includes(id);
+                });
+            });
             
         renderEngineers(filteredEngineers);
         renderKoridor(filteredKoridors);
@@ -99,7 +107,7 @@ function renderEngineers(list) {
     
     if (!list || list.length === 0) {
         html = `<div class="bg-white dark:bg-[#132247]/40 p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 text-center backdrop-blur-sm">
-                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
+                    <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
                 </div>`;
     } else {
         list.forEach(eng => {
@@ -189,7 +197,6 @@ function renderHalteChildRows(haltes, koridorId) {
         const isDone = h.status === "SELESAI";
         const pinIndicator = isDone ? "🟢" : "🔴";
         
-        // DETEKSI GANDA VARIABEL SINKRON: total_perangkat atau total_alat ok
         const jumlahAlatTerdata = h.total_perangkat !== undefined ? h.total_perangkat : (h.total_alat || 0);
         
         const totalOff = parseInt(h.total_off || 0);
