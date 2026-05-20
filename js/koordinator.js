@@ -1,6 +1,6 @@
 /**
  * KOORDINATOR DASHBOARD ENGINE - ULTRA PREMIUM EXECUTIVE VERSION
- * Version: Minimalist Interactive Pins & Clean Layout Overhaul (No More Overlapping Badges Ry)
+ * Version: Strict Target Mapping, Failsafe Multi-Variable Receiver & Dynamic Link Parameter Sender
  */
 
 window.onload = () => {
@@ -94,8 +94,8 @@ function renderEngineers(list) {
     let html = "";
     
     if (!list || list.length === 0) {
-        html = `<div class="bg-white dark:bg-[#132247]/40 p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 text-center backdrop-blur-sm">
-                    <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
+        html = `<div class="bg-white p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-slate-800 text-center backdrop-blur-sm">
+                    <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Tidak ada engineer aktif di wilayah Anda</p>
                 </div>`;
     } else {
         list.forEach(eng => {
@@ -127,7 +127,7 @@ function renderEngineers(list) {
     container.innerHTML = html;
 }
 
-// ================= RENDER KORIDOR ACCORDION SYSTEM Ry =================
+// ================= RENDER KORIDOR ACCORDION SYSTEM =================
 function renderKoridor(list) {
     const container = document.getElementById("koridorList");
     let html = "";
@@ -174,7 +174,7 @@ function renderKoridor(list) {
     container.innerHTML = html;
 }
 
-// UPGRADE ULTRA PREMIUM: Mengganti badge teks kaku dengan visual Smart Reactive Pins Ry!
+// ================= RENDER ROWS HALTE ANAK (FAILSAFE FIXED MULTI-VARIABLE Ry) =================
 function renderHalteChildRows(haltes, koridorId) {
     if (!haltes || haltes.length === 0) {
         return `<p class="text-[10px] font-bold text-slate-400 text-center py-2 uppercase">Belum ada halte terdaftar</p>`;
@@ -183,22 +183,28 @@ function renderHalteChildRows(haltes, koridorId) {
     let rowsHtml = "";
     haltes.forEach(h => {
         const isDone = h.status === "SELESAI";
-        // Jika selesai kasih pin hijau (🟢), jika belum/proses kasih pin merah (🔴)
         const pinIndicator = isDone ? "🟢" : "🔴";
+        
+        // AMBIL VARIABEL DENGAN METODE TINGKAT TINGGI: total_perangkat ok, total_alat ok, fallback 0 ok
+        const jumlahAlatTerdata = h.total_perangkat !== undefined ? h.total_perangkat : (h.total_alat || 0);
         
         const totalOff = parseInt(h.total_off || 0);
         const offBadge = totalOff > 0 
             ? `<span class="bg-rose-100 text-rose-600 dark:bg-rose-950/60 dark:text-rose-400 text-[8px] font-black px-2 py-1 rounded-md animate-pulse">⚠️ ${totalOff} DOWN</span>` 
             : "";
 
+        // URL ENCODE DIKUNCI MATANG MULTI-KEY BERSAMA-SAMA
+        const finalId = h.id || h.halte_id;
+        const finalNama = h.nama_halte || h.nama;
+
         rowsHtml += `
-            <div onclick="window.location.href='halte-detail.html?halte_id=${h.id}&halte_nama=${encodeURIComponent(h.nama_halte)}&koridor_id=${koridorId}'"
+            <div onclick="window.location.href='halte-detail.html?halte_id=${finalId}&halte_nama=${encodeURIComponent(finalNama)}&koridor_id=${koridorId}'"
                 class="flex justify-between items-center bg-white dark:bg-[#111c3a]/50 p-3.5 rounded-2xl border border-slate-100 dark:border-slate-800/40 hover:border-[#0095DA] dark:hover:border-[#0095DA] cursor-pointer transition-all active:scale-[0.99] group">
                 <div class="flex items-center gap-3">
                     <span class="text-xs transition-transform group-hover:scale-125 duration-300">${pinIndicator}</span>
                     <div>
-                        <p class="text-xs font-black text-slate-700 dark:text-slate-200 group-hover:text-[#0095DA] transition-colors uppercase tracking-tight">${h.nama_halte}</p>
-                        <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-0.5 uppercase">${h.total_perangkat || 0} Perangkat Terdata</p>
+                        <p class="text-xs font-black text-slate-700 dark:text-slate-200 group-hover:text-[#0095DA] transition-colors uppercase tracking-tight">${finalNama}</p>
+                        <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 mt-0.5 uppercase">${jumlahAlatTerdata} Perangkat Terdata</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2">
