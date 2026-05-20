@@ -1,21 +1,22 @@
 /**
- * HALTE DETAIL ENGINE - IT STOCK OPNAME
- * Final Fix: Dynamic Role Routing (Engineer vs Koordinator Protection)
+ * HALTE DETAIL ENGINE - IT STOCK OPNAME TRANSJAKARTA
+ * Final Ultra Premium Executive Version (Fix Stuck "Menghubungkan Halte...")
  */
 
+// 1. AMBIL PARAMETER URL DENGAN MEKANISME FAILSAFE MULTI-KEY Ry
 const urlParams = new URLSearchParams(window.location.search);
-const halte_id = urlParams.get("halte_id");
-const halte_nama = urlParams.get("halte_nama");
-const koridor_id = urlParams.get("koridor_id");
+let halte_id = urlParams.get("halte_id") || urlParams.get("id");
+let halte_nama = urlParams.get("halte_nama") || urlParams.get("nama");
+let koridor_id = urlParams.get("koridor_id") || urlParams.get("koridor");
 
-// Ambil data Role Akun yang sedang login saat ini Ry
+// Ambil data Role Akun yang sedang login saat ini Ry untuk pembatasan hak edit/hapus
 const USER_ROLE = (localStorage.getItem("role") || "").toLowerCase();
 
-// Global Variable untuk menampung data asli dari server
+// Global Variable penampung data aset dari server
 let perangkatList = [];
 let currentDeleteId = null; 
 
-// ================= DYNAMIC BACK BUTTON ROUTING Ry =================
+// ================= DYNAMIC BACK BUTTON ROUTING (ANTI-SALAH ROUTE Ry) =================
 function goBackDashboard() {
     if (USER_ROLE === "koordinator") {
         window.location.href = 'koordinator.html';
@@ -26,16 +27,35 @@ function goBackDashboard() {
     }
 }
 
-// Proteksi Awal: Jika ID tidak ada, paksa pulang sesuai role
+// Proteksi Awal: Jika ID parameter bener-bener kosong ghaib, paksa balik ke rumah masing-masing
 if (!halte_id) goBackDashboard();
 
+// ================= EXECUTE FIRST RENDER (ANTI-STUCK FIX RY!) =================
 window.onload = () => {
-    // Jalankan proteksi tampilan tombol aksi berdasarkan role koordinator
+    // Bersihkan data parameter dari spasi ghaib atau karakter url-encode
+    if (halte_id) halte_id = halte_id.trim();
+    if (halte_nama) halte_nama = decodeURIComponent(halte_nama).trim();
+    if (koridor_id) koridor_id = koridor_id.trim();
+
+    // TEMBEK LANGSUNG KE HTML BIAR ANTI-STUCK SEMENTARA LOADING BACKEND BERJALAN Ry
+    const elTitle = document.getElementById("halteTitle") || document.getElementById("halteTitleLabel");
+    const elKoridor = document.getElementById("koridorTitle") || document.getElementById("koridorTitleLabel");
+
+    if (elTitle && halte_nama) {
+        elTitle.innerHTML = halte_nama.toUpperCase();
+    }
+    if (elKoridor && koridor_id) {
+        elKoridor.innerHTML = "KORIDOR " + koridor_id;
+    }
+
+    // Jalankan proteksi tombol aksi (Sembunyikan tombol input jika yang buka koordinator)
     applyRoleVisibilityProtection();
+    
+    // Tarik data riil aset perangkat dari Google Sheets
     loadPerangkat();
 };
 
-// Sembunyikan fitur input jika yang masuk bukan engineer
+// Sembunyikan fitur input jika yang masuk bukan engineer (Read-Only Mode)
 function applyRoleVisibilityProtection() {
     const btnTambah = document.getElementById("btnTambahPerangkat");
     if (USER_ROLE !== "engineer") {
@@ -48,7 +68,7 @@ function goInput() {
         alert("Akses Ditolak: Hanya engineer lapangan yang dapat menambah data!");
         return;
     }
-    window.location.href = `stock-opname.html?halte_id=${halte_id}&halte_nama=${halte_nama}&koridor_id=${koridor_id}`;
+    window.location.href = `stock-opname.html?halte_id=${halte_id}&halte_nama=${encodeURIComponent(halte_nama)}&koridor_id=${koridor_id}`;
 }
 
 // ================= UNIFIED LOADING OVERLAY CONTROL =================
@@ -71,7 +91,7 @@ function hideLoading() {
     }
 }
 
-// ================= LOAD DATA =================
+// ================= LOAD DATA PERANGKAT DARI DATABASE =================
 async function loadPerangkat() {
     showLoading("Sinkronisasi Perangkat...");
     const sessionToken = localStorage.getItem("token");
@@ -89,16 +109,19 @@ async function loadPerangkat() {
         const data = await res.json();
         perangkatList = data.data || [];
 
+        // Update 3 kotak summary counter atas
         updateSummary(perangkatList);
+        
+        // Gelar kartu-kartu perangkat di dalam grid
         renderPerangkat(perangkatList);
 
         if (document.getElementById("loadingStatus")) {
             document.getElementById("loadingStatus").innerText = "Data Siap!";
         }
-        setTimeout(() => { hideLoading(); }, 600);
+        setTimeout(() => { hideLoading(); }, 500);
 
     } catch (err) {
-        console.error("Gagal load:", err);
+        console.error("Gagal load perangkat:", err);
         hideLoading();
     }
 }
@@ -115,7 +138,7 @@ function updateSummary(data) {
     if(document.getElementById("totalOff")) document.getElementById("totalOff").innerHTML = totalOff;
 }
 
-// ================= SEARCH & FILTER LOGIC =================
+// ================= LIVE SEARCH & FILTER LOGIC =================
 function filterPerangkat() {
     const keyword = document.getElementById("searchInput").value.toLowerCase().trim();
     const statusFilter = document.getElementById("filterStatus").value;
@@ -139,7 +162,7 @@ function filterPerangkat() {
     renderPerangkat(filteredData);
 }
 
-// ================= RENDER CARD HYBRID (WITH ROLE LOCK) =================
+// ================= RENDER CARD HYBRID (WITH ROLE LOCK PROTECTION) =================
 function renderPerangkat(dataList) {
     let html = "";
     const container = document.getElementById("tablePerangkat");
@@ -148,7 +171,7 @@ function renderPerangkat(dataList) {
         html = `
             <div class="col-span-full py-20 text-center">
                 <div class="text-5xl mb-4 opacity-20">🔍</div>
-                <p class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest text-xs">Data tidak ditemukan</p>
+                <p class="text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest text-xs">Belum ada perangkat terdata di halte ini</p>
             </div>`;
         container.innerHTML = html;
         return;
@@ -188,7 +211,7 @@ function renderPerangkat(dataList) {
                 </div>
 
                 <div class="${USER_ROLE === 'engineer' ? 'grid' : 'hidden'} grid-cols-2 border-t border-slate-100 dark:border-slate-800/40">
-                    <button onclick="window.location.href='stock-opname.html?edit=1&id=${item.opname_id}&halte_id=${halte_id}&halte_nama=${halte_nama}&koridor_id=${koridor_id}'" 
+                    <button onclick="window.location.href='stock-opname.html?edit=1&id=${item.opname_id}&halte_id=${halte_id}&halte_nama=${encodeURIComponent(halte_nama)}&koridor_id=${koridor_id}'" 
                         class="p-4 text-xs font-black text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-colors uppercase border-r border-slate-100 dark:border-slate-800/40">
                         Edit
                     </button>
@@ -202,14 +225,14 @@ function renderPerangkat(dataList) {
     container.innerHTML = html;
 }
 
-// ================= NATIVE MODAL TIMED CONTROL =================
+// ================= NATIVE SAFETY COUNTDOWN MODAL CONTROL =================
 function deletePerangkat(opnameId) {
     if (USER_ROLE !== "engineer") return;
     currentDeleteId = opnameId;
     
     document.getElementById("deleteModalIcon").innerText = "⚠️";
     document.getElementById("deleteModalTitle").innerText = "Hapus Perangkat?";
-    document.getElementById("deleteModalDesc").innerText = "Tindakan ini bersifat permanen. Data perangkat ini akan sepenuhnya dihapus dari sistem monitoring.";
+    document.getElementById("deleteModalDesc").innerText = "Tindakan ini bersifat permanen. Data perangkat ini akan sepenuhnya dihapus dari sistem monitoring pusat.";
     
     document.getElementById("deleteModalActions").innerHTML = `
         <button onclick="closeDeleteModal()" class="bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-300 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition-all active:scale-95">
@@ -299,8 +322,9 @@ async function executeDeleteRequest() {
     }
 }
 
+// ================= DRIVE IMAGE PREVIEW MODAL CONTROL =================
 function openPhoto(url) {
-    if (!url || url === "undefined" || url === "") { alert("Foto tidak tersedia."); return; }
+    if (!url || url === "undefined" || url === "") { alert("Foto fisik perangkat tidak tersedia."); return; }
     let fileId = "";
     if (url.includes("/d/")) fileId = url.split("/d/")[1].split("/")[0];
     else if (url.includes("id=")) fileId = url.split("id=")[1].split("&")[0];
