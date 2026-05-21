@@ -77,4 +77,44 @@
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
             <div class="bg-white dark:bg-[#0a1224] p-5 rounded-3xl border-y border-r border-slate-200 dark:border-slate-800 border-l-4 border-l-slate-700 dark:border-l-slate-400 shadow-sm card-hover"><p class="text-[9px] font-black text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1.5">Keseluruhan Halte</p><h2 id="totalHalte" class="text-3xl font-black text-slate-800 dark:text-white leading-none">0</h2></div>
             <div class="bg-white dark:bg-[#0a1224] p-5 rounded-3xl border-y border-r border-slate-200 dark:border-slate-800 border-l-4 border-l-emerald-500 shadow-sm card-hover"><p class="text-[9px] font-black text-emerald-600 dark:text-emerald-500 uppercase tracking-wider mb-1.5">Selesai Diperiksa</p><h2 id="halteSelesai" class="text-3xl font-black text-emerald-600 dark:text-emerald-400 leading-none">0</h2></div>
-            <div class="bg-white dark:bg-[#0a1224]
+            <div class="bg-white dark:bg-[#0a1224] p-5 rounded-3xl border-y border-r border-slate-200 dark:border-slate-800 border-l-4 border-l-amber-500 shadow-sm card-hover"><p class="text-[9px] font-black text-amber-600 dark:text-amber-500 uppercase tracking-wider mb-1.5">Total Aset Terdata</p><h2 id="totalPerangkat" class="text-3xl font-black text-amber-600 dark:text-amber-400 leading-none">0</h2></div>
+            <div class="bg-white dark:bg-[#0a1224] p-5 rounded-3xl border-y border-r border-slate-200 dark:border-slate-800 border-l-4 border-l-purple-500 shadow-sm card-hover"><p class="text-[9px] font-black text-purple-600 dark:text-purple-400 uppercase tracking-wider mb-1.5">Tim Lapangan Aktif</p><h2 id="totalTim" class="text-3xl font-black text-purple-600 dark:text-purple-400 leading-none">0</h2></div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <section class="lg:col-span-1 bg-white dark:bg-[#0a1224] p-5 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-md">
+                <div class="flex justify-between items-center mb-5 px-1 border-b border-slate-100 dark:border-slate-800/50 pb-3">
+                    <h2 class="text-xs font-black text-slate-700 dark:text-white uppercase tracking-widest">Struktur Tim</h2>
+                    <span class="text-[8px] font-bold bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 px-2 py-1 rounded border border-purple-200 dark:border-purple-800 uppercase tracking-wider">Grouped</span>
+                </div>
+                <div id="engineerList" class="space-y-3"></div>
+            </section>
+
+            <section class="lg:col-span-2 bg-white dark:bg-[#0a1224] p-5 rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-md">
+                <div class="flex justify-between items-center mb-5 px-1 border-b border-slate-100 dark:border-slate-800/50 pb-3">
+                    <h2 class="text-xs font-black text-slate-700 dark:text-white uppercase tracking-widest">Peta Wilayah Koridor</h2>
+                    <span class="text-[8px] font-bold bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400 px-2 py-1 rounded border border-cyan-200 dark:border-cyan-800 uppercase tracking-wider">Detail Area</span>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="koridorList"></div>
+            </section>
+        </div>
+    </main>
+
+    <div id="logoutModal" class="hidden fixed inset-0 z-[9999] bg-slate-900/60 dark:bg-[#050b14]/80 backdrop-blur-sm flex items-center justify-center p-4 transition-all opacity-0">
+        <div id="logoutModalContent" class="bg-white dark:bg-[#0a1224] rounded-[2rem] p-6 w-full max-w-xs border border-slate-200 dark:border-slate-800 shadow-2xl transform scale-95 transition-all duration-300">
+            <div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl shadow-inner border border-rose-200 dark:border-rose-800/50">👋</div>
+            <h3 class="text-center font-black text-slate-800 dark:text-white text-lg mb-1 uppercase tracking-tight">Akhiri Sesi?</h3>
+            <p class="text-center text-[10px] font-bold text-slate-500 dark:text-slate-400 mb-6 tracking-widest uppercase">Anda akan keluar dari Command Center.</p>
+            <div class="grid grid-cols-2 gap-3">
+                <button onclick="closeLogoutModal()" class="py-3 rounded-xl bg-slate-100 hover:bg-slate-200 dark:bg-[#111c3a] dark:hover:bg-[#1a294d] text-slate-600 dark:text-slate-300 font-black text-[10px] tracking-widest uppercase transition-colors active:scale-95 border border-slate-200 dark:border-slate-700">Batal</button>
+                <button onclick="executeLogout()" class="py-3 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black text-[10px] tracking-widest uppercase shadow-lg shadow-rose-500/20 transition-all active:scale-95">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/kasi.js"></script>
+</body>
+</html>
