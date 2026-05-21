@@ -1,10 +1,10 @@
 /**
  * STOCK OPNAME ENGINE - ULTRA FOOLPROOF FINAL FIX
- * Version: Internal Anti-Blank Guard, Premium Success Modal & PIS Single-Halte Auto Arah
+ * Version: Internal Anti-Blank Guard, Premium Loading Sync & PIS Single-Halte Auto Arah Ry
  */
 
 let masterPerangkat = [];
-let currentHalteData = null; // FIX Ry: Simpan data halte secara global agar bisa dibaca fungsi kategori
+let currentHalteData = null; 
 
 const urlParams = new URLSearchParams(window.location.search);
 const halteId = urlParams.get("halte_id");
@@ -25,11 +25,12 @@ window.onload = async () => {
     hideLoading();
 };
 
+// ================= PREMIUM LOADING OVERLAY CONTROL =================
 function showLoading(txt) {
     const ov = document.getElementById("loadingOverlay");
     if (ov) { 
-        ov.classList.add('loading-active'); 
-        ov.style.setProperty('display', 'flex', 'important'); 
+        // Hapus class slide-up agar overlay turun lagi (kalau dipanggil ulang saat nyimpan data)
+        ov.classList.remove('overlay-slide-up'); 
     }
     if (document.getElementById("loadingStatus")) {
         document.getElementById("loadingStatus").innerText = txt;
@@ -39,8 +40,8 @@ function showLoading(txt) {
 function hideLoading() {
     const ov = document.getElementById("loadingOverlay");
     if (ov) { 
-        ov.classList.remove('loading-active'); 
-        ov.style.setProperty('display', 'none', 'important'); 
+        // Pasang class slide-up agar overlay naik dengan mulus
+        ov.classList.add('overlay-slide-up'); 
     }
 }
 
@@ -49,13 +50,12 @@ function checkArahVisibility() {
     if (!currentHalteData) return;
     
     const kategoriValue = document.getElementById("kategori").value.toUpperCase();
-    const isPIS = kategoriValue.includes("PIS"); // Deteksi kata "PIS"
+    const isPIS = kategoriValue.includes("PIS"); 
     const isDual = currentHalteData.tipe_halte?.toLowerCase() === "dual";
     
     const arahContainer = document.getElementById("arahContainer");
     const arahPerangkat = document.getElementById("arahPerangkat");
     
-    // Jika tipe halte dual ATAU kategori mengandung kata PIS, munculkan arah
     if (isDual || isPIS) {
         if (arahContainer) arahContainer.classList.remove("hidden");
         
@@ -64,14 +64,12 @@ function checkArahVisibility() {
             if (currentHalteData.arah_a) options += `<option value="${currentHalteData.arah_a}">${currentHalteData.arah_a}</option>`;
             if (currentHalteData.arah_b) options += `<option value="${currentHalteData.arah_b}">${currentHalteData.arah_b}</option>`;
             
-            // Jaga-jaga kalau di Google Sheets halte single arah_a/b kosong, kasih fallback aman
             if (!currentHalteData.arah_a && !currentHalteData.arah_b) {
                 options += `<option value="Arah Jalur">Arah Jalur Utama</option>`;
             }
             arahPerangkat.innerHTML = options;
         }
     } else {
-        // Sembunyikan dan kosongkan jika tidak memenuhi syarat
         if (arahContainer) arahContainer.classList.add("hidden");
         if (arahPerangkat) arahPerangkat.value = "";
     }
@@ -208,7 +206,6 @@ function changeKategori() {
     
     document.getElementById("merkModel").innerHTML = `<option value="">Pilih Merk / Model</option>`;
     
-    // Pemicu pengecekan arah ketika kategori diubah oleh user Ry
     checkArahVisibility();
 }
 
@@ -227,11 +224,10 @@ async function loadHalteDetail() {
     const res = await fetch(API_URL, { method: "POST", body: JSON.stringify({ action: "getHalteDetail", token: localStorage.getItem("token"), halte_id: halteId }) });
     const r = await res.json();
     if (r.status) {
-        currentHalteData = r.data; // FIX: Simpan ke variabel global
+        currentHalteData = r.data; 
         document.getElementById("infoKoridor").innerHTML = `Koridor ${currentHalteData.koridor_id}`;
         document.getElementById("infoHalte").innerHTML = currentHalteData.nama_halte;
         
-        // Cek visibilitas arah saat awal halaman di-load
         checkArahVisibility();
     }
 }
@@ -273,4 +269,36 @@ function previewImage(event) {
         }
     };
     reader.readAsDataURL(f);
+}
+
+// ================= PREMIUM MODAL LOGOUT CONTROL =================
+function showLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    const content = document.getElementById('logoutModalContent');
+    if(modal && content) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }, 10);
+    } else {
+        executeLogout(); 
+    }
+}
+
+function closeLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    const content = document.getElementById('logoutModalContent');
+    if(modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+}
+
+function executeLogout() {
+    localStorage.clear();
+    window.location.href = "index.html";
 }
