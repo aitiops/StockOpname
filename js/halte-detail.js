@@ -1,6 +1,6 @@
 /**
  * HALTE DETAIL ENGINE - IT STOCK OPNAME TRANSJAKARTA
- * Final Ultra Premium Executive Version (Fix Stuck "Menghubungkan Halte...")
+ * Final Ultra Premium Executive Version (Sync Overlay & Modal Ry)
  */
 
 // 1. AMBIL PARAMETER URL DENGAN MEKANISME FAILSAFE MULTI-KEY Ry
@@ -20,8 +20,8 @@ let currentDeleteId = null;
 function goBackDashboard() {
     if (USER_ROLE === "koordinator") {
         window.location.href = 'koordinator.html';
-    } else if (USER_ROLE === "kasi") {
-        window.location.href = 'kasi.html';
+    } else if (USER_ROLE === "kasie" || USER_ROLE === "kasi") {
+        window.location.href = 'kasie.html';
     } else {
         window.location.href = 'engineer.html';
     }
@@ -30,16 +30,16 @@ function goBackDashboard() {
 // Proteksi Awal: Jika ID parameter bener-bener kosong ghaib, paksa balik ke rumah masing-masing
 if (!halte_id) goBackDashboard();
 
-// ================= EXECUTE FIRST RENDER (ANTI-STUCK FIX RY!) =================
+// ================= EXECUTE FIRST RENDER =================
 window.onload = () => {
     // Bersihkan data parameter dari spasi ghaib atau karakter url-encode
     if (halte_id) halte_id = halte_id.trim();
     if (halte_nama) halte_nama = decodeURIComponent(halte_nama).trim();
     if (koridor_id) koridor_id = koridor_id.trim();
 
-    // TEMBEK LANGSUNG KE HTML BIAR ANTI-STUCK SEMENTARA LOADING BACKEND BERJALAN Ry
-    const elTitle = document.getElementById("halteTitle") || document.getElementById("halteTitleLabel");
-    const elKoridor = document.getElementById("koridorTitle") || document.getElementById("koridorTitleLabel");
+    // TEMBAK LANGSUNG KE HTML BIAR ANTI-STUCK SEMENTARA LOADING BACKEND BERJALAN Ry
+    const elTitle = document.getElementById("halteTitle");
+    const elKoridor = document.getElementById("koridorTitle");
 
     if (elTitle && halte_nama) {
         elTitle.innerHTML = halte_nama.toUpperCase();
@@ -48,14 +48,13 @@ window.onload = () => {
         elKoridor.innerHTML = "KORIDOR " + koridor_id;
     }
 
-    // Jalankan proteksi tombol aksi (Sembunyikan tombol input jika yang buka koordinator)
+    // Jalankan proteksi tombol aksi
     applyRoleVisibilityProtection();
     
     // Tarik data riil aset perangkat dari Google Sheets
     loadPerangkat();
 };
 
-// Sembunyikan fitur input jika yang masuk bukan engineer (Read-Only Mode)
 function applyRoleVisibilityProtection() {
     const btnTambah = document.getElementById("btnTambahPerangkat");
     if (USER_ROLE !== "engineer") {
@@ -68,15 +67,14 @@ function goInput() {
         alert("Akses Ditolak: Hanya engineer lapangan yang dapat menambah data!");
         return;
     }
-    window.location.href = `stock-opname.html?halte_id=${halte_id}&halte_nama=${encodeURIComponent(halte_nama)}&koridor_id=${koridor_id}`;
+    window.location.href = `stockopname.html?halte_id=${halte_id}&halte_nama=${encodeURIComponent(halte_nama)}&koridor_id=${koridor_id}`;
 }
 
-// ================= UNIFIED LOADING OVERLAY CONTROL =================
+// ================= UNIFIED LOADING OVERLAY CONTROL (UPGRADE) =================
 function showLoading(txt) {
     const ov = document.getElementById("loadingOverlay");
     if (ov) { 
-        ov.classList.add('loading-active'); 
-        ov.style.setProperty('display', 'flex', 'important'); 
+        ov.classList.remove('overlay-slide-up', 'opacity-0', 'invisible');
     }
     if (document.getElementById("loadingStatus")) {
         document.getElementById("loadingStatus").innerText = txt;
@@ -86,8 +84,7 @@ function showLoading(txt) {
 function hideLoading() {
     const ov = document.getElementById("loadingOverlay");
     if (ov) { 
-        ov.classList.remove('loading-active'); 
-        ov.style.setProperty('display', 'none', 'important'); 
+        ov.classList.add('overlay-slide-up');
     }
 }
 
@@ -109,10 +106,7 @@ async function loadPerangkat() {
         const data = await res.json();
         perangkatList = data.data || [];
 
-        // Update 3 kotak summary counter atas
         updateSummary(perangkatList);
-        
-        // Gelar kartu-kartu perangkat di dalam grid
         renderPerangkat(perangkatList);
 
         if (document.getElementById("loadingStatus")) {
@@ -162,7 +156,7 @@ function filterPerangkat() {
     renderPerangkat(filteredData);
 }
 
-// ================= RENDER CARD HYBRID (WITH ROLE LOCK PROTECTION) =================
+// ================= RENDER CARD HYBRID =================
 function renderPerangkat(dataList) {
     let html = "";
     const container = document.getElementById("tablePerangkat");
@@ -211,7 +205,7 @@ function renderPerangkat(dataList) {
                 </div>
 
                 <div class="${USER_ROLE === 'engineer' ? 'grid' : 'hidden'} grid-cols-2 border-t border-slate-100 dark:border-slate-800/40">
-                    <button onclick="window.location.href='stock-opname.html?edit=1&id=${item.opname_id}&halte_id=${halte_id}&halte_nama=${encodeURIComponent(halte_nama)}&koridor_id=${koridor_id}'" 
+                    <button onclick="window.location.href='stockopname.html?edit=1&id=${item.opname_id}&halte_id=${halte_id}&halte_nama=${encodeURIComponent(halte_nama)}&koridor_id=${koridor_id}'" 
                         class="p-4 text-xs font-black text-amber-500 hover:bg-amber-50 dark:hover:bg-amber-950/20 transition-colors uppercase border-r border-slate-100 dark:border-slate-800/40">
                         Edit
                     </button>
@@ -225,7 +219,7 @@ function renderPerangkat(dataList) {
     container.innerHTML = html;
 }
 
-// ================= NATIVE SAFETY COUNTDOWN MODAL CONTROL =================
+// ================= DELETE MODAL CONTROL =================
 function deletePerangkat(opnameId) {
     if (USER_ROLE !== "engineer") return;
     currentDeleteId = opnameId;
@@ -337,4 +331,36 @@ function openPhoto(url) {
 function closePhoto() {
     document.getElementById("modalIframe").src = "";
     document.getElementById("photoModal").classList.replace("flex", "hidden");
+}
+
+// ================= PREMIUM MODAL LOGOUT CONTROL =================
+function showLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    const content = document.getElementById('logoutModalContent');
+    if(modal && content) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }, 10);
+    } else {
+        executeLogout(); 
+    }
+}
+
+function closeLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    const content = document.getElementById('logoutModalContent');
+    if(modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+}
+
+function executeLogout() {
+    localStorage.clear();
+    window.location.href = "index.html";
 }
