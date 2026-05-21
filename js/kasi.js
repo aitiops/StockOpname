@@ -1,6 +1,6 @@
 /**
- * KASI DASHBOARD ENGINE - ULTRA PREMIUM EXECUTIVE
- * Version: Global Scope, Progress Visualizer, & Premium Modal Control
+ * KASI DASHBOARD ENGINE - SOLID VISUAL UPGRADE RY
+ * Version: High Contrast, Sharp Borders, Anti-Monotony
  */
 
 window.onload = () => {
@@ -36,7 +36,6 @@ async function loadDashboardKasi() {
         const koridors = rootData.koridors || [];
         const engineers = rootData.engineers || [];
 
-        // CALCULATE GLOBAL METRICS
         let totalH = 0, selesaiH = 0, totalA = 0;
         koridors.forEach(k => {
             totalH += parseInt(k.total_halte || 0);
@@ -46,13 +45,11 @@ async function loadDashboardKasi() {
 
         const globalProgress = totalH > 0 ? Math.round((selesaiH / totalH) * 100) : 0;
 
-        // INJECT METRICS
         document.getElementById("totalHalte").innerText = totalH;
         document.getElementById("halteSelesai").innerText = selesaiH;
         document.getElementById("totalPerangkat").innerText = totalA;
         document.getElementById("totalTim").innerText = engineers.length;
         
-        // MASTER PROGRESS BAR
         document.getElementById("globalProgress").innerText = globalProgress + "%";
         setTimeout(() => {
             document.getElementById("globalProgressBar").style.width = globalProgress + "%";
@@ -73,36 +70,44 @@ async function loadDashboardKasi() {
     }
 }
 
-// RENDER TIM GABUNGAN (KOORDINATOR & ENGINEER)
+// RENDER TIM GABUNGAN - SOLID CARDS
 function renderEngineers(list) {
     const container = document.getElementById("engineerList");
     let html = "";
     
     if (!list || list.length === 0) {
-        html = `<div class="bg-white dark:bg-[#0c162d]/40 p-10 rounded-[2rem] border border-dashed border-slate-200 dark:border-cyan-900/30 text-center">
+        html = `<div class="bg-white dark:bg-[#0a1224] p-10 rounded-3xl border border-dashed border-slate-300 dark:border-slate-700 text-center">
                     <p class="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Tidak ada data tim</p>
                 </div>`;
     } else {
         list.forEach(tim => {
             const isKoor = tim.role.toLowerCase() === 'koordinator';
-            const badgeColor = isKoor ? 'bg-purple-100 text-purple-600 dark:bg-purple-900/30 dark:text-purple-400' : 'bg-cyan-100 text-cyan-600 dark:bg-cyan-900/30 dark:text-cyan-400';
+            
+            // Warna Badge Status
+            const badgeBg = isKoor ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 border-purple-200 dark:border-purple-800' 
+                                   : 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800';
+            
+            // Warna Icon Kiri
+            const iconBg = isKoor ? 'bg-purple-500 text-white shadow-purple-500/30' 
+                                  : 'bg-slate-100 dark:bg-[#111c3a] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700';
             const icon = isKoor ? '👑' : '👷';
             
+            // BACKGROUND PUTIH SOLID DI LIGHT MODE, BIRU PEKAT DI DARK MODE
             html += `
-                <div class="bg-white dark:bg-[#0c162d]/60 p-4 rounded-3xl border border-slate-200/60 dark:border-slate-800 hover:border-cyan-500/50 transition-all shadow-sm">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 bg-slate-100 dark:bg-[#070d19] rounded-2xl flex items-center justify-center text-lg shadow-inner border border-transparent dark:border-slate-800">${icon}</div>
-                        <div class="flex-grow">
-                            <h3 class="font-black text-slate-800 dark:text-white text-xs uppercase leading-tight">${tim.nama}</h3>
-                            <div class="flex gap-2 mt-1">
-                                <span class="text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider ${badgeColor}">${tim.role}</span>
-                                <span class="text-[8px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">KOR: ${tim.koridor_tugas || '-'}</span>
-                            </div>
+                <div class="bg-white dark:bg-[#0a1224] p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md shadow-slate-200/50 dark:shadow-none transition-all hover:border-cyan-500/50 dark:hover:border-cyan-700 card-hover flex items-center gap-4">
+                    <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-inner border ${iconBg} shrink-0">
+                        ${icon}
+                    </div>
+                    <div class="flex-grow">
+                        <h3 class="font-black text-slate-800 dark:text-white text-sm uppercase leading-tight">${tim.nama}</h3>
+                        <div class="flex flex-wrap gap-2 mt-1.5">
+                            <span class="text-[8px] font-black px-2 py-0.5 rounded border uppercase tracking-wider ${badgeBg}">${tim.role}</span>
+                            <span class="text-[8px] font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-[#111c3a] border border-slate-200 dark:border-slate-700 px-2 py-0.5 rounded uppercase tracking-wider">KOR: ${tim.koridor_tugas || '-'}</span>
                         </div>
-                        <div class="text-right">
-                            <span class="text-base font-black text-slate-700 dark:text-white">${tim.selesai || 0}</span>
-                            <p class="text-[7px] font-black text-slate-400 dark:text-cyan-500 uppercase tracking-widest">Aset</p>
-                        </div>
+                    </div>
+                    <div class="text-right border-l border-slate-100 dark:border-slate-800 pl-4 shrink-0">
+                        <span class="text-xl font-black text-slate-800 dark:text-white">${tim.selesai || 0}</span>
+                        <p class="text-[8px] font-black text-slate-400 dark:text-cyan-500 uppercase tracking-widest mt-0.5">Aset</p>
                     </div>
                 </div>`;
         });
@@ -110,7 +115,7 @@ function renderEngineers(list) {
     container.innerHTML = html;
 }
 
-// RENDER KORIDOR GRID (EXECUTIVE VIEW)
+// RENDER KORIDOR GRID - SEPARATED HEADER CARDS
 function renderKoridor(list) {
     const container = document.getElementById("koridorList");
     let html = "";
@@ -125,35 +130,38 @@ function renderKoridor(list) {
         const totalAlat = kor.total_perangkat || 0;
         const totalHalte = kor.total_halte || 0;
         
+        // KARTU DENGAN HEADER TERPISAH (Biar gak monoton!)
         html += `
-            <div class="bg-white dark:bg-[#0c162d]/60 p-5 rounded-3xl border border-slate-200/60 dark:border-slate-800 shadow-sm hover:shadow-cyan-500/10 hover:border-cyan-500/30 transition-all relative overflow-hidden group">
-                <div class="absolute -right-6 -top-6 w-20 h-20 bg-cyan-500/5 blur-2xl rounded-full group-hover:bg-cyan-500/10 transition-all"></div>
-                <div class="flex justify-between items-start mb-4">
-                    <div class="w-10 h-10 bg-slate-800 dark:bg-cyan-950/50 text-white dark:text-cyan-400 rounded-xl flex items-center justify-center font-black text-sm shadow-md border border-transparent dark:border-cyan-800/50">
-                        ${kor.id}
+            <div class="bg-white dark:bg-[#0a1224] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md shadow-slate-200/50 dark:shadow-none hover:shadow-xl dark:hover:shadow-cyan-900/20 transition-all card-hover flex flex-col overflow-hidden">
+                
+                <div class="bg-slate-50 dark:bg-[#111c3a] p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 bg-slate-800 dark:bg-cyan-950 text-white dark:text-cyan-400 rounded-lg flex items-center justify-center font-black text-xs shadow-md border border-transparent dark:border-cyan-800">
+                            ${kor.id}
+                        </div>
+                        <h3 class="text-[10px] font-black text-slate-600 dark:text-slate-300 uppercase tracking-widest">Jalur Koridor ${kor.id}</h3>
                     </div>
-                    <div class="text-right">
-                        <span class="text-lg font-black text-slate-800 dark:text-white">${prog}%</span>
+                    <span class="text-base font-black text-cyan-600 dark:text-cyan-400">${prog}%</span>
+                </div>
+                
+                <div class="p-5 flex-grow flex flex-col justify-center">
+                    <div class="w-full bg-slate-100 dark:bg-[#050b14] h-2 rounded-full overflow-hidden shadow-inner mb-5 border border-slate-200 dark:border-slate-800">
+                        <div class="bg-cyan-500 h-full transition-all duration-1000" style="width: ${prog}%"></div>
+                    </div>
+                    
+                    <div class="flex justify-between items-center px-2">
+                        <div>
+                            <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Total Halte</p>
+                            <p class="text-sm font-black text-slate-700 dark:text-slate-200">${kor.selesai} <span class="text-[10px] text-slate-400 font-bold">/ ${totalHalte}</span></p>
+                        </div>
+                        <div class="w-px h-8 bg-slate-200 dark:bg-slate-800 mx-2"></div>
+                        <div class="text-right">
+                            <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Aset Valid</p>
+                            <p class="text-sm font-black text-emerald-600 dark:text-emerald-400">${totalAlat}</p>
+                        </div>
                     </div>
                 </div>
                 
-                <h3 class="text-[10px] font-black text-slate-400 dark:text-cyan-500/70 uppercase tracking-widest mb-3">Jalur Koridor ${kor.id}</h3>
-                
-                <div class="w-full bg-slate-100 dark:bg-slate-800/50 h-1.5 rounded-full overflow-hidden shadow-inner mb-4">
-                    <div class="bg-cyan-500 h-full transition-all duration-1000" style="width: ${prog}%"></div>
-                </div>
-                
-                <div class="flex justify-between items-center pt-3 border-t border-slate-100 dark:border-slate-800/50">
-                    <div class="text-center">
-                        <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Halte</p>
-                        <p class="text-xs font-black text-slate-700 dark:text-slate-300">${kor.selesai}/${totalHalte}</p>
-                    </div>
-                    <div class="w-px h-6 bg-slate-200 dark:bg-slate-800"></div>
-                    <div class="text-center">
-                        <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-0.5">Aset Valid</p>
-                        <p class="text-xs font-black text-cyan-600 dark:text-cyan-400">${totalAlat}</p>
-                    </div>
-                </div>
             </div>`;
     });
     container.innerHTML = html;
@@ -165,14 +173,12 @@ function showLogoutModal() {
     const content = document.getElementById('logoutModalContent');
     if(modal && content) {
         modal.classList.remove('hidden');
-        // Sedikit delay untuk trigger animasi pop-up CSS Tailwind
         setTimeout(() => {
             modal.classList.remove('opacity-0');
             content.classList.remove('scale-95');
             content.classList.add('scale-100');
         }, 10);
     } else {
-        // Fallback aman kalau modal gak nemu
         executeLogout();
     }
 }
