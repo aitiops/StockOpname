@@ -1,6 +1,6 @@
 /**
  * KASI DASHBOARD ENGINE - ULTRA PREMIUM EXECUTIVE
- * Version: Global Scope, Progress Visualizer, & Failsafe Mapping
+ * Version: Global Scope, Progress Visualizer, & Premium Modal Control
  */
 
 window.onload = () => {
@@ -125,7 +125,6 @@ function renderKoridor(list) {
         const totalAlat = kor.total_perangkat || 0;
         const totalHalte = kor.total_halte || 0;
         
-        // Modal Target ID buat Kasi (bisa dikembangkan nanti kalau mau dibikin modal detail)
         html += `
             <div class="bg-white dark:bg-[#0c162d]/60 p-5 rounded-3xl border border-slate-200/60 dark:border-slate-800 shadow-sm hover:shadow-cyan-500/10 hover:border-cyan-500/30 transition-all relative overflow-hidden group">
                 <div class="absolute -right-6 -top-6 w-20 h-20 bg-cyan-500/5 blur-2xl rounded-full group-hover:bg-cyan-500/10 transition-all"></div>
@@ -160,9 +159,36 @@ function renderKoridor(list) {
     container.innerHTML = html;
 }
 
-function logout() {
-    if(confirm("Logout dari aplikasi monitoring eksekutif?")) {
-        localStorage.clear();
-        window.location.href = "index.html";
+// ================= PREMIUM MODAL CONTROL =================
+function showLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    const content = document.getElementById('logoutModalContent');
+    if(modal && content) {
+        modal.classList.remove('hidden');
+        // Sedikit delay untuk trigger animasi pop-up CSS Tailwind
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }, 10);
+    } else {
+        // Fallback aman kalau modal gak nemu
+        executeLogout();
     }
+}
+
+function closeLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    const content = document.getElementById('logoutModalContent');
+    if(modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+}
+
+function executeLogout() {
+    localStorage.clear();
+    window.location.href = "index.html";
 }
