@@ -257,3 +257,28 @@ input[type="password"].tj-input::placeholder {
     0% { background-position: 200% 0; }
     100% { background-position: -200% 0; }
 }
+
+/* =======================================================
+   STANDARISASI LOADING OVERLAY & MODAL (GLOBAL)
+======================================================= */
+.loading-overlay { 
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.77, 0, 0.175, 1), visibility 0.5s; 
+}
+.overlay-slide-up { 
+    transform: translateY(-100%); 
+    opacity: 0; 
+    visibility: hidden; 
+}
+
+/* CUSTOM SLOW SPIN BIAR ELEGAN */
+.slow-spin { 
+    animation: spin 2.5s linear infinite; 
+}
+@keyframes spin { 
+    100% { transform: rotate(360deg); } 
+}
+
+/* EFEK GLOW EXECUTIVE & HOVER CARD */
+.executive-glow { box-shadow: 0 10px 30px -10px rgba(0, 212, 255, 0.3); }
+.card-hover:hover { transform: translateY(-4px); box-shadow: 0 15px 30px -10px rgba(0,0,0,0.1); }
+.dark .card-hover:hover { box-shadow: 0 15px 30px -10px rgba(0, 212, 255, 0.1); }
