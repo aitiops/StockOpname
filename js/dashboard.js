@@ -1,6 +1,6 @@
 /**
  * ENGINEER DASHBOARD ENGINE - IT STOCK OPNAME
- * Version: Ultra Strict Search & Anti-Crash Failsafe
+ * Version: Ultra Strict Search, Premium Overlay, & Modal Logout Standard
  */
 
 window.onload = () => {
@@ -19,11 +19,11 @@ async function loadDashboardEngineer() {
     const overlay = document.getElementById("loadingOverlay");
     const token = localStorage.getItem("token");
 
+    // Kembalikan visibilitas kalau direfresh
     if (overlay) {
-        overlay.classList.add('loading-active');
-        overlay.style.display = 'flex';
+        overlay.classList.remove('overlay-slide-up', 'opacity-0', 'invisible');
     }
-    if (statusEl) statusEl.innerText = "Sinkronisasi Data...";
+    if (statusEl) statusEl.innerText = "Sinkronisasi Data Lapangan...";
 
     try {
         // A. Ambil Summary Stats
@@ -40,7 +40,7 @@ async function loadDashboardEngineer() {
         }
 
         // B. Ambil List Semua Halte untuk Accordion
-        if (statusEl) statusEl.innerText = "Menyusun Koridor...";
+        if (statusEl) statusEl.innerText = "Menyusun Data Koridor...";
         const resHalte = await fetch(API_URL, {
             method: "POST",
             body: JSON.stringify({ action: "getHalte", token: token })
@@ -53,12 +53,12 @@ async function loadDashboardEngineer() {
 
     } catch (err) {
         console.error("Gagal Sinkronisasi Dashboard:", err);
-        if (statusEl) statusEl.innerText = "Gagal Memuat Data";
+        if (statusEl) statusEl.innerText = "Gagal Memuat Data. Periksa Koneksi.";
     } finally {
         setTimeout(() => {
             if (overlay) {
-                overlay.classList.remove('loading-active');
-                overlay.style.setProperty('display', 'none', 'important');
+                // Gunakan animasi slide-up bawaan CSS yang elegan
+                overlay.classList.add('overlay-slide-up');
             }
         }, 800);
     }
@@ -76,7 +76,6 @@ function renderAccordion(listHalte) {
         return;
     }
 
-    // Grouping halte berdasarkan koridor_id
     let koridorMap = {};
     listHalte.forEach(item => {
         if (!koridorMap[item.koridor_id]) koridorMap[item.koridor_id] = [];
@@ -133,14 +132,13 @@ function renderAccordion(listHalte) {
 }
 
 // ========================================================
-// 3. ULTRA FOOLPROOF SEARCH ENGINE (ROW-DRIVEN SELECTION)
+// 3. ULTRA FOOLPROOF SEARCH ENGINE
 // ========================================================
 function filterHalteManual() {
     const input = document.getElementById('searchHalte').value.toLowerCase().trim();
     const allRows = document.querySelectorAll('.halte-row');
     const accordions = document.querySelectorAll('.accordion-item');
 
-    // Tahap 1: Saring baris haltenya dulu satu per satu
     allRows.forEach(row => {
         const text = row.innerText.toLowerCase();
         if (input === "" || text.includes(input)) {
@@ -152,17 +150,14 @@ function filterHalteManual() {
         }
     });
 
-    // Tahap 2: Sembunyikan Box Koridor yang di dalamnya gak ada halte yang lolos filter
     accordions.forEach(acc => {
         const contentContainer = acc.querySelector('.accordion-content');
         
         if (input === "") {
-            // Jika input kosong, tampilkan semua koridor (posisi tertutup semula)
             acc.style.setProperty('display', 'block', 'important');
             acc.classList.remove('hidden', 'accordion-active');
             if (contentContainer) contentContainer.style.removeProperty('display');
         } else {
-            // Hitung manual baris halte yang aktif (tidak disembunyikan) di dalam koridor ini
             let countVisibleHalte = 0;
             const innerRows = acc.querySelectorAll('.halte-row');
             
@@ -173,13 +168,11 @@ function filterHalteManual() {
             });
 
             if (countVisibleHalte > 0) {
-                // JIKA COCOK: Tampilkan box koridor & paksa mekar isinya!
                 acc.style.setProperty('display', 'block', 'important');
                 acc.classList.remove('hidden');
                 acc.classList.add('accordion-active');
                 if (contentContainer) contentContainer.style.setProperty('display', 'block', 'important');
             } else {
-                // JIKA TIDAK COCOK: Lenyapkan total koridor dari layar!
                 acc.style.setProperty('display', 'none', 'important');
                 acc.classList.add('hidden');
                 acc.classList.remove('accordion-active');
@@ -192,4 +185,38 @@ function filterHalteManual() {
 function toggleAccordion(id) {
     const el = document.getElementById(id);
     if (el) el.classList.toggle('accordion-active');
+}
+
+// ========================================================
+// 4. PREMIUM MODAL LOGOUT CONTROL
+// ========================================================
+function showLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    const content = document.getElementById('logoutModalContent');
+    if(modal && content) {
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            content.classList.remove('scale-95');
+            content.classList.add('scale-100');
+        }, 10);
+    } else {
+        executeLogout(); 
+    }
+}
+
+function closeLogoutModal() {
+    const modal = document.getElementById('logoutModal');
+    const content = document.getElementById('logoutModalContent');
+    if(modal && content) {
+        modal.classList.add('opacity-0');
+        content.classList.remove('scale-100');
+        content.classList.add('scale-95');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+}
+
+function executeLogout() {
+    localStorage.clear();
+    window.location.href = "index.html";
 }
