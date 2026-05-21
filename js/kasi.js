@@ -79,12 +79,12 @@ async function loadDashboardKasi() {
                     welcomeStage.classList.remove('opacity-0');
                 }, 50);
 
-                // 4. Biarkan Kasi membaca namanya yang megah selama 1.8 detik, lalu luncurkan overlay ke atas
+                // 4. Biarkan Kasi membaca namanya yang megah selama 3 detik, lalu luncurkan overlay ke atas
                 setTimeout(() => {
                     if (overlay) {
                         overlay.classList.add('overlay-slide-up');
                     }
-                }, 1800);
+                }, 3000);
             } else {
                 // Fallback instan jika element htmlnya bermasalah
                 if (overlay) overlay.classList.add('overlay-slide-up');
