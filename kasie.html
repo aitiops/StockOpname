@@ -25,20 +25,22 @@
 </head>
 <body class="bg-slate-100 text-slate-800 dark:bg-[#050b14] dark:text-slate-100 min-h-screen pb-10 selection:bg-cyan-500 selection:text-white">
 
-    <div id="loadingOverlay" class="fixed inset-0 flex flex-col items-center justify-center bg-[#050b14] z-[999] loading-overlay">
+    <div id="loadingOverlay" class="fixed inset-0 flex flex-col items-center justify-center bg-slate-100 dark:bg-[#050b14] z-[999] loading-overlay">
         
         <div id="spinnerStage" class="flex flex-col items-center justify-center transition-all duration-300">
-            <div class="loader border-t-cyan-400 w-14 h-14 border-4 rounded-full slow-spin"></div> 
-            <p class="text-cyan-400 font-black tracking-widest uppercase mt-4 text-[10px] animate-pulse">Mengamankan Jalur Data...</p>
+            <div class="loader border-t-cyan-500 dark:border-t-cyan-400 w-14 h-14 border-4 rounded-full slow-spin"></div> 
+            <p class="text-cyan-600 dark:text-cyan-400 font-black tracking-widest uppercase mt-4 text-[10px] animate-pulse">Mengamankan Jalur Data...</p>
         </div>
 
         <div id="welcomeStage" class="hidden flex flex-col items-center justify-center text-center opacity-0 transition-opacity duration-700 px-6">
             <div class="w-20 h-20 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl flex items-center justify-center text-3xl shadow-xl shadow-cyan-500/20 mb-5 animate-bounce">
                 👑
             </div>
-            <p class="text-cyan-400 font-black text-[10px] tracking-[0.3em] uppercase mb-1">Access Granted • Command Center</p>
-            <h2 class="text-white font-black text-2xl tracking-tight uppercase leading-tight">Selamat Datang,</h2>
-            <h2 id="welcomeNama" class="bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent font-black text-3xl tracking-tight uppercase mt-1">Eksekutif</h2>
+            <p class="text-cyan-600 dark:text-cyan-400 font-black text-[10px] tracking-[0.3em] uppercase mb-1">Access Granted • Command Center</p>
+            
+            <h2 class="text-slate-800 dark:text-white font-black text-2xl tracking-tight uppercase leading-tight">Selamat Datang,</h2>
+            
+            <h2 id="welcomeNama" class="bg-gradient-to-r from-cyan-500 to-blue-600 dark:from-cyan-400 dark:to-blue-400 bg-clip-text text-transparent font-black text-3xl tracking-tight uppercase mt-1">Eksekutif</h2>
         </div>
 
     </div>
