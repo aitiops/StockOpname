@@ -66,7 +66,7 @@ async function loadDashboardKasi() {
                 welcomeNama.innerText = namaKasi;
                 welcomeStage.classList.remove('hidden');
                 setTimeout(() => welcomeStage.classList.remove('opacity-0'), 50);
-                setTimeout(() => { if (overlay) overlay.classList.add('overlay-slide-up'); }, 1800);
+                setTimeout(() => { if (overlay) overlay.classList.add('overlay-slide-up'); }, 3000);
             } else {
                 if (overlay) overlay.classList.add('overlay-slide-up');
             }
