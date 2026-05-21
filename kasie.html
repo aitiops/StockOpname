@@ -17,6 +17,10 @@
         /* TRANSISI GRADUAL UNTUK OVERLAY */
         .loading-overlay { transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.77, 0, 0.175, 1), visibility 0.5s; }
         .overlay-slide-up { transform: translateY(-100%); opacity: 0; visibility: hidden; }
+        
+        /* CUSTOM SLOW SPIN BIAR ELEGAN */
+        .slow-spin { animation: spin 2.5s linear infinite; }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 dark:bg-[#050b14] dark:text-slate-100 min-h-screen pb-10 selection:bg-cyan-500 selection:text-white">
@@ -24,7 +28,7 @@
     <div id="loadingOverlay" class="fixed inset-0 flex flex-col items-center justify-center bg-[#050b14] z-[999] loading-overlay">
         
         <div id="spinnerStage" class="flex flex-col items-center justify-center transition-all duration-300">
-            <div class="loader border-t-cyan-400 w-14 h-14 border-4 rounded-full animate-spin"></div> 
+            <div class="loader border-t-cyan-400 w-14 h-14 border-4 rounded-full slow-spin"></div> 
             <p class="text-cyan-400 font-black tracking-widest uppercase mt-4 text-[10px] animate-pulse">Mengamankan Jalur Data...</p>
         </div>
 
