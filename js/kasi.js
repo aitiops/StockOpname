@@ -1,6 +1,6 @@
 /**
- * KASI DASHBOARD ENGINE - SOLID VISUAL UPGRADE RY
- * Version: High Contrast, Sharp Borders, Anti-Monotony
+ * KASI DASHBOARD ENGINE - TWO-STAGE EXECUTIVE WELCOME RY
+ * Version: High Contrast Card, Smart Welcome Transition Timer & Smooth Sliding Overlay
  */
 
 window.onload = () => {
@@ -13,12 +13,12 @@ window.onload = () => {
 
 async function loadDashboardKasi() {
     const overlay = document.getElementById("loadingOverlay");
+    const spinnerStage = document.getElementById("spinnerStage");
+    const welcomeStage = document.getElementById("welcomeStage");
+    const welcomeNama = document.getElementById("welcomeNama");
+    
     const token = localStorage.getItem("token");
-
-    if (overlay) {
-        overlay.classList.add('loading-active');
-        overlay.style.display = 'flex';
-    }
+    const namaKasi = localStorage.getItem("nama") || "Kepala Seksi";
 
     try {
         const res = await fetch(API_URL, {
@@ -30,12 +30,15 @@ async function loadDashboardKasi() {
 
         if (!result.status) {
             console.error("Gagal ambil data:", result.message);
+            // Tetap buka overlay biar ga stuck kalau error
+            if (overlay) overlay.classList.add('overlay-slide-up');
             return;
         }
 
         const koridors = rootData.koridors || [];
         const engineers = rootData.engineers || [];
 
+        // HAK ASES METRIK GLOBAL
         let totalH = 0, selesaiH = 0, totalA = 0;
         koridors.forEach(k => {
             totalH += parseInt(k.total_halte || 0);
@@ -45,6 +48,7 @@ async function loadDashboardKasi() {
 
         const globalProgress = totalH > 0 ? Math.round((selesaiH / totalH) * 100) : 0;
 
+        // GELAR DATA KE SISI FRONTEND (DI BELAKANG LAYAR OVERLAY)
         document.getElementById("totalHalte").innerText = totalH;
         document.getElementById("halteSelesai").innerText = selesaiH;
         document.getElementById("totalPerangkat").innerText = totalA;
@@ -58,19 +62,42 @@ async function loadDashboardKasi() {
         renderEngineers(engineers);
         renderKoridor(koridors);
 
+        // =========================================================
+        // TIMING TRANSISI DAN SAMBUTAN PREMIUM DARI IDE LO RY!
+        // =========================================================
+        setTimeout(() => {
+            if (spinnerStage && welcomeStage && welcomeNama) {
+                // 1. Sembunyikan roda putar biasa
+                spinnerStage.classList.add('hidden');
+                
+                // 2. Suntik nama Kasi ke papan sambutan
+                welcomeNama.innerText = namaKasi;
+                
+                // 3. Gelar panggung sambutan & buat dia fade-in mulus
+                welcomeStage.classList.remove('hidden');
+                setTimeout(() => {
+                    welcomeStage.classList.remove('opacity-0');
+                }, 50);
+
+                // 4. Biarkan Kasi membaca namanya yang megah selama 1.8 detik, lalu luncurkan overlay ke atas
+                setTimeout(() => {
+                    if (overlay) {
+                        overlay.classList.add('overlay-slide-up');
+                    }
+                }, 1800);
+            } else {
+                // Fallback instan jika element htmlnya bermasalah
+                if (overlay) overlay.classList.add('overlay-slide-up');
+            }
+        }, 400); // Penundaan awal biar putaran data pertamanya berasa real
+
     } catch (err) {
         console.error("Gagal Sinkronisasi Kasi:", err);
-    } finally {
-        setTimeout(() => {
-            if (overlay) {
-                overlay.classList.remove('loading-active');
-                overlay.style.setProperty('display', 'none', 'important');
-            }
-        }, 800);
+        if (overlay) overlay.classList.add('overlay-slide-up');
     }
 }
 
-// RENDER TIM GABUNGAN - SOLID CARDS
+// RENDER TIM GABUNGAN - SOLID VIEW
 function renderEngineers(list) {
     const container = document.getElementById("engineerList");
     let html = "";
@@ -82,17 +109,12 @@ function renderEngineers(list) {
     } else {
         list.forEach(tim => {
             const isKoor = tim.role.toLowerCase() === 'koordinator';
-            
-            // Warna Badge Status
             const badgeBg = isKoor ? 'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300 border-purple-200 dark:border-purple-800' 
                                    : 'bg-cyan-100 text-cyan-700 dark:bg-cyan-900/50 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800';
-            
-            // Warna Icon Kiri
             const iconBg = isKoor ? 'bg-purple-500 text-white shadow-purple-500/30' 
                                   : 'bg-slate-100 dark:bg-[#111c3a] text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700';
             const icon = isKoor ? '👑' : '👷';
             
-            // BACKGROUND PUTIH SOLID DI LIGHT MODE, BIRU PEKAT DI DARK MODE
             html += `
                 <div class="bg-white dark:bg-[#0a1224] p-4 rounded-2xl border border-slate-200 dark:border-slate-800 shadow-md shadow-slate-200/50 dark:shadow-none transition-all hover:border-cyan-500/50 dark:hover:border-cyan-700 card-hover flex items-center gap-4">
                     <div class="w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-inner border ${iconBg} shrink-0">
@@ -130,10 +152,8 @@ function renderKoridor(list) {
         const totalAlat = kor.total_perangkat || 0;
         const totalHalte = kor.total_halte || 0;
         
-        // KARTU DENGAN HEADER TERPISAH (Biar gak monoton!)
         html += `
             <div class="bg-white dark:bg-[#0a1224] rounded-3xl border border-slate-200 dark:border-slate-800 shadow-md shadow-slate-200/50 dark:shadow-none hover:shadow-xl dark:hover:shadow-cyan-900/20 transition-all card-hover flex flex-col overflow-hidden">
-                
                 <div class="bg-slate-50 dark:bg-[#111c3a] p-4 border-b border-slate-200 dark:border-slate-800 flex justify-between items-center">
                     <div class="flex items-center gap-3">
                         <div class="w-8 h-8 bg-slate-800 dark:bg-cyan-950 text-white dark:text-cyan-400 rounded-lg flex items-center justify-center font-black text-xs shadow-md border border-transparent dark:border-cyan-800">
@@ -143,12 +163,10 @@ function renderKoridor(list) {
                     </div>
                     <span class="text-base font-black text-cyan-600 dark:text-cyan-400">${prog}%</span>
                 </div>
-                
                 <div class="p-5 flex-grow flex flex-col justify-center">
                     <div class="w-full bg-slate-100 dark:bg-[#050b14] h-2 rounded-full overflow-hidden shadow-inner mb-5 border border-slate-200 dark:border-slate-800">
                         <div class="bg-cyan-500 h-full transition-all duration-1000" style="width: ${prog}%"></div>
                     </div>
-                    
                     <div class="flex justify-between items-center px-2">
                         <div>
                             <p class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-1">Total Halte</p>
@@ -161,7 +179,6 @@ function renderKoridor(list) {
                         </div>
                     </div>
                 </div>
-                
             </div>`;
     });
     container.innerHTML = html;
